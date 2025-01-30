@@ -1,0 +1,45 @@
+@import url(./fonts.css);
+
+
+.footer{
+    box-sizing: border-box;
+    padding: 2vw;
+    width: 100vw;
+    height: auto;
+    background-color: var(--back-footer);
+    color: var(--banner-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+.column{
+    display: flex;
+    flex-direction: column;
+}
+.column h2{
+    margin: .5vw auto;
+    font-size: 1vw;
+    font-weight: 500;
+}
+.column a{
+    text-decoration: none;
+    margin-top: 0.3vw;
+    font-size: .9vw;
+    color: var(--banner-color);
+}
+
+.logo-foot{
+    font-family: opensans;
+    letter-spacing: -.15vw;
+    font-weight: 700;
+    color: var(--banner-color);
+    font-size: 3vw;
+    text-decoration: none;
+}
+.logo-foot span{
+    color: rgb(23, 255, 189);
+}
+.logo-foot span::before{
+    content: '/ ';
+    color: red;
+}

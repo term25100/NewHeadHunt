@@ -1,0 +1,23 @@
+@font-face {
+    font-family: opensans;
+    src: url(../Fonts/OpenSans.ttf);
+}
+@font-face {
+    font-family: vinir;
+    src: url(../Fonts/veneer-two.ttf);
+}
+@font-face {
+    font-family: narrow;
+    src: url(../Fonts/arialnarrow.ttf);
+}
+
+:root{
+    --primary-color: #071351;
+    --back-footer: #071351;
+    --back-search:rgba(0, 0, 255, 0.2);
+    --headings-color: #0F151B;
+    --span-menu-link-color: white;
+    --banner-color: white;
+    --company-color-back: #e9e9e9;
+    --vacations-back:#F8F8F8;
+}
