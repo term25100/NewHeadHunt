@@ -4,7 +4,11 @@ import LocationFinder from '../../location'
 export function Banner(){
         const [setUser] = useState('');
         const handleLocationChange = (location) => {
-        setUser.Location(location);
+        try{
+            setUser.Location(location);
+        }catch(error){
+            console.error('Ошибка при обновлении местоположения:', error);
+        }
     };
     return(
         <div className="container">

@@ -116,7 +116,7 @@
     margin: 0 .5vw;
     width: 2vw;
     height: 2vw;
-    background-color: var(--search-back);
+    background-color: transparent;
     background-image: url(../Images/Icons/target.png);
     background-size: cover;
 }

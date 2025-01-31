@@ -1,6 +1,16 @@
 import './search.css'
-
+import { useState } from 'react'
+import LocationFinder from '../../location'
 export function Search(){
+        const [setUser] = useState('');
+        const handleLocationChange = (location) => {
+        try{
+            setUser.Location(location);
+        }catch(error){
+            console.error('Ошибка при обновлении местоположения:', error);
+        }
+        
+    };
     return(
         <div className="vacancy-search">
             <div className="main-container">
@@ -12,8 +22,7 @@ export function Search(){
                     <div className="location-search">
                         <label htmlFor="location">Место работы:</label>
                         <div className="location-container">
-                            <input type="text" placeholder='Введите город'/>
-                            <button className='search-scope'></button>
+                            <LocationFinder onLocationChange={handleLocationChange}/>
                             <button className='submit-search'>Найти работу</button>
                             <a href="#" className='search-link'>Вакансии {'➜'}</a>
                         </div>
