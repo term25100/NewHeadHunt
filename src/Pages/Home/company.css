@@ -70,6 +70,9 @@
     background-size: contain;
     background-repeat: no-repeat;
 }
+.c7{
+    background-image: url(../Images/CompanyLogo/diol.svg);
+}
 .company-heading{
     margin: 0 auto;
     width: 35vw;

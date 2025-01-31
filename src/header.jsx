@@ -6,7 +6,7 @@ export function Header(){
                 <a href="/" className="logo">Head <span>Hunt</span></a>
                 <nav className="menu">
                     <a href="/vacancy" className="menu-link">Вакансии</a>
-                    <a href="#" className="menu-link">Анкеты</a> 
+                    <a href="/profiles" className="menu-link">Анкеты</a> 
                     <a href="#" className="menu-link">Развитие карьеры</a>
                     <div className="divide"></div>   
                     <a href="#" className="menu-link">Вы рекрут? <span className='special'>Разместите вакансию</span></a>

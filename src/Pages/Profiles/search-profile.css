@@ -1,0 +1,59 @@
+@import url(../Home/fonts.css);
+@import url(../../App.css);
+
+.profile-search{
+    width: 100vw;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: 1vw;
+    margin-top: 3.5vw;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    background-color: var(--back-search);
+}
+.flex-box-profiles{
+    width: 90%;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.location-search-profiles{
+    display: flex;
+    flex-direction: column;
+    margin-left: 2vw;
+}
+.location-search-profiles label{
+    font-weight: 650;
+    margin-bottom: .5vw;
+    font-size: .9vw;
+}
+.location-search-profiles input{
+    background-color: transparent;
+    border: .1vw solid var(--primary-color);
+    color: var(--primary-color);
+    box-sizing: border-box;
+    padding: .5vw;
+    width: 25vw;
+    height: 2vw;
+    border-radius: .3vw;
+    font-size: .8vw;
+}
+
+.submit-search-profiles{
+    width: 12vw;
+    font-size: 1vw;
+    font-weight: 700;
+    color: var(--primary-color);
+    border: none;
+    height: 2vw;
+    border-radius: .5em;
+    background-color: var(--banner-back);
+    transition: all 0.6s ease-out;
+}
+.submit-search-profiles:hover{
+    background-color: #d400aa;
+    color: rgb(238, 238, 238);
+}

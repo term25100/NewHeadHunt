@@ -174,43 +174,6 @@ export function Vacations(){
                             <div className="vacation-info">
                                 <div className="info">
                                     <p className="modificate">Продвинуто: Head / Hunt</p>
-                                    <a href="" className='name-vac'>Программист Java</a>
-                                    <p className='post-message'>Размещено <span id='date'>19 декабря</span> компанией <span><a href="#" id='company'>Диол</a></span></p>
-                                    <div className="descriptions">
-                                        <div className="descript-flex">
-                                            <div className="description">
-                                                <img src={require('../Images/Icons/ruble.png')} className='descript-image' alt="" />
-                                                <p id='salary-description'>70000 - 120000 рублей в месяц</p>
-                                            </div>
-                                            <div className="description">
-                                                <img src={require('../Images/Icons/location.png')} className='descript-image' alt="" />
-                                                <p id='location-description'>Тула. ул.Тургеневская улица, 48А</p>
-                                            </div>
-                                        </div>
-                                        <div className="descript-flex">
-                                            <div className="description">
-                                                <img src={require('../Images/Icons/clock.png')} className='descript-image' alt="" />
-                                                <p id='time-description'>Полный рабочий день</p>
-                                            </div>
-                                            <div className="description">
-                                                <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
-                                                <p id='location-description'>Офис, работа на дому</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <p className='hidden-descript'></p>
-                                    <button className='detailed'>Подробнее {'>'}</button>
-                                </div>
-                                <div className="like">
-                                    <button></button>
-                                    <div className="company-logo company1"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="vacation-wrap vac-active">
-                            <div className="vacation-info">
-                                <div className="info">
-                                    <p className="modificate">Продвинуто: Head / Hunt</p>
                                     <a href="" className='name-vac'>Веб-дизайнер</a>
                                     <p className='post-message'>Размещено <span id='date'>19 декабря</span> компанией <span><a href="#" id='company'>Диол</a></span></p>
                                     <div className="descriptions">
@@ -352,6 +315,117 @@ export function Vacations(){
                                 <div className="like">
                                     <button></button>
                                     <div className="company-logo company2"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="vacation-wrap">
+                            <div className="vacation-info">
+                                <div className="info">
+                                    <p className="modificate inactive">Продвинуто: Head / Hunt</p>
+                                    <a href="" className='name-vac'>Охранник</a>
+                                    <p className='post-message'>Размещено <span id='date'>15 января</span> компанией <span><a href="#" id='company'>Sber</a></span></p>
+                                    <div className="descriptions">
+                                        <div className="descript-flex">
+                                            <div className="description">
+                                                <img src={require('../Images/Icons/ruble.png')} className='descript-image' alt="" />
+                                                <p id='salary-description'>50000 - 70000 рублей в месяц</p>
+                                            </div>
+                                            <div className="description">
+                                                <img src={require('../Images/Icons/location.png')} className='descript-image' alt="" />
+                                                <p id='location-description'>Тула. Красноармейский просп. 9</p>
+                                            </div>
+                                        </div>
+                                        <div className="descript-flex">
+                                            <div className="description">
+                                                <img src={require('../Images/Icons/clock.png')} className='descript-image' alt="" />
+                                                <p id='time-description'>Полный рабочий день</p>
+                                            </div>
+                                            <div className="description">
+                                                <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
+                                                <p id='location-description'>Офис</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p className='hidden-descript'></p>
+                                    <button className='detailed'>Подробнее {'>'}</button>
+                                </div>
+                                <div className="like">
+                                    <button></button>
+                                    <div className="company-logo company2"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="vacation-wrap">
+                            <div className="vacation-info">
+                                <div className="info">
+                                    <p className="modificate inactive">Продвинуто: Head / Hunt</p>
+                                    <a href="" className='name-vac'>Пиццайола</a>
+                                    <p className='post-message'>Размещено <span id='date'>17 декабря</span> компанией <span><a href="#" id='company'>Dodo Pizza</a></span></p>
+                                    <div className="descriptions">
+                                        <div className="descript-flex">
+                                            <div className="description">
+                                                <img src={require('../Images/Icons/ruble.png')} className='descript-image' alt="" />
+                                                <p id='salary-description'>70000 - 100000 рублей в месяц</p>
+                                            </div>
+                                            <div className="description">
+                                                <img src={require('../Images/Icons/location.png')} className='descript-image' alt="" />
+                                                <p id='location-description'>Тула. Просп. Ленина 96</p>
+                                            </div>
+                                        </div>
+                                        <div className="descript-flex">
+                                            <div className="description">
+                                                <img src={require('../Images/Icons/clock.png')} className='descript-image' alt="" />
+                                                <p id='time-description'>Полный рабочий день</p>
+                                            </div>
+                                            <div className="description">
+                                                <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
+                                                <p id='location-description'>Заведение</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p className='hidden-descript'></p>
+                                    <button className='detailed'>Подробнее {'>'}</button>
+                                </div>
+                                <div className="like">
+                                    <button></button>
+                                    <div className="company-logo c4"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="vacation-wrap">
+                            <div className="vacation-info">
+                                <div className="info">
+                                    <p className="modificate inactive">Продвинуто: Head / Hunt</p>
+                                    <a href="" className='name-vac'>Оператор тех-поддержки</a>
+                                    <p className='post-message'>Размещено <span id='date'>20 февраля</span> компанией <span><a href="#" id='company'>MTS</a></span></p>
+                                    <div className="descriptions">
+                                        <div className="descript-flex">
+                                            <div className="description">
+                                                <img src={require('../Images/Icons/ruble.png')} className='descript-image' alt="" />
+                                                <p id='salary-description'>65000 - 80000 рублей в месяц</p>
+                                            </div>
+                                            <div className="description">
+                                                <img src={require('../Images/Icons/location.png')} className='descript-image' alt="" />
+                                                <p id='location-description'>Тула. Просп. Ленина 96</p>
+                                            </div>
+                                        </div>
+                                        <div className="descript-flex">
+                                            <div className="description">
+                                                <img src={require('../Images/Icons/clock.png')} className='descript-image' alt="" />
+                                                <p id='time-description'>Полный рабочий день</p>
+                                            </div>
+                                            <div className="description">
+                                                <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
+                                                <p id='location-description'>Офис, работа на дому</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p className='hidden-descript'></p>
+                                    <button className='detailed'>Подробнее {'>'}</button>
+                                </div>
+                                <div className="like">
+                                    <button></button>
+                                    <div className="company-logo c5"></div>
                                 </div>
                             </div>
                         </div>

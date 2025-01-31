@@ -1,0 +1,104 @@
+@import url(../Home/fonts.css);
+@import url(../../App.css);
+
+.profiles{
+    width: 45vw;   
+    margin: 0 2vw;
+    margin-top: 4vw;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+.head-profiles{
+    width: 100%;
+    box-sizing: border-box;
+    padding: .5vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.head-profiles a{
+    text-decoration: none;
+    box-sizing: border-box;
+    padding: .5vw;
+    border: .15vw solid var(--primary-color);
+    border-radius: .3vw;
+    color: var(--primary-color);
+    font-size: .9vw;
+    font-weight: 550;
+    background-color: white;
+    transition: all .5s ease-out;
+}
+.head-profiles a:hover{
+    background-color: rgba(0, 0, 255, 0.07);
+}
+.head-profiles p{
+    font-size: 1vw;
+    font-weight: 800;
+}
+
+.profiles-scrollblock{
+    width: 100%;
+    height: 70vw;
+    box-sizing: border-box;
+    padding: .8vw;
+    overflow-y: scroll;
+    scrollbar-width: .3vw;
+    scrollbar-color: #D1DBE3 transparent;
+}
+
+.profiles-wrap{
+    width: 100%;
+    height: auto;
+    margin: 1.5vw 0;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: space-between;
+    background-color: white;
+    border-radius: .5vw;
+    border: .1vw solid rgb(128, 128, 128);
+}
+.profile-active{
+    background-color: rgb(255, 0, 234);
+}
+
+.profile-info{
+    width: 99.5%;
+    margin-left: .5%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 1vw;
+    display: flex;
+    justify-content: space-between;
+    background-color: white;
+    border-radius: .4vw;
+}
+.name-profile{
+    font-size: 1.5vw;
+    font-weight: 800;
+    color: blue;
+}
+
+.profile-info:hover .name-profile{
+    color: var(--primary-color);
+}
+
+.profile-photo{
+    border: .1vw solid rgba(128, 128, 128, 0.658);
+    border-radius: .5vw;     
+    background-size: 85%;
+    background-repeat: no-repeat;
+    background-position: center;
+    margin-right:.5vw;
+    margin-top: 1vw;
+    width: 9vw;
+    height: 10vw;
+    transition: all .5s ease-out;
+    background-image: url(../Images/user.png);
+}
+
+.p1{
+    background-image: url(../Images/Peoples/sergei.webp);
+}
+
