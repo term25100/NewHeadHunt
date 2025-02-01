@@ -102,3 +102,13 @@
     background-image: url(../Images/Peoples/sergei.webp);
 }
 
+.experiance{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    background-color: white;
+    box-sizing: border-box;
+    padding: .5vw 2vw;
+    border: .1vw solid rgba(128, 128, 128, 0.39);
+    border-top: none;
+}

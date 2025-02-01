@@ -81,6 +81,25 @@ export function Profiles(){
                             <option className='select-option' value="option3">Последняя неделя</option>
                         </select>
                     </div>
+                    <div className="experiance">
+                        <h1>Опыт работы</h1>
+                        <div className="dont-show-type">
+                            <input className='checker' type="checkbox" />
+                            <p>Без опыта работы <span>{'(1000)'}</span></p>
+                        </div>
+                        <div className="dont-show-type">
+                            <input className='checker' type="checkbox" />
+                            <p>От 1 года <span>{'(1,162)'}</span></p>
+                        </div>
+                        <div className="dont-show-type">
+                            <input className='checker' type="checkbox" />
+                            <p>От 3 лет <span>{'(7,162)'}</span></p>
+                        </div>
+                        <div className="dont-show-type">
+                            <input className='checker' type="checkbox" />
+                            <p>От 6 лет и выше <span>{'(3,162)'}</span></p>
+                        </div>
+                    </div>
                     <div className="specialty">
                         <h1>Специальность</h1>
                         <div className='scroll-view'>
