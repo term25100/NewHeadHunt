@@ -92,9 +92,15 @@
     color: var(--headings-color);
 }
 
-.company-heading a{
-    margin: 1vw auto;
-    margin-right: 26.9vw;
+.comBut{
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: flex-start;
+}
+
+.comBut a{
+    margin: 1vw 0;
     box-sizing: border-box;
     padding: .2vw;
     text-decoration: none;
@@ -106,6 +112,6 @@
     border-radius: .25em;
     transition: all 0.5s ease-out;
 }
-.company-heading a:hover{
+.comBut a:hover{
     background-color: rgba(0, 0, 255, 0.09);
 }

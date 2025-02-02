@@ -15,7 +15,9 @@ export function Company(){
                 <div className='company-heading'>
                     <h1>Найдите роботу которая вам понравится на нашем сайте</h1>
                     <p>Ваша карьерная лестница может начаться в одной из компаний лидеров.</p>
-                    <a href="#">Все компании</a>
+                    <div className='comBut'>
+                        <a href="#">Все компании</a>
+                    </div>
                 </div>
             </div>
         </div>
