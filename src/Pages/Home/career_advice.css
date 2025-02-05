@@ -1,0 +1,135 @@
+@import url(./fonts.css);
+
+.advices_container{
+    width: 100vw;
+    height: auto;
+    box-sizing: border-box;
+    padding: 1vw;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.advices_container h1{
+    font-size: 2vw;
+    margin: 0;   
+}
+.advices{
+    width: 90%;
+    height: auto;
+    margin-top: 1vw;
+    display: flex;
+    justify-content: space-around;
+}
+
+.recruit_advice{
+    width: 35%;
+    height: auto;
+    box-sizing: border-box;
+    padding: .5vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: left;  
+}
+.recruit_advice h1{
+    font-size: 1.5vw;
+    margin-bottom: 1vw;
+    letter-spacing: -.1vw;
+}
+.recruit_advice p{
+    font-size: .85vw;
+}
+.image_rec{
+    width: 28vw;
+    height: 18vw;   
+    overflow: hidden;
+    background-image: url(../Images/recruit.webp);
+    background-size: cover;
+    background-repeat: no-repeat;
+    border-radius: .5vw;
+    border: .1vw solid rgba(0, 0, 0, 0.274);
+}
+.recruit_advice a{
+    width: fit-content;
+    text-align: center;
+    text-decoration: none;
+    box-sizing: border-box;
+    padding: .3vw;
+    font-size: 1vw;
+    font-weight: 600;
+    color: var(--primary-color);
+    border: .15vw solid var(--primary-color);
+    border-radius: .3vw;
+    transition: all .5s ease-out;
+}
+.recruit_advice a:hover{
+    background-color: var(--back-link);
+}
+
+.workers_container{
+    width: 50%;
+    display: flex;
+    height: auto;
+    flex-direction: column;
+    justify-content: left;
+    box-sizing: border-box;
+    padding: .5vw;
+}
+.workers_container h1{
+    font-size: 1.5vw;
+    margin-bottom: 1vw;
+    letter-spacing: -.1vw;
+}
+.workers_advices{
+    width: 100%;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;   
+}
+.advice{
+    width: 47%;
+    height: auto;
+    box-sizing: border-box;
+    padding: 1vw;
+    border: .1vw solid rgba(0, 0, 0, 0.247);   
+    border-radius: .5vw; 
+}
+.image_work1{
+    width: 100%;
+    height: 10vw;   
+    background-size: cover;
+    border: .5vw;
+    background-image: url(../Images/freelancer.webp);
+}
+
+.image_work2{
+    width: 100%;
+    height: 10vw;   
+    background-size: cover;
+    border: .5vw;
+    background-image: url(../Images/effiency.jpg);
+}
+
+.advice p{
+    font-size: .85vw;
+    font-weight: 520;   
+}
+.advice_button{
+    margin-top: 6vw;
+    display: block;
+    width: fit-content;
+    text-align: center;
+    text-decoration: none;
+    box-sizing: border-box;
+    padding: .3vw;
+    font-size: 1vw;
+    font-weight: 600;
+    color: var(--primary-color);
+    border: .15vw solid var(--primary-color);
+    border-radius: .3vw;
+    transition: all .5s ease-out;
+}
+.advice_button:hover{
+    background-color: var(--back-link);
+}
