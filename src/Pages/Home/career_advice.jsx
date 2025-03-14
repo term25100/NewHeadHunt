@@ -17,14 +17,14 @@ export function Career_Advice(){
                     <h1>Развитие вашей карьеры</h1>
                     <div className="workers_advices">
                         <div className="advice">
-                            <div className="image_work1">
+                            <div className="rounded image_work1">
 
                             </div>
                             <p>Создай свою первую анкету и найди работу мечты</p>
                             <a className='advice_button' href="#">Создать анкету</a>
                         </div>
                         <div className="advice">
-                            <div className="image_work2">
+                            <div className="rounded image_work2">
                                 
                             </div>
                             <p>Научись работать и получать от этого удовольствие</p>

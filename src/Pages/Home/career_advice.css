@@ -95,19 +95,18 @@
     border: .1vw solid rgba(0, 0, 0, 0.247);   
     border-radius: .5vw; 
 }
-.image_work1{
+.rounded{
     width: 100%;
-    height: 10vw;   
-    background-size: cover;
+    height: 10vw;
     border: .5vw;
+    border-radius: .5vw;
+    background-size: cover;
+}
+.image_work1{
     background-image: url(../Images/freelancer.webp);
 }
 
 .image_work2{
-    width: 100%;
-    height: 10vw;   
-    background-size: cover;
-    border: .5vw;
     background-image: url(../Images/effiency.jpg);
 }
 
