@@ -11,7 +11,7 @@ export function Header(){
                     <div className="divide"></div>   
                     <a href="#" className="menu-link">Вы рекрут? <span className='special'>Разместите вакансию</span></a>
                     <a href="#" className="menu-reg">Регистрация</a>
-                    <a href="#" className="menu-link">Вход</a>
+                    <a href="/sign_in" className="menu-link">Вход</a>
                     <a href="#" className="menu-link">Избранное  <span className='img'></span></a>
                 </nav>
             </div>

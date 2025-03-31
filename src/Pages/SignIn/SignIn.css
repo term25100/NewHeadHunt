@@ -1,0 +1,123 @@
+@import url(../Home/fonts.css);
+@import url(../../App.css);
+
+.background{
+   width: 100vw;
+   height: 100vh;
+   display: flex;
+   flex-direction: column;
+   background-image: url(../Images/Background/MS.jpg);
+   background-position: center;
+   background-size: cover;
+   background-repeat: no-repeat;
+}
+.main_frame{
+    width: 55%;
+    height: 50%;
+    display: flex;
+    margin: 0 auto;
+    margin-top: 13%;
+    box-shadow: 0px 0px 35px 14px rgba(0, 0, 0, 0.2);
+}
+.login_frame{
+    width: 75%;
+    display: flex;
+    justify-content: space-between;
+    box-sizing: border-box;
+    padding-top: 1vw;
+    padding-left: 2vw;
+    height: 100%;
+    background-color: rgba(240, 255, 255, 0.822);
+    backdrop-filter: blur(10px);
+    color: var(--headings-color);
+
+}
+.login_frame h1{
+    font-size: 1.85vw;
+}
+.login_frame label{
+    font-size: .95vw;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.808);
+}
+.login_frame input{
+    margin-top: .5vw;   
+    width: 23vw;
+    height: 3vw;
+    box-sizing: border-box;
+    padding: .7vw;
+    font-size: 1vw;
+    color: var(--primary-color);
+    text-decoration: none;
+    border: .1vw solid rgba(0, 0, 0, 0.349);
+    outline: none;
+    border-radius: .2vw;
+    background-color: transparent;
+}
+.login_button{
+    margin-top: 3vw;
+    text-decoration: none;
+    width: 12vw;
+    height: 3vw;    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary-color);
+    color: var(--banner-background);
+    font-size: 1vw;
+    font-weight: 600;
+}
+.login_button:hover{
+    background-color: #071351e1;
+}
+.login_wrapper{
+    display: flex;
+    flex-direction: column;
+}
+
+.close{
+    width: 1.5vw;
+    height: 1.5vw;
+    margin-right: 1vw;
+    background-image: url(../Images/Icons/close-button2.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
+
+.prereg_frame{
+    width: 40%;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 1vw;
+    color: var(--banner-background);
+    background-color: rgba(0, 0, 0, 0.788);
+    backdrop-filter: blur(10px);
+}
+.prereg_frame h1{
+    font-size: 1.85vw;
+}
+.prereg_frame p{
+    margin: 0;
+    margin-top: 1.8vw;
+    font-size: .8vw;
+}
+.prereg_button{
+    display: flex;
+    width: 12vw;
+    height: 3vw;
+    margin-top: 3vw;    
+    background-color: transparent;
+    text-decoration: none;
+    align-items: center;
+    justify-content: center;
+    color: var(--banner-background);
+    font-size: 1vw;
+    font-weight: 600;
+    border: .15vw solid var(--banner-background);
+    transition: all ease-out .7s;
+}
+.prereg_button:hover{
+    scale: 1.05;
+}
+

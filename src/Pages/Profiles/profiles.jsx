@@ -182,92 +182,178 @@ export function Profiles(){
                     <div className="profiles-scrollblock">
                     <div className="profiles-wrap profile-active">
                             <div className="profile-info">
-                                <div className="info">
-                                    <p className="modificate">Продвинуто: Head / Hunt</p>
-                                    <a href="" className='name-profile'>Фронтенд разработчик</a>
-                                    <p className='post-message'>Размещено <span id='date'>19 декабря</span> <span><a href="#" id='person'>Сергей А.Ф.</a></span></p>
-                                    <div className="descriptions">
-                                        <div className="descript-flex">
-                                            <div className="description">
-                                                <img src={require('../Images/Icons/ruble.png')} className='descript-image' alt="" />
-                                                <p id='salary-description'>100000 - 120000 рублей в месяц</p>
+                                <div className='profile_wrapper'>
+                                    <div className="info">
+                                        <p className="modificate">Продвинуто: Head / Hunt</p>
+                                        <a href="" className='name-profile'>Фронтенд разработчик</a>
+                                        <p className='post-message'>Размещено <span id='date'>19 декабря</span> <span><a href="#" id='person'>Сергей А.Ф.</a></span></p>
+                                        <div className="descriptions">
+                                            <div className="descript-flex">
+                                                <div className="description">
+                                                    <img src={require('../Images/Icons/ruble.png')} className='descript-image' alt="" />
+                                                    <p id='salary-description'>100000 - 120000 рублей в месяц</p>
+                                                </div>
+                                                <div className="description">
+                                                    <img src={require('../Images/Icons/graduation.png')} className='descript-image' alt="" />
+                                                    <p id='salary-description'>Образование: <span id='graduate'>Высшее</span></p>
+                                                </div>
+                                                <div className="description">
+                                                    <img src={require('../Images/Icons/exp.png')} className='descript-image' alt="" />
+                                                    <p id='salary-description'>Опыт работы: <span id='experiance'>3</span> года</p>
+                                                </div>
                                             </div>
-                                            <div className="description">
-                                                <img src={require('../Images/Icons/graduation.png')} className='descript-image' alt="" />
-                                                <p id='salary-description'>Образование: <span id='graduate'>Высшее</span></p>
-                                            </div>
-                                            <div className="description">
-                                                <img src={require('../Images/Icons/exp.png')} className='descript-image' alt="" />
-                                                <p id='salary-description'>Опыт работы: <span id='experiance'>3</span> года</p>
-                                            </div>
-                                        </div>
-                                        <div className="descript-flex">
-                                            <div className="description">
-                                                <img src={require('../Images/Icons/clock.png')} className='descript-image' alt="" />
-                                                <p id='time-description'>Полный рабочий день</p>
-                                            </div>
-                                            <div className="description">
-                                                <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
-                                                <p id='location-description'>Офис, работа на дому</p>
-                                            </div>
-                                            <div className="description">
-                                                <img src={require('../Images/Icons/location.png')} className='descript-image' alt="" />
-                                                <p id='location-description'>Место жительства: <span id='city'>Тула</span></p>
+                                            <div className="descript-flex">
+                                                <div className="description">
+                                                    <img src={require('../Images/Icons/clock.png')} className='descript-image' alt="" />
+                                                    <p id='time-description'>Полный рабочий день</p>
+                                                </div>
+                                                <div className="description">
+                                                    <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
+                                                    <p id='location-description'>Офис, работа на дому</p>
+                                                </div>
+                                                <div className="description">
+                                                    <img src={require('../Images/Icons/location.png')} className='descript-image' alt="" />
+                                                    <p id='location-description'>Место жительства: <span id='city'>Тула</span></p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <p className='hidden-descript'></p>
-                                    <button className='detailed'>Подробнее {'>'}</button>
+                                    <div className="like">
+                                        <button></button>
+                                        <div className="profile-photo p1"></div>
+                                    </div>
                                 </div>
-                                <div className="like">
-                                    <button></button>
-                                    <div className="profile-photo p1"></div>
-                                </div>
+                                <details className='description_about'>
+                                    <summary>Подробнее</summary>
+                                    <h3>Резюме:{}</h3>
+                                    <ul>
+                                        <li>ФИО: Аганов Сергей Федорович</li>
+                                        <li>Местоположение: Тула (готов к гибридному формату: офис + удалённая работа)</li>
+                                        <li>Занятость: Полный рабочий день</li>
+                                        <li>Ожидаемая зарплата: 100 000 – 120 000 рублей</li>
+                                    </ul>
+                                    <h3>Навыки:</h3>
+                                    <ul>
+                                        <li>JavaScript (ES6+), TypeScript;</li>
+                                        <li>React.js / Next.js (опыт от 3 лет);</li>
+                                        <li>Vue.js / Angular — базовое владение;</li>
+                                        <li>HTML5, CSS3 (Sass/SCSS, Tailwind CSS).</li>
+                                        <li>Webpack, Vite;</li>
+                                        <li>Git, GitHub/GitLab;</li>
+                                        <li>Figma (адаптивная вёрстка по макетам).</li>
+                                        <li>Знание REST API, GraphQL;</li>
+                                        <li>Базовый бэкенд (Node.js, Express).</li>
+                                    </ul>
+                                    <h3>Опыт работы:</h3>
+                                    <p>🚀 Frontend-разработчик (3 года)
+                                    Название компании / Фриланс | 2021 – н.в.</p>
+                                    <ul>
+                                        <li>Разработка SPA-приложений на React;</li>
+                                        <li>Оптимизация производительности (Lazy Loading, PWA);</li>
+                                        <li>Взаимодействие с дизайнерами и бэкенд-разработчиками.</li>
+                                    </ul>
+                                    <h3>Образование:</h3>
+                                    <p>Высшее образование:
+                                    Тульский государственный университет / IT-специальность (2015–2020).<br />
+                                    Курсы: «React Advanced» от Яндекс.Практикум; «Modern JavaScript» (Udemy).
+                                    </p>
+                                    <h3>Знание языков:</h3>
+                                    <p>Русский (родной), Английский (B1)</p>
+                                    <h3>Контакты:</h3>
+                                    <ul>
+                                        <li>Телефон: +7(354)343-43-33</li>
+                                        <li>Email: sergeiAF@gmail.com</li>
+                                        <li>GitHub: <a href='#'>https://github.com/sergeiAF/</a></li>
+                                    </ul>
+                                </details>
                             </div>
                         </div>
                         <div className="profiles-wrap profile-active">
                             <div className="profile-info">
-                                <div className="info">
-                                    <p className="modificate">Продвинуто: Head / Hunt</p>
-                                    <a href="" className='name-profile'>Веб-дизайнер</a>
-                                    <p className='post-message'>Размещено <span id='date'>19 декабря</span> <span><a href="#" id='person'>Сергей А.В.</a></span></p>
-                                    <div className="descriptions">
-                                        <div className="descript-flex">
-                                            <div className="description">
-                                                <img src={require('../Images/Icons/ruble.png')} className='descript-image' alt="" />
-                                                <p id='salary-description'>70000 - 120000 рублей в месяц</p>
+                                <div className='profile_wrapper'>
+                                    <div className="info">
+                                        <p className="modificate">Продвинуто: Head / Hunt</p>
+                                        <a href="" className='name-profile'>Фронтенд разработчик</a>
+                                        <p className='post-message'>Размещено <span id='date'>19 декабря</span> <span><a href="#" id='person'>Сергей А.Ф.</a></span></p>
+                                        <div className="descriptions">
+                                            <div className="descript-flex">
+                                                <div className="description">
+                                                    <img src={require('../Images/Icons/ruble.png')} className='descript-image' alt="" />
+                                                    <p id='salary-description'>100000 - 120000 рублей в месяц</p>
+                                                </div>
+                                                <div className="description">
+                                                    <img src={require('../Images/Icons/graduation.png')} className='descript-image' alt="" />
+                                                    <p id='salary-description'>Образование: <span id='graduate'>Высшее</span></p>
+                                                </div>
+                                                <div className="description">
+                                                    <img src={require('../Images/Icons/exp.png')} className='descript-image' alt="" />
+                                                    <p id='salary-description'>Опыт работы: <span id='experiance'>3</span> года</p>
+                                                </div>
                                             </div>
-                                            <div className="description">
-                                                <img src={require('../Images/Icons/graduation.png')} className='descript-image' alt="" />
-                                                <p id='salary-description'>Образование: <span id='graduate'>Высшее</span></p>
-                                            </div>
-                                            <div className="description">
-                                                <img src={require('../Images/Icons/exp.png')} className='descript-image' alt="" />
-                                                <p id='salary-description'>Опыт работы: <span id='experiance'>6</span> лет</p>
-                                            </div>
-                                        </div>
-                                        <div className="descript-flex">
-                                            <div className="description">
-                                                <img src={require('../Images/Icons/clock.png')} className='descript-image' alt="" />
-                                                <p id='time-description'>Полный рабочий день</p>
-                                            </div>
-                                            <div className="description">
-                                                <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
-                                                <p id='location-description'>Офис, работа на дому</p>
-                                            </div>
-                                            <div className="description">
-                                                <img src={require('../Images/Icons/location.png')} className='descript-image' alt="" />
-                                                <p id='location-description'>Место жительства: <span id='city'>Тула</span></p>
+                                            <div className="descript-flex">
+                                                <div className="description">
+                                                    <img src={require('../Images/Icons/clock.png')} className='descript-image' alt="" />
+                                                    <p id='time-description'>Полный рабочий день</p>
+                                                </div>
+                                                <div className="description">
+                                                    <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
+                                                    <p id='location-description'>Офис, работа на дому</p>
+                                                </div>
+                                                <div className="description">
+                                                    <img src={require('../Images/Icons/location.png')} className='descript-image' alt="" />
+                                                    <p id='location-description'>Место жительства: <span id='city'>Тула</span></p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <p className='hidden-descript'></p>
-                                    <button className='detailed'>Подробнее {'>'}</button>
+                                    <div className="like">
+                                        <button></button>
+                                        <div className="profile-photo p1"></div>
+                                    </div>
                                 </div>
-                                <div className="like">
-                                    <button></button>
-                                    <div className="profile-photo"></div>
-                                </div>
+                                <details className='description_about'>
+                                    <summary>Подробнее</summary>
+                                    <h3>Резюме:{}</h3>
+                                    <ul>
+                                        <li>ФИО: Аганов Сергей Федорович</li>
+                                        <li>Местоположение: Тула (готов к гибридному формату: офис + удалённая работа)</li>
+                                        <li>Занятость: Полный рабочий день</li>
+                                        <li>Ожидаемая зарплата: 100 000 – 120 000 рублей</li>
+                                    </ul>
+                                    <h3>Навыки:</h3>
+                                    <ul>
+                                        <li>JavaScript (ES6+), TypeScript;</li>
+                                        <li>React.js / Next.js (опыт от 3 лет);</li>
+                                        <li>Vue.js / Angular — базовое владение;</li>
+                                        <li>HTML5, CSS3 (Sass/SCSS, Tailwind CSS).</li>
+                                        <li>Webpack, Vite;</li>
+                                        <li>Git, GitHub/GitLab;</li>
+                                        <li>Figma (адаптивная вёрстка по макетам).</li>
+                                        <li>Знание REST API, GraphQL;</li>
+                                        <li>Базовый бэкенд (Node.js, Express).</li>
+                                    </ul>
+                                    <h3>Опыт работы:</h3>
+                                    <p>🚀 Frontend-разработчик (3 года)
+                                    Название компании / Фриланс | 2021 – н.в.</p>
+                                    <ul>
+                                        <li>Разработка SPA-приложений на React;</li>
+                                        <li>Оптимизация производительности (Lazy Loading, PWA);</li>
+                                        <li>Взаимодействие с дизайнерами и бэкенд-разработчиками.</li>
+                                    </ul>
+                                    <h3>Образование:</h3>
+                                    <p>Высшее образование:
+                                    Тульский государственный университет / IT-специальность (2015–2020).<br />
+                                    Курсы: «React Advanced» от Яндекс.Практикум; «Modern JavaScript» (Udemy).
+                                    </p>
+                                    <h3>Знание языков:</h3>
+                                    <p>Русский (родной), Английский (B1)</p>
+                                    <h3>Контакты:</h3>
+                                    <ul>
+                                        <li>Телефон: +7(354)343-43-33</li>
+                                        <li>Email: sergeiAF@gmail.com</li>
+                                        <li>GitHub: <a href='#'>https://github.com/sergeiAF/</a></li>
+                                    </ul>
+                                </details>
                             </div>
                         </div>
                     </div>

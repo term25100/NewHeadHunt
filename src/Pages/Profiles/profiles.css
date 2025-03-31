@@ -70,9 +70,14 @@
     box-sizing: border-box;
     padding: 1vw;
     display: flex;
+    flex-direction: column;
     justify-content: space-between;
     background-color: white;
     border-radius: .4vw;
+}
+.profile_wrapper{
+    width: 100%;
+    display: flex;
 }
 .name-profile{
     font-size: 1.5vw;
@@ -111,4 +116,36 @@
     padding: .5vw 2vw;
     border: .1vw solid rgba(128, 128, 128, 0.39);
     border-top: none;
+}
+.description_about{
+    width: 100%;
+    margin-top: 1vw;
+}
+.description_about p{
+    font-size: .82vw;
+}
+.description_about li{
+    font-size: .82vw;
+}
+.description_about h3{
+    font-size: 1vw;
+}
+.description_about summary{
+    width: 15%;
+    display: flex;
+    justify-content: space-between;
+    color: var(--primary-color);
+    font-size: .9vw;
+    font-weight: 400;
+    list-style: none;
+    cursor: pointer;
+}
+.description_about summary::after{
+    content: "▷";
+    color: var(--banner-background);
+    transition: transform 0.6s;
+}
+.description_about[open] summary::after{
+    content: "▽";
+    color: var(--banner-background);
 }
