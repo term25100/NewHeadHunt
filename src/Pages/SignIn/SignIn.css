@@ -12,8 +12,8 @@
    background-repeat: no-repeat;
 }
 .main_frame{
-    width: 55%;
-    height: 50%;
+    width: 55vw;
+    height: 25vw;
     display: flex;
     margin: 0 auto;
     margin-top: 13%;
@@ -36,6 +36,7 @@
     font-size: 1.85vw;
 }
 .login_frame label{
+    margin-top: .5vw;
     font-size: .95vw;
     font-weight: 500;
     color: rgba(0, 0, 0, 0.808);
@@ -53,6 +54,9 @@
     outline: none;
     border-radius: .2vw;
     background-color: transparent;
+}
+.login_frame input:focus{
+    border: .1vw solid var(--banner-background);
 }
 .login_button{
     margin-top: 3vw;
@@ -83,6 +87,10 @@
     background-position: center;
     background-repeat: no-repeat;
     background-size: contain;
+    transition: all 0.3s ease-out;
+}
+.close:hover{
+    background-image: url(../Images/Icons/close-button.png);
 }
 
 .prereg_frame{
@@ -104,7 +112,7 @@
 }
 .prereg_button{
     display: flex;
-    width: 12vw;
+    width: 13vw;
     height: 3vw;
     margin-top: 3vw;    
     background-color: transparent;
