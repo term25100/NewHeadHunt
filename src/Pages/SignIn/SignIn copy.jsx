@@ -1,12 +1,8 @@
 import './SignIn.css';
-import { useState } from 'react';
-import { ReactComponent as EyeIcon } from './eye-icon.svg';
-import { ReactComponent as EyeSlashIcon } from './eye-slash-icon.svg';
+
 export function SignIn(){
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     return (
-        <div className='background-login'>
+        <div className='background'>
             <div className="main_frame">
                 <div className="login_frame">
                     <div className='login_wrapper'>
@@ -23,14 +19,13 @@ export function SignIn(){
                             />
                             <button 
                               type="button" 
-                              className="toggle_login-password" 
+                              className="toggle-password" 
                               onClick={() => setShowPassword(!showPassword)}
                               aria-label={showPassword ? "Скрыть пароль" : "Показать пароль"}
                             >
                               {showPassword ? <EyeSlashIcon /> : <EyeIcon />}
                             </button>
                         </div>
-                        <a className='remind__pass' href="$">Забыли пароль?</a>
                         <a className='login_button' href="#">ВОЙТИ</a>
                     </div>
                     <a className='close' href="/"></a>

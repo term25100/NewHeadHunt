@@ -5,7 +5,7 @@ import { Vacancy } from './Pages/vacancy';
 import { Home } from './Pages/home';
 import { Profile } from './Pages/profile';
 import { Sign_In } from './Pages/sign_in';
-
+import { Sign_Up } from './Pages/sign_up';
 function AppContent() {
   const location = useLocation();
   
@@ -22,6 +22,7 @@ function AppContent() {
         <Route path="/vacancy" element={<Vacancy />} />
         <Route path="/profiles" element={<Profile />} />
         <Route path="/sign_in" element={<Sign_In />} />
+        <Route path="/sign_up" element={<Sign_Up />} />
       </Routes>
     </>
   );

@@ -1,7 +1,7 @@
 @import url(../Home/fonts.css);
 @import url(../../App.css);
 
-.background-login{
+.background-reg{
    width: 100vw;
    height: 100vh;
    display: flex;
@@ -13,13 +13,13 @@
    background-size: cover;
    background-repeat: no-repeat;
 }
-.main_frame{
+.reg_main_frame{
     width: 55vw;
-    height: 25vw;
+    height: 35vw;
     display: flex;
     box-shadow: 0px 0px 35px 14px rgba(0, 0, 0, 0.2);
 }
-.login_frame{
+.reg_frame{
     width: 75%;
     display: flex;
     justify-content: space-between;
@@ -30,21 +30,21 @@
     background-color: rgba(240, 255, 255, 0.822);
     backdrop-filter: blur(10px);
     color: var(--headings-color);
-
 }
-.login_frame h1{
+.reg_frame h1{
     font-size: 1.85vw;
 }
-.login_frame label{
+.reg_frame label{
     margin-top: .5vw;
     font-size: .95vw;
     font-weight: 500;
     color: rgba(0, 0, 0, 0.808);
 }
-.login_frame input{
+
+.reg_frame input{
     margin-top: .5vw;   
     width: 23vw;
-    height: 3vw;
+    height: 2vw;
     box-sizing: border-box;
     padding: .7vw;
     font-size: 1vw;
@@ -55,24 +55,13 @@
     border-radius: .2vw;
     background-color: transparent;
 }
-.login_frame input:focus{
+.reg_frame input:focus{
     border: .1vw solid var(--banner-background);
 }
-.remind__pass{
-    display: flex;
-    margin-top: 1vw;
-    font-size: .8vw;
-    color: var(--primary-color);
-    text-decoration: underline;
-    transition: all .3s ease-out;
-}
-.remind__pass:hover{
-    color: var(--banner-background);
-}
-.login_button{
-    margin-top: 1vw;
+.reg_button{
+    margin-top: 3vw;
     text-decoration: none;
-    width: 12vw;
+    width: 14vw;
     height: 3vw;    
     display: flex;
     align-items: center;
@@ -80,17 +69,17 @@
     background-color: var(--primary-color);
     color: var(--banner-background);
     font-size: 1vw;
+    font-weight: 600;
     transition: all .3s ease-out;
 }
-.login_button:hover{
+.reg_button:hover{
     background-color: #071351e1;
 }
-.login_wrapper{
+.reg_wrapper{
     display: flex;
     flex-direction: column;
 }
-
-.close{
+.reg_close{
     width: 1.5vw;
     height: 1.5vw;
     margin-right: 1vw;
@@ -100,12 +89,12 @@
     background-size: contain;
     transition: all 0.3s ease-out;
 }
-.close:hover{
+.reg_close:hover{
     background-image: url(../Images/Icons/close-button.png);
 }
 
-.prereg_frame{
-    width: 40%;
+.signIn_frame{
+    width: 45%;
     height: 100%;
     box-sizing: border-box;
     padding: 1vw;
@@ -113,17 +102,39 @@
     background-color: rgba(0, 0, 0, 0.788);
     backdrop-filter: blur(10px);
 }
-.prereg_frame h1{
+.signIn_frame h1{
     font-size: 1.85vw;
 }
-.prereg_frame p{
+.signIn_frame p{
     margin: 0;
     margin-top: 1.8vw;
     font-size: .8vw;
 }
-.prereg_button{
+.remind_pass{
     display: flex;
-    width: 13vw;
+    margin-top: 1vw;
+    font-size: .8vw;
+    color: var(--banner-background);
+    text-decoration: underline;
+    transition: all .3s ease-out;
+}
+.remind_pass:hover{
+    color: white;
+}
+.remind_login{
+    display: flex;
+    margin-top: 1vw;
+    font-size: .8vw;
+    color: var(--banner-background);
+    text-decoration: underline;
+    transition: all .3s ease-out;
+}
+.remind_login:hover{
+    color: white;
+}
+.signIn_button{
+    display: flex;
+    width: 12vw;
     height: 3vw;
     margin-top: 3vw;    
     background-color: transparent;
@@ -136,7 +147,7 @@
     border: .15vw solid var(--banner-background);
     transition: all ease-out .7s;
 }
-.prereg_button:hover{
+.signIn_button:hover{
     scale: 1.05;
 }
 
@@ -151,9 +162,9 @@
     padding-right: .5vw; 
   }
   
-  .toggle_login-password {
+  .toggle-password {
     position: absolute;
-    top: .95vw; 
+    top: .60vw; 
     right: .3vw;
     background: none;
     border: none;
@@ -164,12 +175,12 @@
     justify-content: center;
   }
   
-  .toggle_login-password svg {
-    width: 1.5vw;
-    height: 1.5vw;
+  .toggle-password svg {
+    width: 1.2vw;
+    height: 1.2vw;
     fill: #666;
   }
   
-  .toggle_login-password:hover svg {
+  .toggle-password:hover svg {
     fill: #333;
   }
