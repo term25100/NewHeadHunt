@@ -6,11 +6,12 @@ import { Home } from './Pages/home';
 import { Profile } from './Pages/profile';
 import { Sign_In } from './Pages/sign_in';
 import { Sign_Up } from './Pages/sign_up';
+import { User_Room } from './Pages/user_room';
 function AppContent() {
   const location = useLocation();
   
 
-  const pathsWithoutHeader = ['/sign_in', '/sign_up']; 
+  const pathsWithoutHeader = ['/sign_in', '/sign_up', '/user_room']; 
 
   const shouldShowHeader = !pathsWithoutHeader.includes(location.pathname);
 
@@ -23,6 +24,7 @@ function AppContent() {
         <Route path="/profiles" element={<Profile />} />
         <Route path="/sign_in" element={<Sign_In />} />
         <Route path="/sign_up" element={<Sign_Up />} />
+        <Route path='/user_room' element={<User_Room />} />
       </Routes>
     </>
   );

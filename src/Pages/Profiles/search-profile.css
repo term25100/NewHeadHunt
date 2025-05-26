@@ -15,7 +15,7 @@
     background-color: var(--back-search);
 }
 .flex-box-profiles{
-    width: 90%;
+    width: 97%;
     display: flex;
     justify-content: flex-start;
 }
@@ -28,7 +28,7 @@
 .location-search-profiles label{
     font-weight: 650;
     margin-bottom: .5vw;
-    font-size: .9vw;
+    font-size: .8vw;
 }
 .location-search-profiles input{
     background-color: transparent;

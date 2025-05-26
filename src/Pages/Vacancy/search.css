@@ -23,7 +23,7 @@
     justify-content: space-around;
 }
 .flex-box{
-    width: 90%;
+    width: 97%;
     display: flex;
     justify-content: space-between;
 }
@@ -34,7 +34,8 @@
 .profession-search label{
     font-weight: 650;
     margin-bottom: .5vw;
-    font-size: .9vw;
+    font-size: .8vw;
+    width: fit-content;
 }
 .profession-search input{
     background-color: transparent;
@@ -55,7 +56,8 @@
 .location-search label{
     font-weight: 650;
     margin-bottom: .5vw;
-    font-size: .9vw;
+    font-size: .8vw;
+    width: fit-content;
 }
 .location-search input{
     background-color: transparent;

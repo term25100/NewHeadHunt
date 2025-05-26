@@ -31,7 +31,7 @@ export function SignIn(){
                             </button>
                         </div>
                         <a className='remind__pass' href="$">Забыли пароль?</a>
-                        <a className='login_button' href="#">ВОЙТИ</a>
+                        <a className='login_button' href="/user_room">ВОЙТИ</a>
                     </div>
                     <a className='close' href="/"></a>
                 </div>

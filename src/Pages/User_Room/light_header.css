@@ -1,0 +1,100 @@
+@import url(../Home/fonts.css);
+.header{
+    position: fixed;
+    margin: 0 auto;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    box-sizing: border-box;
+    width: 100vw;
+    height: 3.5vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background-color: white;
+    z-index: 10;
+}
+.main-container{
+    width: 80%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+.logo{
+    margin: 0 auto;
+    font-family: opensans;
+    letter-spacing: -.15vw;
+    font-weight: 700;
+    color: var(--primary-color);
+    font-size: 1.5vw;
+    text-decoration: none;
+}
+.logo span::before{
+    content: '/ ';
+    color: red;
+}
+.divide{
+    width: 1px;
+    height: 2.5vw;
+    background-color: gray;
+}
+
+.menu{
+    margin: 0 auto;
+    display: flex;
+    width: 80%;
+    height: 100%;
+    color: var(--primary-color);
+    align-items: center;
+    justify-content: space-around;
+}
+.menu-link-room{
+    height: 100%;
+    box-sizing: border-box;
+    padding: 1.1vw .5vw;
+    display: flex;
+    font-size: .9vw;
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+}
+.menu-link-room.active{
+    border-bottom: 0.15vw solid var(--primary-color);
+}
+.special{
+    font-size: 0.6vw;
+    font-weight: 700;
+    margin: .13vw .5vw;
+    padding: .1vw .2vw;
+    display: block;
+    border-radius: .3vw;
+    background-color: #E32424;
+    color: var(--span-menu-link-color);
+}
+.menu-link:hover{
+    background-color: rgba(0, 0, 255, 0.07);
+    transition: all 0.4s ease-out;
+}
+.menu-reg{
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 0.8vw;
+    color: var(--primary-color);
+    padding: 0.2vw;
+    border: .15vw solid var(--primary-color);
+    border-radius: .3em; 
+    transition: all 0.5s ease-out;
+}
+.menu-reg:hover{
+    background-color: rgba(0, 0, 255, 0.07);
+    transition: all 0.4s ease-out;
+}
+.img{
+    width: 1vw;
+    height: 1vw;
+    margin: .15vw .2vw;
+    background-color: transparent;  
+    background-image: url(../Images/Icons/heart.png);
+    background-size: cover;
+}

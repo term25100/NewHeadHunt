@@ -1,0 +1,124 @@
+@import url(../Home/fonts.css);
+@import url(../../App.css);
+
+.user-room-content{
+    margin: 3.5vw auto;
+    width: 100%;
+    height: auto;
+}
+.main-container-vac{
+    width: 70%;
+    height: auto;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+}
+.vac-user-scrollblock{
+    width: 100%;
+    height: 40vw;
+    box-sizing: border-box;
+    padding: .8vw;
+    overflow-y: scroll;
+    scrollbar-width: .3vw;
+    scrollbar-color: #D1DBE3 transparent;
+}
+.manual-container{
+    width: 30%;
+    height: auto;
+}
+
+.filters-user{
+    width: 20vw;    
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    margin-top: 1vw;
+    color: var(--primary-color); 
+}
+.filters-user h1{
+    font-size: 1vw;
+    font-weight: 700;
+}
+.filters-user span{
+    font-weight: 900;
+    color: var(--headings-color);
+}
+
+.vacations-user{
+    width: 45vw;   
+    margin: 0 auto;
+    margin-top: 1.5vw;  
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+.delete-vac{
+    display: flex;
+    flex-direction: column;
+    align-items: self-end;
+    justify-content: flex-start;
+}
+.delete-vac button{
+    width: 1.5vw;
+    height: 1.5vw;
+    border: none;
+    margin-right: .5vw; 
+    background-image: url(../Images/Icons/close-button2.png);
+    background-size: cover;
+    background-color: transparent;
+    transition: all ease-out .3s;
+}
+.delete-vac button:hover{
+    background-image: url(../Images/Icons/close-button.png);
+    transition: all ease-in 0.3s;
+}
+
+.manual-buttons{
+    display: flex;
+    
+}
+.edit-button{
+    display: flex;
+    margin-top: 1vw;
+    text-decoration: none;
+    color: var(--headings-color);
+}
+.img-edit{
+    width: 1vw;
+    height: 1vw;
+    color: transparent;
+    margin: 0 .5vw;
+    margin-top: .08vw;
+    background-image: url(../Images/Icons/edit.png);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.date-user{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    background-color: white;
+    box-sizing: border-box;
+    padding: 1vw 2vw;
+    border: .1vw solid rgba(128, 128, 128, 0.39);
+    border-top: none;
+    border-radius: 0 0 .7vw .7vw;
+}
+
+.add-vac {
+    display: block;
+    background-color: var(--primary-color) !important;
+    color: var(--banner-background) !important  ;
+    border: .1vw double var(--banner-background) !important;
+
+}
+.add-vac:hover{
+    transition: all ease-out .35s;
+    scale: 1.2;
+    border: .15vw dotted var(--banner-background) !important;
+    background-color: #071351ef !important;
+}
