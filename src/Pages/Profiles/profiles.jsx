@@ -2,7 +2,7 @@ import './profiles.css'
 export function Profiles(){
     return(
         <div className="main-vac">
-            <div className="vac-container">
+            <div className="profiles-container">
                 <div className="filters">
                     <h1>Найдено: <span>2059</span> сотрудников</h1>
                     <div className="clear-filter">
@@ -218,7 +218,7 @@ export function Profiles(){
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="like">
+                                    <div className="like-profile">
                                         <button></button>
                                         <div className="profile-photo p1"></div>
                                     </div>
@@ -309,7 +309,7 @@ export function Profiles(){
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="like">
+                                    <div className="like-profile">
                                         <button></button>
                                         <div className="profile-photo p1"></div>
                                     </div>
