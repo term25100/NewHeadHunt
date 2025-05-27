@@ -356,6 +356,7 @@ export function Profiles(){
                                         <li>Email: sergeiAF@gmail.com</li>
                                         <li>GitHub: <a href='#'>https://github.com/sergeiAF/</a></li>
                                     </ul>
+                                    <a href="#" className='full-button'>Перейти к анкете</a>
                                 </details>
                             </div>
                         </div>
