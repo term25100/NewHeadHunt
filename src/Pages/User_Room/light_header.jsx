@@ -26,7 +26,7 @@ export function Light_Header({activeTab, onTabChange}){
                     onClick={(e) => handleClick(e, "favorites")}>Избранное  <span className='img'></span></a>
 
                     <a href="" className="menu-link-room">Развитие карьеры</a> 
-                    <a href="/sign_in" className="menu-link-room">Выход</a>
+                    <a href="/" className="menu-link-room">Выход</a>
                 </nav>
             </div>
         </div>

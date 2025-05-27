@@ -512,4 +512,23 @@
 .company-logo:hover{
     background-color: rgba(0, 0, 255, 0.07);
 }
+.full-button{
+    width: fit-content;   
+    display: block;
+    margin: .5vw auto;
+    text-decoration: none;
+    font-size: 1vw;
+    font-weight: 550;
+    color: var(--banner-background);
+    background-color: var(--primary-color);
+    padding: .5vw;
+    border-radius: .3vw;    
+    border: .1vw solid var(--banner-background);
+    transition: all .5s ease-out;
+}
+.full-button:hover{
+    transition: all .5s ease-out;
+    background-color: rgba(4, 4, 70, 0.856);
+    scale: 1.2;
+}
 
