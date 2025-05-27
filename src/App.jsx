@@ -1,7 +1,8 @@
 import './App.css';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { Header } from './header';
-import { Vacancy } from './Pages/vacancy';
+import { Vacancy_List } from './Pages/vacancy_list';
+import { Vacation } from './Pages/vacancy';
 import { Home } from './Pages/home';
 import { Profile } from './Pages/profile';
 import { Sign_In } from './Pages/sign_in';
@@ -19,12 +20,42 @@ function AppContent() {
     <>
       {shouldShowHeader && <Header />}
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/vacancy" element={<Vacancy />} />
-        <Route path="/profiles" element={<Profile />} />
-        <Route path="/sign_in" element={<Sign_In />} />
-        <Route path="/sign_up" element={<Sign_Up />} />
-        <Route path='/user_room' element={<User_Room />} />
+        <Route 
+          path="/" 
+          element={<Home />} 
+        />
+
+        <Route 
+          path="/vacancy_list" 
+          element={<Vacancy_List />} 
+        />
+
+        <Route 
+          path="/vacation" 
+          element={<Vacation />} 
+        />
+
+        <Route 
+          path="/profiles"
+          element={<Profile />} 
+        />
+
+        <Route 
+          path="/sign_in"
+          element={<Sign_In />} 
+        />
+
+        <Route 
+          path="/sign_up"
+          element={<Sign_Up />} 
+        />
+
+        <Route 
+          path="/user_room" 
+          element={<User_Room />} 
+        />
+
+        
       </Routes>
     </>
   );

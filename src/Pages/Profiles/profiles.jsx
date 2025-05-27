@@ -180,7 +180,7 @@ export function Profiles(){
                         <p>Отсортировано по дате</p>
                     </div>
                     <div className="profiles-scrollblock">
-                    <div className="profiles-wrap profile-active">
+                        <div className="profiles-wrap profile-active">
                             <div className="profile-info">
                                 <div className='profile_wrapper'>
                                     <div className="info">
@@ -266,8 +266,9 @@ export function Profiles(){
                                             <li>Email: sergeiAF@gmail.com</li>
                                             <li>GitHub: <a href='#'>https://github.com/sergeiAF/</a></li>
                                         </ul>
+                                        <a href="#" className='full-button'>Перейти к анкете</a>
                                     </div>
-                                    
+
                                 </details>
                             </div>
                         </div>

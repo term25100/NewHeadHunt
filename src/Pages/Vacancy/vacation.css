@@ -1,0 +1,220 @@
+@import url(../Home/fonts.css);
+@import url(../../App.css);
+
+.frame-container{
+    width: 100%;
+    height: auto;
+    margin: 0 auto;
+    margin-top: 3.5vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    background-color: var(--primary-color);
+}
+.vac-banner{
+    width: 100%;
+    height: 20vw;
+    background-color: var(--banner-background);
+}
+.vac-info-container{
+    width: 80%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-around;
+}
+.work-type-container{
+    width: 25%;
+    height: fit-content;
+    padding: 1vw;
+    background-color: rgba(255, 255, 255, 0.822);
+    backdrop-filter: blur(10px);
+    border-radius: 1vw;
+}
+.work-type-container h1{
+    font-size: 1.3vw;
+    margin: 0 auto;
+}
+.salary-container{
+    margin-bottom: 3vw;
+}
+.salary-flex{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin: 0 auto;
+    border-bottom: .1vw rgba(0, 0, 0, 0.4) solid;
+}
+.salary-flex label{
+    margin-right: .5vw;
+    font-size: 1vw;
+    font-weight: 500;
+}
+.salary-flex p{
+    font-size: 1vw;
+}
+.salary-col{
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin: 0 auto;
+    border-bottom: .1vw rgba(0, 0, 0, 0.4) solid;
+}
+.salary-col label{
+    margin-right: .5vw;
+    font-size: 1vw;
+    font-weight: 500;
+}
+.salary-col p{
+    font-size: 1vw;
+}
+.work-type{
+    font-size: 1vw;
+}
+.work-type-description p{
+    font-size: 1vw;
+    text-indent: 20px;
+    text-align: justify;
+    hyphens: auto;
+}
+.currency{
+    background-image: url(../Images/Icons/ruble.png);
+    width: 1vw;
+    height: 1vw;
+    background-position: center;
+    background-size: cover;
+    color: transparent;
+}
+.main-info-container{
+    width: 75%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    border-radius: 1vw;
+}
+.location-data{
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    background-color: rgba(255, 255, 255, 0.822);
+    border-radius: 1vw;
+}
+.loc-data{
+    background-color: white;
+    border-radius: 1vw;
+    padding: 1vw;
+    margin-bottom: 4vw;
+    border: .1vw solid black;
+}
+.loc-data h1{
+    font-size: 1.3vw;
+    margin: 0 auto;
+}
+.flex-location{
+    display: flex;
+    align-items: center;
+}
+.flex-location label{
+    margin-right: .5vw;
+    font-size: 1vw;
+    font-weight: 500;
+}
+.flex-location p{
+    font-size: 1vw;
+}
+.flex-loc{
+    margin: 1vw auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.map-location{
+    margin: .5vw auto;
+    width: 100%;
+    height: 20vw;
+}
+.summary-map{
+    font-size: 1vw;
+}
+.description-vac{
+    background-color: white;
+    padding: 1vw;
+    border-radius: 1vw;
+    font-size: 1vw;
+    border: .1vw solid black;
+}
+.description-vac h1{
+    font-size: 1.3vw;
+    margin: 0 auto;
+}
+.description-vac p{
+    text-align: justify;
+    hyphens: auto;
+    text-indent: 20px;
+}
+.adjust-data{
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    background-color: rgba(255, 255, 255, 0.822);
+    border-radius: 1vw;
+}
+
+.contact-data{
+    background-color: transparent;
+    border-radius: 1vw;
+    padding: 1vw;
+    margin-bottom: 2.1vw;
+}
+.contact-data h1{
+    font-size: 1.3vw;
+    margin: 0 auto;
+}
+.flex-contact{
+    display: flex;
+    align-items: center;
+    margin: .5vw auto;
+}
+.flex-contact label{
+    margin-right: .5vw;
+    font-size: 1vw;
+    font-weight: 500;
+}
+.flex-contact p{
+    font-size: 1vw;
+}
+.adjust-descriptions{
+    background-color: white;
+    border-radius: 1vw;
+    padding: 1vw;
+    font-size: 1vw;
+    border: .1vw solid black;
+}
+.adjust-descriptions h1{
+    font-size: 1.3vw;
+    margin: 0 auto;
+}
+.adjust-descriptions p{
+    text-align: justify;
+    hyphens: auto;
+    text-indent: 20px;
+}
+
+.response-button{
+    width: fit-content;   
+    display: block;
+    margin: .5vw auto;
+    text-decoration: none;
+    font-size: 1vw;
+    font-weight: 550;
+    color: var(--banner-background);
+    background-color: var(--primary-color);
+    padding: .5vw;
+    border-radius: .3vw;    
+    border: .1vw solid var(--banner-background);
+    transition: all .5s ease-out;
+}
+.response-button:hover{
+    transition: all .5s ease-out;
+    background-color: rgba(4, 4, 70, 0.856);
+    scale: 1.2;
+}

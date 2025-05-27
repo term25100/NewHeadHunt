@@ -1,15 +1,13 @@
-import react, { Component } from "react";
-import { Search } from "./Vacancy/search";
-import { Vacations } from "./Vacancy/vacations";
-import { Footer } from "../footer"
-export class Vacancy extends Component{
+import react, {Component} from "react";
+import { Footer } from "../footer";
+import { Vacation_Body } from "./Vacancy/vacation";
+export class Vacation extends Component{
     render(){
-        return(
+        return (
             <div>
-                <Search/>
-                <Vacations/>
-                <Footer/>
+                <Vacation_Body />
+                <Footer />
             </div>
-        )
+        );
     }
 }
