@@ -1,0 +1,25 @@
+@import url(../Home/fonts.css);
+@import url(../../App.css);
+
+.UserCard{
+    width: 80%;
+    margin: 2vw auto;
+    margin-top: 4vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    font-size: 1vw;
+    color: var(--primary-color);
+    padding: 2vw;
+    border: .1vw solid grey;
+    border-radius: 1vw;
+}
+.UserCard h1{
+    font-size: 1.7vw;
+}
+.UserCard h2{
+    font-size: 1.3vw;
+}
+.UserCard h3{
+    font-size: 1vw;
+}

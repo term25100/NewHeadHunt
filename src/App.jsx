@@ -4,10 +4,11 @@ import { Header } from './header';
 import { Vacancy_List } from './Pages/vacancy_list';
 import { Vacation } from './Pages/vacancy';
 import { Home } from './Pages/home';
-import { Profile } from './Pages/profile';
+import { Profile_List } from './Pages/profile';
 import { Sign_In } from './Pages/sign_in';
 import { Sign_Up } from './Pages/sign_up';
 import { User_Room } from './Pages/user_room';
+import { Profile_Card } from './Pages/profile_card';
 function AppContent() {
   const location = useLocation();
   
@@ -37,7 +38,7 @@ function AppContent() {
 
         <Route 
           path="/profiles"
-          element={<Profile />} 
+          element={<Profile_List />} 
         />
 
         <Route 
@@ -55,7 +56,10 @@ function AppContent() {
           element={<User_Room />} 
         />
 
-        
+        <Route
+          path='/profile_card'
+          element={<Profile_Card />}
+        />
       </Routes>
     </>
   );

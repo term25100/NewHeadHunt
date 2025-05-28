@@ -13,8 +13,56 @@
 }
 .vac-banner{
     width: 100%;
+    display: flex;
     height: 20vw;
     background-color: var(--banner-background);
+}
+.blue-description{
+    box-sizing: border-box;
+    padding: 1vw;
+    padding-left: 10vw;
+    width: 50%;
+    height: 100%;
+    background-color: var(--primary-color);
+    border-radius: 0 0 100% 0;
+    color: var(--banner-background);
+}
+.blue-description h1{
+    font-size: 1.7vw;
+}
+.blue-description h2{
+    font-size: 1.2vw;
+}
+.blue-description p{
+    width: 30vw;
+    color: white;
+    font-size: 1vw;
+    
+}
+.blue-description a{
+    box-sizing: border-box;
+    padding: .5vw;
+    width: fit-content;
+    display: block;
+    text-decoration: none;
+    color: var(--banner-background);
+    font-size: 1vw;
+    font-weight: 450;
+    border: .1vw solid var(--banner-background);
+    transition: all ease-out .4s;
+}
+.blue-description a:hover{
+    transition: all ease-out .4s;
+    color: white;
+    scale: 1.1;
+}
+.banner-person{
+    width: 50%;
+    height: 100%;
+    background-image: url(../Images/Peoples-Footage/woman-for-banner.png);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 .vac-info-container{
     width: 80%;
@@ -163,7 +211,7 @@
     background-color: transparent;
     border-radius: 1vw;
     padding: 1vw;
-    margin-bottom: 2.1vw;
+    margin-bottom: 4vw;
 }
 .contact-data h1{
     font-size: 1.3vw;
@@ -181,6 +229,10 @@
 }
 .flex-contact p{
     font-size: 1vw;
+}
+.flex-contact a{
+    font-size: 1vw;
+    color: var(--primary-color);
 }
 .adjust-descriptions{
     background-color: white;
@@ -217,4 +269,17 @@
     transition: all .5s ease-out;
     background-color: rgba(4, 4, 70, 0.856);
     scale: 1.2;
+}
+
+@media screen and (max-width: 1200px){
+    .vac-banner{
+        display: none;
+    }
+    .vac-info-container{
+        flex-wrap: wrap;
+        margin-top: 1vw;
+    }
+    .main-info-container{
+        flex-wrap: wrap;
+    }
 }

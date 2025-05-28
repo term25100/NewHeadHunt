@@ -1,10 +1,19 @@
 import './vacation.css'
 
 export function Vacation_Body(){
+    let site_link='https://www.diol-it.ru';
     return (
         <div className='frame-container'>
             <div className="vac-banner">
+                <div className="blue-description">
+                    <h1>Лучшая работа у нас!</h1>
+                    <h2>Ты готов к работе, где ценят тебя по-настоящему?</h2>
+                    <p>В компании «Диол» мы создаём не просто рабочие места — мы строим команду мечты!</p>
+                    <a href={site_link} className='goToCompany'>Перейти на сайт</a>
+                </div>
+                <div className="banner-person">
 
+                </div>
             </div>
             <div className="vac-info-container">
                 <div className="work-type-container">
@@ -90,12 +99,12 @@ export function Vacation_Body(){
                                 <p name="contact-email">info@diol-it.ru</p>
                             </div>
                             <div className='flex-contact'>
-                                <label htmlFor="contact-phone">Электронная почта: </label>
+                                <label htmlFor="contact-phone">Телефон: </label>
                                 <p name="contact-phone">+7 495 132-03-02</p>
                             </div>
                             <div className='flex-contact'>
                                 <label htmlFor="contact-site">Сайт компании: </label>
-                                <p name="contact-site">+7 495 132-03-02</p>
+                                <a href={site_link}>https://www.diol-it.ru</a>
                             </div>
                         </div>
                         <div className="adjust-descriptions">
@@ -115,7 +124,6 @@ export function Vacation_Body(){
                             <a href="/vacation" className='response-button'>Откликнуться на вакансию</a>
                         </div>
                     </div>
-                    
                 </div>
             </div>
         </div>

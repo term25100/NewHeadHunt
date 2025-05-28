@@ -1,5 +1,27 @@
 import './profiles.css'
+import React, { useState } from 'react';
+import { InvitationPopup } from './invitation';
+
 export function Profiles(){
+    const [showPopup, setShowPopup] = useState(false);
+    const [selectedCandidate, setSelectedCandidate] = useState(null);
+
+    const handleInviteClick = (candidate) => {
+        setSelectedCandidate(candidate);
+        setShowPopup(true);
+    };
+    const handleSendInvitation = (invitationData) => {
+        console.log('Отправка приглашения:', invitationData);
+        // Здесь можно добавить логику отправки на сервер
+        setShowPopup(false);
+    };
+    const candidate = [
+        {
+          id: 1,
+          name: "Аганов Сергей Федорович",
+          position: "Фронтенд разработчик"
+        }
+    ];
     return(
         <div className="main-vac">
             <div className="profiles-container">
@@ -266,7 +288,7 @@ export function Profiles(){
                                             <li>Email: sergeiAF@gmail.com</li>
                                             <li>GitHub: <a href='#'>https://github.com/sergeiAF/</a></li>
                                         </ul>
-                                        <a href="#" className='full-button'>Перейти к анкете</a>
+                                        <a href="#" className='full-button' onClick={() => handleInviteClick(candidate)}>Пригласить на работу</a>
                                     </div>
 
                                 </details>
@@ -357,14 +379,22 @@ export function Profiles(){
                                         <li>Email: sergeiAF@gmail.com</li>
                                         <li>GitHub: <a href='#'>https://github.com/sergeiAF/</a></li>
                                     </ul>
-                                    <a href="#" className='full-button'>Перейти к анкете</a>
+                                    <a href="#" className='full-button'>Пригласить на работу</a>
                                 </details>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
+            {showPopup && selectedCandidate && (
+                <InvitationPopup
+                candidate={selectedCandidate}
+                onClose={() => setShowPopup(false)}
+                onSend={handleSendInvitation}
+                />
+            )}
         </div>
         
-    )
+    );
 }
