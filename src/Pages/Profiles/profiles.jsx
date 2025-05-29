@@ -207,7 +207,7 @@ export function Profiles(){
                                 <div className='profile_wrapper'>
                                     <div className="info">
                                         <p className="modificate">Продвинуто: Head / Hunt</p>
-                                        <a href="" className='name-profile'>Фронтенд разработчик</a>
+                                        <a href="/profile_card" className='name-profile'>Фронтенд разработчик</a>
                                         <p className='post-message'>Размещено <span id='date'>19 декабря</span> <span><a href="#" id='person'>Сергей А.Ф.</a></span></p>
                                         <div className="descriptions">
                                             <div className="descript-flex">
@@ -299,7 +299,7 @@ export function Profiles(){
                                 <div className='profile_wrapper'>
                                     <div className="info">
                                         <p className="modificate">Продвинуто: Head / Hunt</p>
-                                        <a href="" className='name-profile'>Фронтенд разработчик</a>
+                                        <a href="/profile_card" className='name-profile'>Фронтенд разработчик</a>
                                         <p className='post-message'>Размещено <span id='date'>19 декабря</span> <span><a href="#" id='person'>Сергей А.Ф.</a></span></p>
                                         <div className="descriptions">
                                             <div className="descript-flex">

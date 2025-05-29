@@ -27,7 +27,8 @@
     font-size: 1.2vw;
 }
 .invitation-popup-container p,strong{
-    font-size: 1vw; 
+    font-size: 1vw;
+    text-indent: 0px !important; 
 }
 .invitation-popup-form-group {
   margin-bottom: 20px;
