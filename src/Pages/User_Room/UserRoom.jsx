@@ -1,5 +1,10 @@
 import './UserRoom.css'
+import { Vacancy_Add } from './vacation_add';
+import axios from 'axios';
+import { useState } from 'react';
 export function UserRoom({ activeTab }) {
+  const [showPopup, setShowPopup] = useState(false);
+
   return (
     <div className="user-room-content">
       {activeTab === "vacancy" && (
@@ -75,7 +80,12 @@ export function UserRoom({ activeTab }) {
           </div>
           <div className="vacations-user">
                     <div className="head-vac">
-                        <a href="#" className='add-button'>Добавить вакансию</a>
+                        <a className='add-button' onClick={() => setShowPopup(true)}>Добавить вакансию</a>
+                        {showPopup && (
+                            <Vacancy_Add 
+                              onClose={() => setShowPopup(false)}
+                            />
+                        )}
                         <a href="#" >Архив вакансий</a>
                         <a href="#">Получать уведомления об откликах <span className='bell'>......</span></a>
                     </div>

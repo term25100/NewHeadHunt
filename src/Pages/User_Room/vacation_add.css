@@ -1,0 +1,187 @@
+@import url(../Home/fonts.css);
+@import url(../../App.css);
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popup-container {
+  background-color: white;
+  border-radius: 1vw;
+  width: 70vw;
+  max-height: 90vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.scrollable-form {
+  overflow-y: auto;
+  padding: 2vw;
+  flex-grow: 1;
+}
+
+.form-columns {
+  display: flex;
+  gap: 2vw;
+}
+
+.form-column {
+  flex: 1;
+  min-width: 0;
+}
+.image-upload {
+  border: 0.15vw dashed #ccc;
+  border-radius: 0.5vw;
+  padding: 1.5vw;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  min-height: 10vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-upload.dragging {
+  border-color: #4CAF50;
+  background-color: #f8f8f8;
+}
+
+.image-preview {
+  max-width: 100%;
+  max-height: 15vw;
+  margin-bottom: 1vw;
+}
+
+.upload-instructions {
+  color: #666;
+}
+
+.file-input-label {
+  display: inline-block;
+  background-color: #f0f0f0;
+  padding: 0.5vw 1vw;
+  border-radius: 0.3vw;
+  cursor: pointer;
+  margin: 0.5vw 0;
+  font-size: 0.8vw;
+}
+
+.file-input {
+  display: none;
+}
+
+.file-requirements {
+  font-size: 0.7vw;
+  color: #999;
+  margin-top: 0.5vw;
+}
+
+.change-image-btn {
+  background: none;
+  border: none;
+  color: #4CAF50;
+  cursor: pointer;
+  font-size: 0.8vw;
+  margin-top: 0.5vw;
+  text-decoration: underline;
+}
+
+.close-btn {
+  position: absolute;
+  top: 1vw;
+  right: 1vw;
+  font-size: 1.5vw;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.popup-title {
+  font-size: 1.5vw;
+  margin: .5vw auto;
+  color: #333;
+}
+
+.form-section {
+  margin-bottom: 2vw;
+  border-bottom: 0.1vw solid #eee;
+  padding-bottom: 1vw;
+}
+
+.section-title {
+  font-size: 1vw;
+  margin-bottom: 1vw;
+  color: #444;
+}
+
+.form-row {
+  display: flex;
+  gap: 1vw;
+  margin-bottom: 0.8vw;
+}
+
+.form-group {
+  flex: 1;
+  margin-bottom: 0.8vw;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8vw;
+  margin-bottom: 0.3vw;
+  color: #666;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.5vw;
+  font-size: 0.8vw;
+  border: 0.1vw solid #ddd;
+  border-radius: 0.3vw;
+}
+
+.form-group textarea {
+  min-height: 5vw;
+  resize: vertical;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1vw;
+  margin-top: 1.5vw;
+}
+
+.submit-btn, .cancel-btn {
+  padding: 0.6vw 1.2vw;
+  font-size: 0.8vw;
+  border-radius: 0.3vw;
+  cursor: pointer;
+}
+
+.submit-btn {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+}
+
+.cancel-btn {
+  background-color: #f5f5f5;
+  color: #333;
+  border: 0.1vw solid #ddd;
+}

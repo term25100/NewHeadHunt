@@ -3,10 +3,60 @@ import { IMaskInput } from 'react-imask';
 import { useState } from 'react';
 import { ReactComponent as EyeIcon } from './eye-icon.svg';
 import { ReactComponent as EyeSlashIcon } from './eye-slash-icon.svg';
+import axios from 'axios';
 
 export function SignUp() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    password: '',
+    password2: ''
+  });
+  const [error, setError] = useState('');
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+  const handlePhoneChange = (value) => {
+    setFormData(prev => ({
+      ...prev,
+      phone: value
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (formData.password !== formData.password2) {
+      setError('Пароли не совпадают');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/users', {
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        password_hash: formData.password, // Хешируется на сервере
+        user_role: 'user'
+      });
+
+      console.log('Успешная регистрация:', response.data);
+      alert("Регистрация прошла успешно!");
+      window.location.href = '/sign_in';
+
+    } catch (err) {
+      const errorMsg = err.response?.data?.error || err.message || 'Ошибка регистрации';
+      setError(errorMsg);
+    }
+  };
 
   return (
     <div className='background-reg'>
@@ -15,11 +65,11 @@ export function SignUp() {
           <div className='reg_wrapper'>
             <h1>Регистрация</h1>
             <label htmlFor="name">ВАШЕ ИМЯ</label>
-            <input type="text" id="name" name="name" placeholder="ВВЕДИТЕ ВАШЕ ИМЯ" />
-            <label htmlFor="email_adress">EMAIL АДРЕС</label>
-            <input type="email" id="email_adress" name="email_adress" placeholder='ВАШ EMAIL АДРЕС'/>
+            <input type="text" id="name" name="name" placeholder="ВВЕДИТЕ ВАШЕ ИМЯ" value={formData.name} onChange={handleChange} />
+            <label htmlFor="email">EMAIL АДРЕС</label>
+            <input type='email' id="email" name="email" placeholder='ВАШ EMAIL АДРЕС' value={formData.email} onChange={handleChange}/>
             <label htmlFor='telephone'>ТЕЛЕФОН</label>
-            <IMaskInput mask="+7 (000) 000-00-00" definitions={{ '0': /[0-9]/ }} id="telephone" name="telephone" placeholder="+7 (___) ___-__-__" />
+            <IMaskInput mask="+7 (000) 000-00-00" definitions={{ '0': /[0-9]/ }} id="telephone" name="telephone" value={formData.phone} onAccept={handlePhoneChange} placeholder="+7 (___) ___-__-__" />
             <label htmlFor="password">ПАРОЛЬ</label>
             <div className="password-input-container">
               <input 
@@ -27,6 +77,8 @@ export function SignUp() {
                 id='password' 
                 name='password' 
                 placeholder='ВВЕДИТЕ ВАШ ПАРОЛЬ'
+                value={formData.password}
+                onChange={handleChange}
               />
               <button 
                 type="button" 
@@ -45,6 +97,8 @@ export function SignUp() {
                 id='password2' 
                 name='password2' 
                 placeholder='ПОВТОРИТЕ ПАРОЛЬ' 
+                value={formData.password2}
+                onChange={handleChange}
               />
               <button 
                 type="button" 
@@ -56,7 +110,7 @@ export function SignUp() {
               </button>
             </div>
             
-            <a className='reg_button' href="#">ЗАРЕГИСТРИРОВАТЬСЯ</a>
+            <a className='reg_button' onClick={handleSubmit} href="#">ЗАРЕГИСТРИРОВАТЬСЯ</a>
           </div>
           <a className='reg_close' href="/"></a>
         </div>
