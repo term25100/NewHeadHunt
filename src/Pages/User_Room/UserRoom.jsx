@@ -2,7 +2,7 @@ import './UserRoom.css'
 import { Vacancy_Add } from './vacation_add';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-
+import { Link } from 'react-router-dom';
 export function UserRoom({ activeTab }) {
   const [showPopup, setShowPopup] = useState(false);
   const [vacations, setVacations] = useState([]);
@@ -152,7 +152,9 @@ export function UserRoom({ activeTab }) {
                     <div className='flex_wrapper'>
                       <div className="info">
                         <p className="modificate">Продвинуто: Head / Hunt</p>
-                        <a href="#" className='name-vac'>{vacation.vacation_name}</a>
+                        <Link to={`/vacation/${vacation.vacation_id}`} className='name-vac'>
+                            {vacation.vacation_name}
+                        </Link>
                         <p className='post-message'>
                           Размещено <span id='date'>{new Date(vacation.posted).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</span> пользователем <span><a href="#" id='company'>{userName.name || 'Компания'}</a></span>
                         </p>

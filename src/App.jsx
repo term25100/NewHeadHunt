@@ -32,7 +32,7 @@ function AppContent() {
         />
 
         <Route 
-          path="/vacation" 
+          path="/vacation/:vacationId" 
           element={<Vacation />} 
         />
 

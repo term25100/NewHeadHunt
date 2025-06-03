@@ -288,6 +288,19 @@ app.get('/api/vacations-extract', authenticateUser, async (req, res) => {
   }
 });
 
+app.get('/api/vacation/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    const vacation = await Vacation.findByPk(id); // или другой метод поиска
+    if (!vacation) {
+      return res.status(404).json({ success: false, message: 'Вакансия не найдена' });
+    }
+    res.json({ success: true, vacation });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Ошибка сервера' });
+  }
+});
+
 // Запуск сервера
 app.listen(PORT, () => {
   console.log(`Сервер запущен на http://localhost:${PORT}`);
