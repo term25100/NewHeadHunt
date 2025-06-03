@@ -82,6 +82,14 @@ const Vacation = sequelize.define('Vacation', {
   advantages_describe: {
     type: DataTypes.TEXT,
     allowNull: false
+  },
+  active: {
+    type: DataTypes.BOOLEAN,
+    allowNull: true
+  },
+  posted: {
+    type: DataTypes.DATE,
+    allowNull: false
   }
 }, {
   tableName: 'vacations', // Название таблицы, если отличается

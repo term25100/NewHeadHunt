@@ -30,8 +30,11 @@ export function Vacancy_Add({ onClose }) {
   const [error, setError] = useState('');
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, type, value, checked } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
   };
 
   const handleDragOver = (e) => {
@@ -285,6 +288,15 @@ export function Vacancy_Add({ onClose }) {
                     type="number"
                     name="zip_code"
                     value={formData.zip_code}
+                    onChange={handleChange}
+                  />
+                </div>
+                <div className="form-group checkbox-group">
+                  <label>Сделать вакансию активной?</label>
+                  <input
+                    type="checkbox"
+                    name="active"
+                    value={formData.active}
                     onChange={handleChange}
                   />
                 </div>
