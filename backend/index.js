@@ -301,6 +301,32 @@ app.get('/api/vacation/:id', async (req, res) => {
   }
 });
 
+
+app.delete('/api/vacation-delete/:id', authenticateUser, async (req, res) => {
+  const vacationId = req.params.id;
+
+  try {
+    // Находим вакансию
+    const vacation = await Vacation.findByPk(vacationId);
+
+    if (!vacation) {
+      return res.status(404).json({ success: false, message: 'Вакансия не найдена' });
+    }
+
+    // Проверяем, принадлежит ли вакансия текущему пользователю
+    if (vacation.user_id !== req.user.userId) {
+      return res.status(403).json({ success: false, message: 'Нет доступа к удалению этой вакансии' });
+    }
+
+    // Удаляем вакансию (или можно сделать vacation.active = false и сохранить)
+    await vacation.destroy();
+
+    res.json({ success: true, message: 'Вакансия успешно удалена' });
+  } catch (error) {
+    console.error('Ошибка при удалении вакансии:', error);
+    res.status(500).json({ success: false, message: 'Ошибка при удалении вакансии' });
+  }
+});
 // Запуск сервера
 app.listen(PORT, () => {
   console.log(`Сервер запущен на http://localhost:${PORT}`);

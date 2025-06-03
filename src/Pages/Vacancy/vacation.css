@@ -4,12 +4,12 @@
 .frame-container{
     width: 100%;
     height: auto;
-    margin: 0 auto;
+    margin: 2vw auto;
     margin-top: 3.5vw;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    background-color: var(--primary-color);
+    background-color: white;
 }
 .vac-banner{
     width: 100%;
@@ -65,7 +65,7 @@
     background-position: center;
 }
 .vac-info-container{
-    width: 80%;
+    width: 95%;
     margin: 0 auto;
     display: flex;
     justify-content: space-around;
@@ -74,7 +74,7 @@
     width: 25%;
     height: fit-content;
     padding: 1vw;
-    background-color: rgba(255, 255, 255, 0.822);
+    background-color: rgba(99, 99, 99, 0.164);
     backdrop-filter: blur(10px);
     border-radius: 1vw;
 }
@@ -125,12 +125,11 @@
     hyphens: auto;
 }
 .currency{
-    background-image: url(../Images/Icons/ruble.png);
-    width: 1vw;
-    height: 1vw;
+    width: 2vw;
+    height: 2vw;
     background-position: center;
     background-size: cover;
-    color: transparent;
+    color: var(--primary-color);
 }
 .main-info-container{
     width: 75%;
@@ -143,7 +142,7 @@
     display: flex;
     flex-direction: column;
     width: 50%;
-    background-color: rgba(255, 255, 255, 0.822);
+    background-color: rgba(99, 99, 99, 0.164);
     border-radius: 1vw;
 }
 .loc-data{
@@ -203,7 +202,7 @@
     display: flex;
     flex-direction: column;
     width: 50%;
-    background-color: rgba(255, 255, 255, 0.822);
+    background-color: rgba(99, 99, 99, 0.164);
     border-radius: 1vw;
 }
 

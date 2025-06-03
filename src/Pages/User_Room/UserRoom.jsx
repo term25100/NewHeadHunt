@@ -58,6 +58,34 @@ export function UserRoom({ activeTab }) {
   // Фильтруем только активные вакансии
   const activeVacations = vacations.filter(vac => vac.active);
 
+  const handleDelete = async (vacationId) => {
+    const confirmDelete = window.confirm('Вы действительно хотите удалить эту вакансию?');
+    if (!confirmDelete) return;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        alert('Ошибка аутентификации. Пожалуйста, войдите снова.');
+        return;
+      }
+      // Отправляем запрос на удаление (предполагается, что на сервере есть такой эндпоинт)
+      const response = await axios.delete(`http://localhost:5000/api/vacation-delete/${vacationId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.data.success) {
+        // Обновляем список вакансий локально без перезагрузки с сервера
+        setVacations(prev => prev.filter(vac => vac.vacation_id !== vacationId));
+      } else {
+        alert('Не удалось удалить вакансию.');
+      }
+    } catch (error) {
+      console.error('Ошибка при удалении вакансии:', error);
+      alert('Произошла ошибка при удалении вакансии.');
+    }
+  };
+
   return (
     <div className="user-room-content">
       {activeTab === "vacancy" && (
@@ -182,7 +210,7 @@ export function UserRoom({ activeTab }) {
                         </div>
                       </div>
                       <div className="delete-button">
-                        <button /* Можно добавить обработчик удаления */></button>
+                        <button onClick={() => handleDelete(vacation.vacation_id)} title="Удалить вакансию"></button>
                         <div className="company-logo company1" style={{ backgroundImage: `url(data:image/png;base64,${vacation.company_image})` }}></div>
                       </div>
                     </div>
