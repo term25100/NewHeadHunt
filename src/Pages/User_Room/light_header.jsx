@@ -56,7 +56,9 @@ export function Light_Header({activeTab, onTabChange}){
                     onClick={(e) => handleClick(e, "favorites")}>Избранное  <span className='img'></span></a>
                     {userData &&(
                         <div>
-                            <a href="" className="menu-link-room">{userData.name}</a> 
+                            <a href="" 
+                            className={`menu-link-room ${activeTab === "user_menu" ? "active" : ""}`}
+                            onClick={(e) => handleClick(e, "user_menu")}>{userData.name}</a> 
                         </div>
                     )}
                     <a onClick={handleLogout} className="menu-link-room">Выход</a>    

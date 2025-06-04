@@ -148,3 +148,52 @@
     flex-direction: column;
     justify-content: flex-start;
 }
+
+.user_form{
+    width: 60%;
+    padding: 1vw;
+    height: auto;
+    margin: 2vw auto;
+    border: .1vw solid var(--primary-color);
+    border-radius: .7vw;
+}
+.user_form h1{
+    width: fit-content;
+    margin: 0 auto;
+    margin-bottom: 2vw;
+    font-size: 1.3vw;
+    color: var(--primary-color);
+}
+
+.user_form label{
+    font-size: .8vw;
+    margin-bottom: 0;
+}
+.user_form p{
+    font-size: 1vw;
+    margin: 0;
+}
+
+.group_userData{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.group-form{
+    margin-top: 1vw;
+    margin-bottom: 1vw;
+}
+.group-buttons a{
+    display: block;
+    box-sizing: border-box;
+    padding: .5vw;
+    font-size: 1vw;
+    font-weight: 500;
+    color: var(--banner-background);
+    background-color: var(--primary-color);
+    border: .1vw solid var(--banner-background);
+    border-radius: .4vw;
+}
+.image-place{
+    margin: 0 auto !important;
+}

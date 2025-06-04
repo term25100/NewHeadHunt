@@ -410,6 +410,7 @@
     display: flex;
     justify-content: space-between;
     width: 27vw;
+    column-gap: 2vw;
 }
 .descript-flex{
     display: flex;
@@ -423,7 +424,6 @@
     justify-content: flex-start;
     font-size: .8vw;
 }
-
 .descript-image{
     width: 1vw;
     height: 1vw;

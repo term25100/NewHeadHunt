@@ -4,6 +4,7 @@ import { Vacancy_Edit } from './vacation_edit';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import myImage from '../Images/Peoples/sergei.webp';
 export function UserRoom({ activeTab }) {
   const [showPopupAdd, setShowPopupAdd] = useState(false);
   const [showPopupEdit, setShowPopupEdit] = useState(false);
@@ -605,6 +606,38 @@ export function UserRoom({ activeTab }) {
           </div>
           <div className="content-container">
             
+          </div>
+        </div>
+      )}
+
+      {activeTab === "user_menu" && (
+        <div className="main-container">
+          <div className="user_form">
+            <h1>Ваши личные данные</h1>
+            <div className="group_userData">
+              <div>
+                <div className="group-form">
+                  <label>Ваше имя:</label>
+                  <p>Левин Андрей Андреевич</p>
+                </div>
+                <div className="group-form">
+                  <label>Ваш email:</label>
+                  <p>term25100@gmail.com</p>
+                </div>
+                <div className="group-form">
+                  <label>Ваш телефон:</label>
+                  <p>+7(919)-073-00-61</p>
+                </div>
+              </div>
+              <div>
+                <div className="image-place">
+                    <img src={myImage} alt="Фото соискателя    " />
+                </div>
+              </div>
+              <div className="group-buttons">
+                <a>Редактировать данные</a>
+              </div>
+            </div>
           </div>
         </div>
       )}
