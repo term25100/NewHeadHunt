@@ -1,10 +1,40 @@
-import './vacations.css'
-export function Vacations(){
+import './vacations.css';
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+import { Link } from 'react-router-dom';
+
+export function Vacations() {
+    const [vacations, setVacations] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+
+    const fetchVacations = async () => {
+      setLoading(true);
+      setError('');
+      try {
+        const response = await axios.get('http://localhost:5000/api/vacations-extract-all');
+        if (response.data.success) {
+          setVacations(response.data.vacations);
+        } else {
+          setError('Не удалось загрузить вакансии');
+        }
+      } catch (err) {
+        console.error('Ошибка при загрузке вакансий:', err);
+        setError('Ошибка при загрузке вакансий');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    useEffect(() => {
+      fetchVacations();
+    }, []);
+
     return(
         <div className="main-vac">
             <div className="vac-container">
                 <div className="filters">
-                    <h1>Найдено: <span>4022</span> вакансии</h1>
+                    <h1>Найдено: <span>{vacations.length}</span> вакансии</h1>
                     <div className="clear-filter">
                         <h2>Текущие фильтры</h2> 
                         <button>Сбросить фильтры</button>
@@ -169,66 +199,69 @@ export function Vacations(){
                         <p>Отсортировано по дате</p>
                     </div>
                     <div className="vac-scrollblock">
-                        <div className="vacation-wrap vac-active">
+                        {loading && <p>Загрузка вакансий...</p>}
+                        {error && <p className="error-message">{error}</p>}
+                        {!loading && !error && vacations.length === 0 && <p>Вакансий нет.</p>}
+                        {!loading && !error && vacations.map(vacation => (
+                          <div key={vacation.vacation_id} className="vacation-wrap vac-active">
                             <div className="vacation-info">
-                                <div className='flex_wrapper'>
-                                    <div className="info">
-                                        <p className="modificate">Продвинуто: Head / Hunt</p>
-                                        <a href="" className='name-vac'>Веб-дизайнер</a>
-                                        <p className='post-message'>Размещено <span id='date'>19 декабря</span> компанией <span><a href="#" id='company'>Диол</a></span></p>
-                                        <div className="descriptions">
-                                            <div className="descript-flex">
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/ruble.png')} className='descript-image' alt="" />
-                                                    <p id='salary-description'>70000 - 120000 рублей в месяц</p>
-                                                </div>
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/location.png')} className='descript-image' alt="" />
-                                                    <p id='location-description'>Тула. ул.Тургеневская улица, 48А</p>
-                                                </div>
-                                            </div>
-                                            <div className="descript-flex">
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/clock.png')} className='descript-image' alt="" />
-                                                    <p id='time-description'>Полный рабочий день</p>
-                                                </div>
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
-                                                    <p id='location-description'>Офис, работа на дому</p>
-                                                </div>
-                                            </div>
-                                        </div>
+                              <div className='flex_wrapper'>
+                                <div className="info">
+                                  <p className="modificate">Продвинуто: Head / Hunt</p>
+                                  <Link to={`/vacation/${vacation.vacation_id}`} className='name-vac'>
+                                    {vacation.vacation_name}
+                                  </Link>
+                                  <p className='post-message'>
+                                    Размещено <span id='date'>{new Date(vacation.posted).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</span> 
+                                  </p>
+                                  <div className="descriptions">
+                                    <div className="descript-flex">
+                                      <div className="description">
+                                        <img src={require('../Images/Icons/ruble.png')} className='descript-image' alt="" />
+                                        <p id='salary-description'>{vacation.salary_from} - {vacation.salary_to} рублей в месяц</p>
+                                      </div>
+                                      <div className="description">
+                                        <img src={require('../Images/Icons/location.png')} className='descript-image' alt="" />
+                                        <p id='location-description'>{vacation.work_city}. {vacation.work_adress}</p>
+                                      </div>
                                     </div>
-                                    <div className="like">
-                                        <button></button>
-                                        <div className="company-logo company1"></div>
+                                    <div className="descript-flex">
+                                      <div className="description">
+                                        <img src={require('../Images/Icons/clock.png')} className='descript-image' alt="" />
+                                        <p id='time-description'>{vacation.work_type.join(', ')}</p>
+                                      </div>
+                                      <div className="description">
+                                        <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
+                                        <p id='location-description'>Офис, работа на дому</p>
+                                      </div>
                                     </div>
+                                  </div>
                                 </div>
-                                <details className='description_about'>
-                                    <summary>Подробнее</summary>
-                                    <h3 className='title_vacation'>Описание вакансии:</h3>
-                                    <p>Компания Диол ищет талантливого веб-дизайнера для работы над интересными проектами. Вам предстоит создавать современные, эстетичные и функциональные дизайн-решения для веб-платформ, collaborating с командой разработчиков и маркетологов.</p>
-                                    <h3 className='requirement'>Требования:</h3>
-                                    <ul>
-                                        <li>Опыт работы в веб-дизайне от 3 лет (портфолио обязательно);</li>
-                                        <li>Навыки работы с Figma, Adobe Photoshop, Illustrator;</li>
-                                        <li>Понимание UI/UX-принципов, адаптивного дизайна;</li>
-                                        <li>Умение работать с анимацией и микровзаимодействиями (плюс);</li>
-                                        <li>Знание основ вёрстки (HTML/CSS) — будет преимуществом.</li>
-                                    </ul>
-                                    <h3 className='conditions'>Условия:</h3>
-                                    <ul>
-                                        <li>Гибкий график: возможность работать в офисе или удалённо;</li>
-                                        <li>Проектная работа или полная занятость;</li>
-                                        <li>Конкурентная зарплата (обсуждается по результатам собеседования);</li>
-                                        <li>Интересные задачи и профессиональный рост.</li>
-                                    </ul>
-                                    <p className='finals'>Подходит для дизайнеров, готовых к сложным вызовам и созданию digital-продуктов высокого уровня. Откликайтесь! 🚀</p>
-                                    <a href="/vacation" className='full-button'>Перейти к вакансии</a>
-                                </details>
+                                <div className="company-logo company1" style={{ backgroundImage: `url(data:image/png;base64,${vacation.company_image})` }}></div>
+                              </div>
+                              <details className='description_about'>
+                                <summary>Подробнее</summary>
+                                <h3 className='title_vacation'>Описание вакансии:</h3>
+                                <p>{vacation.work_description}</p>
+                                <h3 className='requirement'>Требования:</h3>
+                                <ul>
+                                  {vacation.required_skills.map((skill, idx) => (
+                                    <li key={idx}>{skill}</li>
+                                  ))}
+                                </ul>
+                                <h3 className='conditions'>Условия:</h3>
+                                <ul>
+                                  {vacation.work_advantages && vacation.work_advantages.length > 0 ? (
+                                    vacation.work_advantages.map((adv, idx) => <li key={idx}>{adv}</li>)
+                                  ) : (
+                                    <li>{vacation.advantages_describe}</li>
+                                  )}
+                                </ul>
+                                <p className='finals'>Дополнительно: {vacation.additionally}</p>
+                              </details>
                             </div>
-                        </div>
-
+                          </div>
+                        ))}
                     </div>    
                 </div>
             </div>

@@ -28,6 +28,12 @@ export function Light_Header({activeTab, onTabChange}){
 
         fetchUserData();
     }, []);
+
+    const handleLogout = (e) => {
+        e.preventDefault();
+        localStorage.removeItem('authToken');
+        window.location.href = '/';
+    };
     return(
         <div className="header">
             <div className='main-container'>
@@ -53,7 +59,7 @@ export function Light_Header({activeTab, onTabChange}){
                             <a href="" className="menu-link-room">{userData.name}</a> 
                         </div>
                     )}
-                    <a href="/" className="menu-link-room">Выход</a>    
+                    <a onClick={handleLogout} className="menu-link-room">Выход</a>    
                 </nav>
             </div>
         </div>

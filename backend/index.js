@@ -288,6 +288,26 @@ app.get('/api/vacations-extract', authenticateUser, async (req, res) => {
   }
 });
 
+app.get('/api/vacations-extract-all', async (req, res) => {
+  try {
+    const vacations = await Vacation.findAll({
+      attributes: { exclude: ['user_id'] },
+      order: [['posted', 'DESC']]
+    });
+    res.json({
+      success: true,
+      count: vacations.length,
+      vacations
+    });
+  } catch (error) {
+    console.error('Ошибка получения всех вакансий:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка при получении вакансий' 
+    });
+  }
+});
+
 app.get('/api/vacation/:id', async (req, res) => {
   const id = req.params.id;
   try {
@@ -301,6 +321,65 @@ app.get('/api/vacation/:id', async (req, res) => {
   }
 });
 
+app.put('/api/vacation-edit/:id', async (req, res) => {
+  const id = req.params.id;
+  const {
+    vacation_name,
+    salary_from,
+    salary_to,
+    work_type,
+    about_work_type,
+    work_region,
+    work_city,
+    work_adress,
+    zip_code,
+    company_email,
+    company_phone,
+    company_site,
+    work_description,
+    required_skills,
+    advantages_describe,
+    work_advantages,
+    additionally,
+    company_image,
+    active,
+  } = req.body;
+
+  try {
+    const vacation = await Vacation.findByPk(id);
+    if (!vacation) {
+      return res.status(404).json({ success: false, message: 'Вакансия не найдена' });
+    }
+
+    // Обновляем поля вакансии
+    await vacation.update({
+      vacation_name,
+      salary_from,
+      salary_to,
+      work_type,          // ожидается массив
+      about_work_type,
+      work_region,
+      work_city,
+      work_adress,
+      zip_code,
+      company_email,
+      company_phone,
+      company_site,
+      work_description,
+      required_skills,    // ожидается массив
+      advantages_describe,
+      work_advantages,    // ожидается массив или null
+      additionally,
+      company_image,
+      active,
+    });
+
+    res.json({ success: true, message: 'Вакансия обновлена' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Ошибка сервера при обновлении вакансии' });
+  }
+});
 
 app.delete('/api/vacation-delete/:id', authenticateUser, async (req, res) => {
   const vacationId = req.params.id;

@@ -1,5 +1,38 @@
 import './header.css'
+import { useState, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
 export function Header(){
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        try {
+          const decoded = jwtDecode(token);
+          // Проверяем, не истек ли токен (exp в секундах)
+          if (decoded.exp * 1000 > Date.now()) {
+            setIsLoggedIn(true);
+          } else {
+            setIsLoggedIn(false);
+            localStorage.removeItem('authToken'); // опционально удаляем просроченный токен
+          }
+        } catch (e) {
+          setIsLoggedIn(false);
+          localStorage.removeItem('authToken'); // токен некорректный
+        }
+      } else {
+        setIsLoggedIn(false);
+      }
+    }, []);
+
+    const handleSignInClick = (e) => {
+      e.preventDefault();
+      if (isLoggedIn) {
+        window.location.href = '/user_room'; // или путь к личному кабинету
+      } else {
+        window.location.href = '/sign_in';
+      }
+    };
     return(
         <div className="header">
             <div className='main-container'>
@@ -11,7 +44,7 @@ export function Header(){
                     <div className="divide"></div>   
                     <a href="#" className="menu-link">Вы рекрут? <span className='special'>Разместите вакансию</span></a>
                     <a href="/sign_up" className="menu-reg">Регистрация</a>
-                    <a href="/sign_in" className="menu-link">Вход</a>
+                    <a className="menu-link" onClick={handleSignInClick}>Вход</a>
                     <a href="#" className="menu-link">Избранное  <span className='img'></span></a>
                 </nav>
             </div>

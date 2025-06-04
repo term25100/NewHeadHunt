@@ -44,8 +44,7 @@ export function SignUp() {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        password_hash: formData.password, // Хешируется на сервере
-        user_role: 'user'
+        password_hash: formData.password // Хешируется на сервере
       });
 
       console.log('Успешная регистрация:', response.data);

@@ -8,7 +8,7 @@ export function Vacancy_Add({ onClose }) {
     vacation_name: '',
     salary_from: '',
     salary_to: '',
-    work_type: [], // Изменено с массива на строку
+    work_type: [], 
     about_work_type: '',
     work_region: '',
     work_city: '',
@@ -18,9 +18,9 @@ export function Vacancy_Add({ onClose }) {
     company_phone: '',
     company_site: '',
     work_description: '',
-    required_skills: '', // Изменено с массива на строку
+    required_skills: '', 
     advantages_describe: '',
-    work_advantages: '', // Изменено с массива на строку
+    work_advantages: '', 
     additionally: '',
     company_image: ''
   });

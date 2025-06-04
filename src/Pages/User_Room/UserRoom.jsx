@@ -1,10 +1,13 @@
 import './UserRoom.css'
 import { Vacancy_Add } from './vacation_add';
+import { Vacancy_Edit } from './vacation_edit';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 export function UserRoom({ activeTab }) {
-  const [showPopup, setShowPopup] = useState(false);
+  const [showPopupAdd, setShowPopupAdd] = useState(false);
+  const [showPopupEdit, setShowPopupEdit] = useState(false);
+  const [selectedVacation, setSelectedVacation] = useState(null);
   const [vacations, setVacations] = useState([]);
   const [userName, setUserName]=useState([]);
   const [loadingVacations, setLoadingVacations] = useState(false);
@@ -49,11 +52,11 @@ export function UserRoom({ activeTab }) {
   }, [activeTab]);
 
   useEffect(() => {
-    if (!showPopup && activeTab === 'vacancy') {
+    if (!showPopupAdd && activeTab === 'vacancy') {
       // Обновляем список вакансий после закрытия попапа (например, после добавления новой вакансии)
       fetchVacations();
     }
-  }, [showPopup, activeTab]);
+  }, [showPopupAdd, activeTab]);
 
   // Фильтруем только активные вакансии
   const activeVacations = vacations.filter(vac => vac.active);
@@ -86,12 +89,17 @@ export function UserRoom({ activeTab }) {
     }
   };
 
+  const handleEditClick = (vacation) => {
+    setSelectedVacation(vacation);
+    setShowPopupEdit(true);
+  };
+
   return (
     <div className="user-room-content">
       {activeTab === "vacancy" && (
         <div className='main-container-vac'>
           <div className="filters-user">
-            <h1>Размещено: <span>{activeVacations.length}</span> вакансии</h1>
+            <h1>Размещено: <span>{activeVacations.length}</span> вакансий</h1>
             <div className="clear-filter">
               <h2>Текущие фильтры</h2> 
               <button>Сбросить фильтры</button>
@@ -161,10 +169,20 @@ export function UserRoom({ activeTab }) {
           </div>
           <div className="vacations-user">
             <div className="head-vac">
-              <a className='add-button' onClick={() => setShowPopup(true)}>Добавить вакансию</a>
-              {showPopup && (
+              <a className='add-button' onClick={() => setShowPopupAdd(true)}>Добавить вакансию</a>
+              {showPopupAdd && (
                 <Vacancy_Add 
-                  onClose={() => setShowPopup(false)}
+                  onClose={() => setShowPopupAdd(false)}
+                />
+              )}
+              {showPopupEdit && selectedVacation && (
+                <Vacancy_Edit
+                  vacationId={selectedVacation.vacation_id} // Передаем только ID
+                  onClose={() => {
+                    setShowPopupEdit(false);
+                    setSelectedVacation(null);
+                  }}
+                  onUpdateVacancies={fetchVacations}
                 />
               )}
               <a href="#" >Архив вакансий</a>
@@ -235,10 +253,11 @@ export function UserRoom({ activeTab }) {
                         </ul>
                         <p className='finals'>Дополнительно: {vacation.additionally}</p>
                       </details>
-                      <a href="#" className='edit-button'>Редактировать <span className='img-edit'>.</span></a>
+                      <a className='edit-button' onClick={() => handleEditClick(vacation)}>Редактировать <span className='img-edit'>.</span></a>
                     </div>
                   </div>
                 </div>
+                
               ))}
             </div>    
           </div>
