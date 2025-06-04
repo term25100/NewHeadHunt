@@ -232,7 +232,7 @@ export function Vacations() {
                                       </div>
                                       <div className="description">
                                         <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
-                                        <p id='location-description'>Офис, работа на дому</p>
+                                        <p id='location-description'>{vacation.work_place.join(', ')}</p>
                                       </div>
                                     </div>
                                   </div>
