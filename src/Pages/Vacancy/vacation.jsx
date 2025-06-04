@@ -39,6 +39,7 @@ export function Vacation_Body(){
     salary_from,
     salary_to,
     work_type = [],
+    work_place = [],
     about_work_type,
     work_region,
     work_city,
@@ -101,6 +102,12 @@ export function Vacation_Body(){
             </ul>
           </div>
 
+          <h1>Возможные места работы</h1>
+          <div className="work-type">
+            <ul>
+              {work_place.length > 0 ? work_place.map((type, idx) => <li key={idx}>{type}</li>) : <li>Не указано</li>}
+            </ul>
+          </div>
           {about_work_type && (
             <>
               <h1>Про удаленную работу</h1>

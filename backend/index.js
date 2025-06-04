@@ -165,6 +165,7 @@ app.post('/api/vacations', authenticateUser, async (req, res) => {
       salary_from,
       salary_to,
       work_type,
+      work_place,
       about_work_type,
       work_region,
       work_city,
@@ -183,7 +184,7 @@ app.post('/api/vacations', authenticateUser, async (req, res) => {
     } = req.body;
 
     // Валидация обязательных полей
-    if (!vacation_name || !salary_from || !salary_to || !work_type || 
+    if (!vacation_name || !salary_from || !salary_to || !work_type || !work_place ||
         !work_region || !work_city || !company_email || !company_phone || 
         !work_description || !required_skills) {
       return res.status(400).json({ 
@@ -200,7 +201,11 @@ app.post('/api/vacations', authenticateUser, async (req, res) => {
     const normalizedWorkType = Array.isArray(work_type) 
       ? work_type 
       : (work_type ? work_type.split(',').map(item => item.trim()) : []);
-      
+    
+    const normalizedWorkPlace = Array.isArray(work_type) 
+      ? work_place 
+      : (work_place ? work_place.split(',').map(item => item.trim()) : []);
+
     const normalizedRequiredSkills = Array.isArray(required_skills) 
       ? required_skills 
       : (required_skills ? required_skills.split(',').map(item => item.trim()) : []);
@@ -217,6 +222,7 @@ app.post('/api/vacations', authenticateUser, async (req, res) => {
       salary_from: parsedSalaryFrom,
       salary_to: parsedSalaryTo,
       work_type: normalizedWorkType,
+      work_place: normalizedWorkPlace,
       about_work_type: about_work_type || ' ',
       work_region: work_region || ' ',
       work_city: work_city || ' ',
@@ -265,8 +271,14 @@ app.post('/api/vacations', authenticateUser, async (req, res) => {
 // Роут для получения вакансий пользователя
 app.get('/api/vacations-extract', authenticateUser, async (req, res) => {
   try {
+    const { archived } = req.query; // получаем параметр из query string
+    const isArchived = archived === 'true'; // преобразуем в boolean
+
     const vacations = await Vacation.findAll({
-      where: { user_id: req.user.userId },
+      where: { 
+        user_id: req.user.userId,
+        active: !isArchived 
+      },
       attributes: { exclude: ['user_id'] },
       order: [['posted', 'DESC']]
     });
@@ -328,6 +340,7 @@ app.put('/api/vacation-edit/:id', async (req, res) => {
     salary_from,
     salary_to,
     work_type,
+    work_place,
     about_work_type,
     work_region,
     work_city,
@@ -342,7 +355,7 @@ app.put('/api/vacation-edit/:id', async (req, res) => {
     work_advantages,
     additionally,
     company_image,
-    active,
+    active
   } = req.body;
 
   try {
@@ -356,7 +369,8 @@ app.put('/api/vacation-edit/:id', async (req, res) => {
       vacation_name,
       salary_from,
       salary_to,
-      work_type,          // ожидается массив
+      work_type,
+      work_place,        
       about_work_type,
       work_region,
       work_city,
@@ -366,12 +380,13 @@ app.put('/api/vacation-edit/:id', async (req, res) => {
       company_phone,
       company_site,
       work_description,
-      required_skills,    // ожидается массив
+      required_skills,    
       advantages_describe,
-      work_advantages,    // ожидается массив или null
+      work_advantages,    
       additionally,
       company_image,
       active,
+      posted: new Date() 
     });
 
     res.json({ success: true, message: 'Вакансия обновлена' });

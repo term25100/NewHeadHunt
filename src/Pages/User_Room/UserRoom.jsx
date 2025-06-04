@@ -8,6 +8,7 @@ export function UserRoom({ activeTab }) {
   const [showPopupAdd, setShowPopupAdd] = useState(false);
   const [showPopupEdit, setShowPopupEdit] = useState(false);
   const [selectedVacation, setSelectedVacation] = useState(null);
+  const [showArchived, setShowArchived] = useState(false);
   const [vacations, setVacations] = useState([]);
   const [userName, setUserName]=useState([]);
   const [loadingVacations, setLoadingVacations] = useState(false);
@@ -28,6 +29,9 @@ export function UserRoom({ activeTab }) {
       const response = await axios.get('http://localhost:5000/api/vacations-extract', {
         headers: {
           'Authorization': `Bearer ${token}`
+        },
+        params:{
+          archived: showArchived
         }
       });
       if (response.data.success) {
@@ -49,7 +53,7 @@ export function UserRoom({ activeTab }) {
     if (activeTab === 'vacancy') {
       fetchVacations();
     }
-  }, [activeTab]);
+  }, [activeTab, showArchived]);
 
   useEffect(() => {
     if (!showPopupAdd && activeTab === 'vacancy') {
@@ -58,8 +62,15 @@ export function UserRoom({ activeTab }) {
     }
   }, [showPopupAdd, activeTab]);
 
+  const filteredVacations = vacations.filter(vac => vac.active !== showArchived);
+
+  
   // Фильтруем только активные вакансии
   const activeVacations = vacations.filter(vac => vac.active);
+
+  const handleToggleArchived = () => {
+    setShowArchived(prev => !prev);
+  };
 
   const handleDelete = async (vacationId) => {
     const confirmDelete = window.confirm('Вы действительно хотите удалить эту вакансию?');
@@ -185,14 +196,33 @@ export function UserRoom({ activeTab }) {
                   onUpdateVacancies={fetchVacations}
                 />
               )}
-              <a href="#" >Архив вакансий</a>
-              <a href="#">Получать уведомления об откликах <span className='bell'>......</span></a>
+              <a
+                href="#"
+                className={!showArchived ? 'active-button' : 'default-button'}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowArchived(false);
+                }}
+              >
+                Активные вакансии
+              </a>
+              <a
+                href="#"
+                className={showArchived ? 'active-button' : 'default-button'}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowArchived(true);
+                }}
+              >
+                Архив вакансий
+              </a>
+              {/* <a href="#">Получать уведомления об откликах <span className='bell'>......</span></a> */}
             </div>
             <div className="vac-user-scrollblock">
               {loadingVacations && <p>Загрузка вакансий...</p>}
               {error && <p className="error-message">{error}</p>}
-              {!loadingVacations && !error && activeVacations.length === 0 && <p>Активных вакансий нет.</p>}
-              {!loadingVacations && !error && activeVacations.map(vacation => (
+              {!loadingVacations && !error && filteredVacations.length === 0 && <p>{showArchived ? 'Архивных вакансий нет.' : 'Активных вакансий нет.'}</p>}
+              {!loadingVacations && !error && filteredVacations.map(vacation => (
                 <div key={vacation.vacation_id} className="vacation-wrap vac-active">
                   <div className="vacation-info">
                     <div className='flex_wrapper'>
@@ -222,7 +252,7 @@ export function UserRoom({ activeTab }) {
                             </div>
                             <div className="description">
                               <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
-                              <p id='location-description'>Офис, работа на дому</p>
+                              <p id='location-description'>{vacation.work_place.join(', ')}</p>
                             </div>
                           </div>
                         </div>

@@ -27,6 +27,10 @@ const Vacation = sequelize.define('Vacation', {
     type: DataTypes.ARRAY(DataTypes.TEXT),
     allowNull: false
   },
+  work_place: {
+    type: DataTypes.ARRAY(DataTypes.TEXT),
+    allowNull: false
+  },
   about_work_type: {
     type: DataTypes.TEXT,
     allowNull: false

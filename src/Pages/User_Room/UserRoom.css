@@ -124,13 +124,19 @@
     background-color: var(--primary-color) !important;
     color: var(--banner-background) !important  ;
     border: .1vw double var(--banner-background) !important;
-
 }
 .add-button:hover{
     transition: all ease-out .35s;
     scale: 1.2;
     border: .15vw dotted var(--banner-background) !important;
     background-color: #071351ef !important;
+}
+
+.active-button{
+    display: block;
+    background-color: var(--primary-color) !important;
+    color: var(--banner-background) !important  ;
+    border: .1vw double var(--banner-background) !important;
 }
 
 .profiles-user{

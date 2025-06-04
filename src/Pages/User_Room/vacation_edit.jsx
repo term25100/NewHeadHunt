@@ -8,6 +8,7 @@ export function Vacancy_Edit({ vacationId, onUpdateVacancies, onClose }) {
     salary_from: '',
     salary_to: '',
     work_type: [], 
+    work_place: '',
     about_work_type: '',
     work_region: '',
     work_city: '',
@@ -55,6 +56,7 @@ export function Vacancy_Edit({ vacationId, onUpdateVacancies, onClose }) {
             salary_from: v.salary_from?.toString() || '',
             salary_to: v.salary_to?.toString() || '',
             work_type: Array.isArray(v.work_type) ? v.work_type.join(', ') : '',
+            work_place: Array.isArray(v.work_place) ? v.work_place.join(', ') : '',
             about_work_type: v.about_work_type || '',
             work_region: v.work_region || '',
             work_city: v.work_city || '',
@@ -158,6 +160,10 @@ export function Vacancy_Edit({ vacationId, onUpdateVacancies, onClose }) {
     if (!formData.work_type.trim()) {
       errors.push('Укажите тип работы');
     }
+
+    if (!formData.work_place.trim()) {
+      errors.push('Укажите место работы');
+    }
     
     if (!formData.work_region.trim()) {
       errors.push('Регион обязателен');
@@ -213,6 +219,7 @@ export function Vacancy_Edit({ vacationId, onUpdateVacancies, onClose }) {
         zip_code: formData.zip_code ? parseInt(formData.zip_code) : null,
         company_phone: cleanedPhone,
         work_type: formData.work_type.split(',').map(item => item.trim()).filter(item => item),
+        work_place: formData.work_place.split(',').map(item => item.trim()).filter(item => item),
         required_skills: formData.required_skills.split(',').map(item => item.trim()).filter(item => item),
         work_advantages: formData.work_advantages ? 
           formData.work_advantages.split(',').map(item => item.trim()).filter(item => item) : 
@@ -295,6 +302,17 @@ export function Vacancy_Edit({ vacationId, onUpdateVacancies, onClose }) {
                       type="text"
                       name="work_type"
                       value={formData.work_type}
+                      onChange={handleChange}
+                      required
+                    />
+                  </div>
+                  
+                  <div className="form-group">
+                    <label>Места работы (через запятую)</label>
+                    <input
+                      type="text"
+                      name="work_place"
+                      value={formData.work_place}
                       onChange={handleChange}
                       required
                     />
@@ -494,7 +512,7 @@ export function Vacancy_Edit({ vacationId, onUpdateVacancies, onClose }) {
                               className="file-input"
                             />
                           </label>
-                          <p className="file-requirements">PNG, JPG, SVG до 5MB</p>
+                          <p className="file-requirements">PNG, JPG до 5MB</p>
                         </div>
                       </>
                     )}

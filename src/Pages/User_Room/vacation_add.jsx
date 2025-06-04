@@ -8,7 +8,8 @@ export function Vacancy_Add({ onClose }) {
     vacation_name: '',
     salary_from: '',
     salary_to: '',
-    work_type: [], 
+    work_type: [],
+    work_place: [],
     about_work_type: '',
     work_region: '',
     work_city: '',
@@ -98,7 +99,11 @@ export function Vacancy_Add({ onClose }) {
     if (!formData.work_type.trim()) { // Проверка строки вместо массива
       errors.push('Укажите тип работы');
     }
-    
+
+    if (!formData.work_place.trim()) { // Проверка строки вместо массива
+      errors.push('Укажите место работы');
+    }
+
     if (!formData.work_region.trim()) {
       errors.push('Регион обязателен');
     }
@@ -157,6 +162,7 @@ export function Vacancy_Add({ onClose }) {
         company_phone: cleanedPhone,
         // Массивы преобразуем из строк при необходимости
         work_type: formData.work_type.split(',').map(item => item.trim()).filter(item => item),
+        work_place: formData.work_place.split(',').map(item => item.trim()).filter(item => item),
         required_skills: formData.required_skills.split(',').map(item => item.trim()).filter(item => item),
         work_advantages: formData.work_advantages ? 
           formData.work_advantages.split(',').map(item => item.trim()).filter(item => item) : 
@@ -232,6 +238,17 @@ export function Vacancy_Add({ onClose }) {
                     type="text"
                     name="work_type"
                     value={formData.work_type}
+                    onChange={handleChange}
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Места работы (введите текст)</label>
+                  <input
+                    type="text"
+                    name="work_place"
+                    value={formData.work_place}
                     onChange={handleChange}
                     required
                   />
