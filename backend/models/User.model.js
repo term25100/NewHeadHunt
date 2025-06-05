@@ -27,6 +27,10 @@ const User = sequelize.define('User', {
   password_hash: {
     type: DataTypes.STRING(60),
     allowNull: false
+  },
+  user_image: {
+    type: DataTypes.TEXT,
+    allowNull:true
   }
   
 }, {

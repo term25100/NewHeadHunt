@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken');
 const { sequelize } = require('./config/db');
 const User = require('./models/User.model');
 const Vacation = require('./models/Vacation.model');
-
+const Favourite = require('./models/Favourite.model');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -419,6 +419,142 @@ app.delete('/api/vacation-delete/:id', authenticateUser, async (req, res) => {
   } catch (error) {
     console.error('Ошибка при удалении вакансии:', error);
     res.status(500).json({ success: false, message: 'Ошибка при удалении вакансии' });
+  }
+});
+
+app.post('/api/favourites', authenticateUser, async (req, res) => {
+  try {
+    const { vacation_id } = req.body;
+
+    if (!vacation_id) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'vacation_id обязателен' 
+      });
+    }
+
+    // Проверяем, есть ли уже такая запись
+    const existingFavourite = await Favourite.findOne({
+      where: {
+        user_id: req.user.userId,
+        vacation_id
+      }
+    });
+
+    if (existingFavourite) {
+      return res.status(400).json({
+        success: false,
+        message: 'Вакансия уже в избранном'
+      });
+    }
+
+    // Создаем новую запись
+    const newFavourite = await Favourite.create({
+      user_id: req.user.userId,
+      vacation_id
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Вакансия добавлена в избранное',
+      favourite: newFavourite
+    });
+
+  } catch (error) {
+    console.error('Ошибка добавления в избранное:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка при добавлении в избранное' 
+    });
+  }
+});
+
+app.get('/api/favourites/vacations', authenticateUser, async (req, res) => {
+  try {
+    // 1. Получаем ID избранных вакансий
+    const favourites = await Favourite.findAll({
+      where: { 
+        user_id: req.user.userId,
+        vacation_id: { [Sequelize.Op.not]: null }
+      },
+      attributes: ['vacation_id']
+    });
+
+    if (!favourites.length) {
+      return res.json({
+        success: true,
+        count: 0,
+        vacations: []
+      });
+    }
+
+    const vacationIds = favourites.map(fav => fav.vacation_id);
+
+    // 2. Получаем вакансии и отдельно информацию о пользователях
+    const vacations = await Vacation.findAll({
+      where: {
+        vacation_id: vacationIds
+      }
+    });
+
+    // 3. Получаем имена пользователей
+    const userIds = [...new Set(vacations.map(v => v.user_id))];
+    const users = await User.findAll({
+      where: {
+        user_id: userIds
+      },
+      attributes: ['user_id', 'name']
+    });
+
+    // 4. Соединяем данные
+    const userMap = users.reduce((acc, user) => {
+      acc[user.user_id] = user.name;
+      return acc;
+    }, {});
+
+    const formattedVacations = vacations.map(vac => ({
+      ...vac.get({ plain: true }),
+      user_name: userMap[vac.user_id] || 'Неизвестный пользователь'
+    }));
+
+    res.json({
+      success: true,
+      count: formattedVacations.length,
+      vacations: formattedVacations
+    });
+
+  } catch (error) {
+    console.error('Ошибка получения избранных вакансий:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка при получении избранных вакансий',
+      error: error.message
+    });
+  }
+});
+
+app.delete('/api/favourites/:vacationId', authenticateUser, async (req, res) => {
+  const { vacationId } = req.params;
+
+  try {
+    const deleted = await Favourite.destroy({
+      where: {
+        user_id: req.user.userId,
+        vacation_id: vacationId
+      }
+    });
+
+    if (deleted) {
+      res.json({ success: true, message: 'Вакансия удалена из избранного' });
+    } else {
+      res.status(404).json({ success: false, message: 'Вакансия не найдена в избранном' });
+    }
+  } catch (error) {
+    console.error('Ошибка удаления из избранного:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка при удалении из избранного' 
+    });
   }
 });
 // Запуск сервера
