@@ -13,8 +13,8 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Проверка подключения к БД
 sequelize.authenticate()
   .then(() => console.log('PostgreSQL подключен успешно'))
@@ -471,13 +471,21 @@ app.post('/api/favourites', authenticateUser, async (req, res) => {
 
 app.get('/api/favourites/vacations', authenticateUser, async (req, res) => {
   try {
-    // 1. Получаем ID избранных вакансий
+    // Находим все избранные вакансии пользователя
     const favourites = await Favourite.findAll({
       where: { 
         user_id: req.user.userId,
         vacation_id: { [Sequelize.Op.not]: null }
       },
-      attributes: ['vacation_id']
+      include: [{
+        model: Vacation,
+        as: 'vacation',
+        include: [{
+          model: User,
+          as: 'user',
+          attributes: ['name']
+        }]
+      }]
     });
 
     if (!favourites.length) {
@@ -488,33 +496,10 @@ app.get('/api/favourites/vacations', authenticateUser, async (req, res) => {
       });
     }
 
-    const vacationIds = favourites.map(fav => fav.vacation_id);
-
-    // 2. Получаем вакансии и отдельно информацию о пользователях
-    const vacations = await Vacation.findAll({
-      where: {
-        vacation_id: vacationIds
-      }
-    });
-
-    // 3. Получаем имена пользователей
-    const userIds = [...new Set(vacations.map(v => v.user_id))];
-    const users = await User.findAll({
-      where: {
-        user_id: userIds
-      },
-      attributes: ['user_id', 'name']
-    });
-
-    // 4. Соединяем данные
-    const userMap = users.reduce((acc, user) => {
-      acc[user.user_id] = user.name;
-      return acc;
-    }, {});
-
-    const formattedVacations = vacations.map(vac => ({
-      ...vac.get({ plain: true }),
-      user_name: userMap[vac.user_id] || 'Неизвестный пользователь'
+    // Форматируем данные для ответа
+    const formattedVacations = favourites.map(fav => ({
+      ...fav.vacation.get({ plain: true }),
+      user_name: fav.vacation.user?.name || 'Неизвестный пользователь'
     }));
 
     res.json({
@@ -527,8 +512,7 @@ app.get('/api/favourites/vacations', authenticateUser, async (req, res) => {
     console.error('Ошибка получения избранных вакансий:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Ошибка при получении избранных вакансий',
-      error: error.message
+      message: 'Ошибка при получении избранных вакансий'
     });
   }
 });

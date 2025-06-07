@@ -25,4 +25,5 @@ const Favourite = sequelize.define('Favourite', {
   timestamps: false
 });
 
+
 module.exports = Favourite;

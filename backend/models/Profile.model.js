@@ -71,6 +71,14 @@ const Profile = sequelize.define('Profile', {
     type: DataTypes.TEXT,
     allowNull: false
   },
+  profile_image: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  user_resume: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
   posted: {
     type: DataTypes.DATE,
     allowNull: true

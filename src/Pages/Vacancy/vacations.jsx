@@ -9,92 +9,82 @@ export function Vacations() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const fetchVacations = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const response = await axios.get('http://localhost:5000/api/vacations-extract-all');
-        if (response.data.success) {
-          setVacations(response.data.vacations);
-        } else {
-          setError('Не удалось загрузить вакансии');
-        }
-      } catch (err) {
-        console.error('Ошибка при загрузке вакансий:', err);
-        setError('Ошибка при загрузке вакансий');
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    const handleLikeClick = async (vacationId) => {
+    const fetchFavoriteVacations = async () => {
       const token = localStorage.getItem('authToken');
-  
-      if (!token) {
-        alert('Для добавления в избранное необходимо авторизоваться');
-        return;
-      }
+      if (!token) return;
 
       try {
-        if (favoriteVacations.includes(vacationId)) {
-          // Удаление из избранного
-          const response = await axios.delete(`http://localhost:5000/api/favourites/${vacationId}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          if (response.data.success) {
-            setFavoriteVacations(prev => prev.filter(id => id !== vacationId));
-            alert('Вакансия удалена из избранного');
-          }
-        } else {
-          // Добавление в избранное
-          const response = await axios.post(
-            'http://localhost:5000/api/favourites',
-            { vacation_id: vacationId },
-            {
-              headers: { 'Authorization': `Bearer ${token}` }
-            }
-          );
-        
-          if (response.data.success) {
-            setFavoriteVacations(prev => [...prev, vacationId]);
-            alert('Вакансия добавлена в избранное');
-          } else {
-            alert(response.data.message || 'Ошибка при добавлении в избранное');
-          }
+        const response = await axios.get('http://localhost:5000/api/favourites/vacations', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.data.success) {
+          // Теперь получаем просто массив ID
+          setFavoriteVacations(response.data.vacation_ids || []);
         }
       } catch (error) {
-        console.error('Ошибка:', error);
-        if (error.response && error.response.status === 401) {
-          alert('Сессия истекла. Пожалуйста, войдите снова.');
-        } else {
-          alert('Ошибка при обработке запроса');
-        }
+        console.error('Ошибка загрузки избранного:', error);
       }
     };
 
-    // useEffect(() => {
-    //   fetchVacations();
-    // }, []);
+    const fetchVacations = async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const response = await axios.get('http://localhost:5000/api/vacations-extract-all');
+            if (response.data.success) {
+                setVacations(response.data.vacations);
+            } else {
+                setError('Не удалось загрузить вакансии');
+            }
+        } catch (err) {
+            console.error('Ошибка при загрузке вакансий:', err);
+            setError('Ошибка при загрузке вакансий');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+
+    const handleLikeClick = async (vacationId) => {
+        const token = localStorage.getItem('authToken');
+    
+        if (!token) {
+            alert('Для добавления в избранное необходимо авторизоваться');
+            return;
+        }
+
+        try {
+            if (favoriteVacations.includes(vacationId)) {
+                await axios.delete(`http://localhost:5000/api/favourites/${vacationId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                setFavoriteVacations(prev => prev.filter(id => id !== vacationId));
+            } else {
+                await axios.post(
+                    'http://localhost:5000/api/favourites',
+                    { vacation_id: vacationId },
+                    { headers: { 'Authorization': `Bearer ${token}` } }
+                );
+                setFavoriteVacations(prev => [...prev, vacationId]);
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            if (error.response?.status === 401) {
+                alert('Сессия истекла. Пожалуйста, войдите снова.');
+            } else {
+                alert('Ошибка при обработке запроса');
+            }
+        }
+    };
 
     useEffect(() => {
-      const fetchFavoriteVacations = async () => {
-        const token = localStorage.getItem('authToken');
-        if (!token) return;
-      
-        try {
-          const response = await axios.get('http://localhost:5000/api/favourites/vacations', {
-            headers: { 'Authorization': `Bearer ${token}` }
-          });
-          if (response.data.success) {
-            setFavoriteVacations(response.data.vacations.map(v => v.vacation_id)); // Сохраняем только ID
-          }
-        } catch (error) {
-          console.error('Ошибка при загрузке избранных вакансий:', error);
-        }
-      };
-    
-      fetchVacations();
-      fetchFavoriteVacations();
+        const loadData = async () => {
+            await fetchFavoriteVacations();
+            await fetchVacations();
+        };
+        loadData();
     }, []);
 
     return(

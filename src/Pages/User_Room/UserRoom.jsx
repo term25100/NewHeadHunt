@@ -50,6 +50,40 @@ export function UserRoom({ activeTab }) {
     }
   };
 
+  const fetchFavoriteVacations = async () => {
+    setLoadingVacations(true);
+    setError('');
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setError('Ошибка аутентификации. Пожалуйста, войдите снова.');
+        setLoadingVacations(false);
+        return;
+      }
+
+      const response = await axios.get('http://localhost:5000/api/favourites/vacations', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.data.success) {
+        setFavoriteVacations(response.data.vacations);
+      } else {
+        setError('Не удалось загрузить избранные вакансии');
+      }
+    } catch (err) {
+      console.error('Ошибка при загрузке избранных вакансий:', err);
+      setError('Ошибка при загрузке избранных вакансий');
+    } finally {
+      setLoadingVacations(false);
+    }
+  };
+  useEffect(() => {
+    if (activeTab === 'favorites') {
+      fetchFavoriteVacations();
+    }
+  }, [activeTab]);
   // Загружаем вакансии при открытии вкладки "vacancy" и при закрытии попапа добавления вакансии
   useEffect(() => {
     if (activeTab === 'vacancy') {
@@ -330,8 +364,8 @@ export function UserRoom({ activeTab }) {
             <div className="profiles-user">
                     <div className="head-profiles">
                         <a href="#" className='add-button'>Добавить анкету</a>
-                        <a href="#">Архивные анкеты</a>
-                        <a href="#">Получать уведомления об откликах <span className='bell'>.....</span></a>
+                        <a>Активные анкеты</a>
+                        <a>Архивные анкеты</a>
                     </div>
                     <div className="profiles-scrollblock">
                         <div className="profiles-wrap profile-active">
