@@ -7,6 +7,7 @@ const { sequelize } = require('./config/db');
 const User = require('./models/User.model');
 const Vacation = require('./models/Vacation.model');
 const Favourite = require('./models/Favourite.model');
+const Profile = require('./models/Profile.model');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -541,6 +542,88 @@ app.delete('/api/favourites/:vacationId', authenticateUser, async (req, res) => 
     });
   }
 });
+
+app.post('/api/profiles', authenticateUser, async (req, res) => {
+  try {
+    const {
+      profile_name,
+      salary_from,
+      salary_to,
+      work_time,
+      work_place,
+      work_city,
+      biography,
+      career,
+      skills,
+      work_experience,
+      activity_fields,
+      qualities,
+      educations,
+      languages_knowledge,
+      additionally,
+      profile_image,
+      user_resume
+    } = req.body;
+
+    // Валидация (пример, можно расширить)
+    if (!profile_name || !work_city) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Обязательные поля: profile_name, work_city'
+      });
+    }
+
+    // Преобразуем некоторые поля в массивы, если они пришли строками
+    const normalizeArrayField = (field) => {
+      if (!field) return [];
+      if (Array.isArray(field)) return field;
+      if (typeof field === 'string') {
+        return field.split(',').map(s => s.trim()).filter(Boolean);
+      }
+      return [];
+    };
+
+    const newProfile = await Profile.create({
+      user_id: req.user.userId,
+      profile_name: profile_name || ' ',
+      salary_from: salary_from ? parseInt(salary_from) : 0,
+      salary_to: salary_to ? parseInt(salary_to) : 0,
+      work_time: normalizeArrayField(work_time),
+      work_place: normalizeArrayField(work_place),
+      work_city: work_city || ' ',
+      biography: biography || ' ',
+      career: career || ' ',
+      skills: normalizeArrayField(skills),
+      work_experience: normalizeArrayField(work_experience),
+      activity_fields: normalizeArrayField(activity_fields),
+      qualities: normalizeArrayField(qualities),
+      educations: normalizeArrayField(educations),
+      languages_knowledge: normalizeArrayField(languages_knowledge),
+      additionally: additionally || ' ',
+      profile_image: profile_image || ' ',
+      user_resume: user_resume || ' ',
+      posted: new Date()
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Профиль успешно создан',
+      profile: {
+        profile_id: newProfile.profile_id,
+        profile_name: newProfile.profile_name
+      }
+    });
+
+  } catch (error) {
+    console.error('Ошибка создания профиля:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Ошибка при создании профиля',
+      details: error.message
+    });
+  }
+});
+
 // Запуск сервера
 app.listen(PORT, () => {
   console.log(`Сервер запущен на http://localhost:${PORT}`);

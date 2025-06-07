@@ -3,7 +3,7 @@ import './vacation_add.css';
 import { useState } from 'react';
 import axios from 'axios';
 
-export function profile({ onClose }) {
+export function Profile_Add({ onClose }) {
   const [formData, setFormData] = useState({
     profile_name: '',
     salary_from: '',
@@ -24,41 +24,50 @@ export function profile({ onClose }) {
     user_resume: ''
   });
 
-  const [isDragging, setIsDragging] = useState(false);
+  const [isDraggingImage, setIsDraggingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState('');
+  const [isDraggingDoc, setIsDraggingDoc] = useState(false);
+  const [docName, setDocName] = useState('');
   const [error, setError] = useState('');
 
+  // Обработчик изменения полей (для простых полей)
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
+
+    // Для массивов (skills, work_time и т.п.) можно добавить отдельную логику, но здесь пока простой вариант
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
   };
 
-  const handleDragOver = (e) => {
+  // Drag & Drop для изображения профиля
+  const handleDragOverImage = (e) => {
     e.preventDefault();
-    setIsDragging(true);
+    setIsDraggingImage(true);
   };
 
-  const handleDragLeave = () => {
-    setIsDragging(false);
+  const handleDragLeaveImage = () => {
+    setIsDraggingImage(false);
   };
 
-  const handleDrop = (e) => {
+  const handleDropImage = (e) => {
     e.preventDefault();
-    setIsDragging(false);
-    
+    setIsDraggingImage(false);
     const file = e.dataTransfer.files[0];
     if (file && file.type.match('image.*')) {
       processImage(file);
+    } else {
+      setError('Пожалуйста, загрузите изображение (PNG, JPG, SVG)');
     }
   };
 
-  const handleFileChange = (e) => {
+  const handleFileChangeImage = (e) => {
     const file = e.target.files[0];
-    if (file) {
+    if (file && file.type.match('image.*')) {
       processImage(file);
+    } else {
+      setError('Пожалуйста, выберите изображение (PNG, JPG, SVG)');
     }
   };
 
@@ -66,122 +75,138 @@ export function profile({ onClose }) {
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target.result;
-      // Отделяем base64 от префикса data URL
-      const base64 = dataUrl.split(',')[1]; // всё после запятой
-
-      setImagePreview(dataUrl); // для превью оставляем полный dataUrl
-
+      const base64 = dataUrl.split(',')[1]; // base64 без префикса
+      setImagePreview(dataUrl);
       setFormData(prev => ({
         ...prev,
-        company_image: base64 // сохраняем только base64 без префикса
+        profile_image: base64
       }));
+      setError('');
     };
     reader.readAsDataURL(file);
   };
 
-  const validateForm = () => {
-    const errors = [];
-    
-    if (!formData.vacation_name.trim()) {
-      errors.push('Название вакансии обязательно');
+  // Drag & Drop для .docx файла (резюме)
+  const handleDragOverDoc = (e) => {
+    e.preventDefault();
+    setIsDraggingDoc(true);
+  };
+
+  const handleDragLeaveDoc = () => {
+    setIsDraggingDoc(false);
+  };
+
+  const handleDropDoc = (e) => {
+    e.preventDefault();
+    setIsDraggingDoc(false);
+    const file = e.dataTransfer.files[0];
+    if (file && file.name.toLowerCase().endsWith('.docx')) {
+      processDoc(file);
+    } else {
+      setError('Пожалуйста, загрузите файл в формате .docx');
     }
-    
-    if (!formData.salary_from || isNaN(formData.salary_from)) {
+  };
+
+  const handleFileChangeDoc = (e) => {
+    const file = e.target.files[0];
+    if (file && file.name.toLowerCase().endsWith('.docx')) {
+      processDoc(file);
+    } else {
+      setError('Пожалуйста, выберите файл в формате .docx');
+    }
+  };
+
+  const processDoc = (file) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target.result;
+      // dataUrl будет в формате data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,...
+      const base64 = dataUrl.split(',')[1];
+      setDocName(file.name);
+      setFormData(prev => ({
+        ...prev,
+        user_resume: base64
+      }));
+      setError('');
+    };
+    reader.readAsDataURL(file);
+  };
+
+  // Валидация формы (пример, можно расширить)
+  const validateForm = () => {
+    let errors = [];
+
+    if (!formData.profile_name.trim()) {
+      errors.push('Имя профиля обязательно');
+    }
+
+    // Пример проверки зарплаты (если заполнено)
+    if (formData.salary_from && isNaN(formData.salary_from)) {
       errors.push('Зарплата "от" должна быть числом');
     }
-    
-    if (!formData.salary_to || isNaN(formData.salary_to)) {
+
+    if (formData.salary_to && isNaN(formData.salary_to)) {
       errors.push('Зарплата "до" должна быть числом');
     }
-    
-    if (!formData.work_type.trim()) { // Проверка строки вместо массива
-      errors.push('Укажите тип работы');
-    }
 
-    if (!formData.work_place.trim()) { // Проверка строки вместо массива
-      errors.push('Укажите место работы');
-    }
-
-    if (!formData.work_region.trim()) {
-      errors.push('Регион обязателен');
-    }
-    
+    // Проверка города
     if (!formData.work_city.trim()) {
       errors.push('Город обязателен');
     }
-    
-    if (!formData.company_email.trim() || !/^\S+@\S+\.\S+$/.test(formData.company_email)) {
-      errors.push('Введите корректный email (например, example@domain.com)');
-    }
-    
-    if (!formData.company_phone.trim() || !/^\+?[0-9\s\-()]+$/.test(formData.company_phone)) {
-      errors.push('Введите корректный телефон (например, +7(123)456-78-90)');
-    }
-    
-    if (!formData.work_description.trim()) {
-      errors.push('Описание работы обязательно');
-    }
-    
-    if (!formData.required_skills.trim()) { // Проверка строки вместо массива
-      errors.push('Укажите требуемые навыки');
-    }
-    
+
     if (errors.length > 0) {
       setError(errors.join('\n'));
       return false;
     }
-    
+
+    setError('');
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
       const token = localStorage.getItem('authToken');
-      console.log(token);
       if (!token) {
         setError('Ошибка аутентификации. Пожалуйста, войдите снова.');
         return;
       }
-      
-      const cleanedPhone = formData.company_phone.replace(/[^\d+]/g, '');
-      
+
+      // Подготовка данных для отправки
       const requestData = {
         ...formData,
-        salary_from: parseInt(formData.salary_from),
-        salary_to: parseInt(formData.salary_to),
-        zip_code: formData.zip_code ? parseInt(formData.zip_code) : null,
-        company_phone: cleanedPhone,
-        // Массивы преобразуем из строк при необходимости
-        work_type: formData.work_type.split(',').map(item => item.trim()).filter(item => item),
-        work_place: formData.work_place.split(',').map(item => item.trim()).filter(item => item),
-        required_skills: formData.required_skills.split(',').map(item => item.trim()).filter(item => item),
-        work_advantages: formData.work_advantages ? 
-          formData.work_advantages.split(',').map(item => item.trim()).filter(item => item) : 
-          null
+        salary_from: formData.salary_from ? parseInt(formData.salary_from) : null,
+        salary_to: formData.salary_to ? parseInt(formData.salary_to) : null,
+        // Преобразование строк в массивы, если нужно (например, skills)
+        skills: typeof formData.skills === 'string' ? formData.skills.split(',').map(s => s.trim()).filter(Boolean) : formData.skills,
+        work_time: typeof formData.work_time === 'string' ? formData.work_time.split(',').map(s => s.trim()).filter(Boolean) : formData.work_time,
+        work_place: typeof formData.work_place === 'string' ? formData.work_place.split(',').map(s => s.trim()).filter(Boolean) : formData.work_place,
+        work_experience: typeof formData.work_experience === 'string' ? formData.work_experience.split(',').map(s => s.trim()).filter(Boolean) : formData.work_experience,
+        activity_fields: typeof formData.activity_fields === 'string' ? formData.activity_fields.split(',').map(s => s.trim()).filter(Boolean) : formData.activity_fields,
+        qualities: typeof formData.qualities === 'string' ? formData.qualities.split(',').map(s => s.trim()).filter(Boolean) : formData.qualities,
+        educations: typeof formData.educations === 'string' ? formData.educations.split(',').map(s => s.trim()).filter(Boolean) : formData.educations,
+        languages_knowledge: typeof formData.languages_knowledge === 'string' ? formData.languages_knowledge.split(',').map(s => s.trim()).filter(Boolean) : formData.languages_knowledge,
       };
-      console.log('Данные для отправки на сервер:', requestData);
-      const response = await axios.post('http://localhost:5000/api/vacations', requestData, {
+
+      const response = await axios.post('http://localhost:5000/api/profiles', requestData, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         }
       });
-      
+
       if (response.data.success) {
+        alert('Профиль успешно добавлен!');
         onClose();
-        alert("Вакансия добавлена!");
         window.location.reload();
+      } else {
+        setError(response.data.message || 'Ошибка при добавлении профиля');
       }
     } catch (err) {
-      console.error('Ошибка при создании вакансии:', err);
-      setError(err.response?.data?.message || 'Произошла ошибка при создании вакансии. Проверьте введенные данные.');
+      console.error(err);
+      setError(err.response?.data?.message || 'Ошибка при отправке данных');
     }
   };
 
@@ -189,242 +214,180 @@ export function profile({ onClose }) {
     <div className="popup-overlay">
       <div className="popup-container">
         <button className="close-btn" onClick={onClose}>×</button>
-        <h2 className="popup-title">Добавить вакансию</h2>
-        
+        <h2 className="popup-title">Добавить профиль</h2>
+
         <form onSubmit={handleSubmit} className="scrollable-form">
-          <div className="form-columns">
-            <div className="form-column">
-              <div className="form-section">
-                <h3 className="section-title">Основная информация</h3>
-                
-                <div className="form-group">
-                  <label>Название вакансии</label>
-                  <input
-                    type="text"
-                    name="vacation_name"
-                    value={formData.vacation_name}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Зарплата от</label>
-                  <input
-                    type="number"
-                    name="salary_from"
-                    value={formData.salary_from}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label>Зарплата до</label>
-                  <input
-                    type="number"
-                    name="salary_to"
-                    value={formData.salary_to}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Типы работы (введите текст)</label>
-                  <input
-                    type="text"
-                    name="work_type"
-                    value={formData.work_type}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Места работы (введите текст)</label>
-                  <input
-                    type="text"
-                    name="work_place"
-                    value={formData.work_place}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Описание типа работы</label>
-                  <textarea
-                    name="about_work_type"
-                    value={formData.about_work_type}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-
-              <div className="form-section">
-                <h3 className="section-title">Местоположение</h3>
-                
-                <div className="form-group">
-                  <label>Регион</label>
-                  <input
-                    type="text"
-                    name="work_region"
-                    value={formData.work_region}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label>Город</label>
-                  <input
-                    type="text"
-                    name="work_city"
-                    value={formData.work_city}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Адрес</label>
-                  <input
-                    type="text"
-                    name="work_adress"
-                    value={formData.work_adress}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Почтовый индекс</label>
-                  <input
-                    type="number"
-                    name="zip_code"
-                    value={formData.zip_code}
-                    onChange={handleChange}
-                  />
-                </div>
-                <div className="form-group checkbox-group">
-                  <label>Сделать вакансию активной?</label>
-                  <input
-                    type="checkbox"
-                    name="active"
-                    value={formData.active}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="form-column">
-              <div className="form-section">
-                <h3 className="section-title">Контакты</h3>
-                
-                <div className="form-group">
-                  <label>Email компании</label>
-                  <input
-                    type="email"
-                    name="company_email"
-                    value={formData.company_email}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label>Телефон компании</label>
-                  <input
-                    type="tel"
-                    name="company_phone"
-                    value={formData.company_phone}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Сайт компании</label>
-                  <input
-                    type="url"
-                    name="company_site"
-                    value={formData.company_site}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-
-              <div className="form-section">
-                <h3 className="section-title">Описание вакансии</h3>
-                
-                <div className="form-group">
-                  <label>Описание работы</label>
-                  <textarea
-                    name="work_description"
-                    value={formData.work_description}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                
-                <div className="form-group">
-                  <label>Требуемые навыки (введите текст)</label>
-                  <input
-                    type="text"
-                    name="required_skills"
-                    value={formData.required_skills}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Преимущества работы</label>
-                  <textarea
-                    name="advantages_describe"
-                    value={formData.advantages_describe}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Список преимуществ (введите текст)</label>
-                  <input
-                    type="text"
-                    name="work_advantages"
-                    value={formData.work_advantages}
-                    onChange={handleChange}
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Дополнительная информация</label>
-                  <textarea
-                    name="additionally"
-                    value={formData.additionally}
-                    onChange={handleChange}
-                  />
-                </div>
-              </div>
-            </div>
+          <div className="form-group">
+            <label>Имя профиля</label>
+            <input
+              type="text"
+              name="profile_name"
+              value={formData.profile_name}
+              onChange={handleChange}
+              required
+            />
           </div>
 
+          <div className="form-group">
+            <label>Зарплата от</label>
+            <input
+              type="number"
+              name="salary_from"
+              value={formData.salary_from}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Зарплата до</label>
+            <input
+              type="number"
+              name="salary_to"
+              value={formData.salary_to}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Время работы (через запятую)</label>
+            <input
+              type="text"
+              name="work_time"
+              value={typeof formData.work_time === 'string' ? formData.work_time : formData.work_time.join(', ')}
+              onChange={handleChange}
+              placeholder="Например: полный день, удалёнка"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Место работы (через запятую)</label>
+            <input
+              type="text"
+              name="work_place"
+              value={typeof formData.work_place === 'string' ? formData.work_place : formData.work_place.join(', ')}
+              onChange={handleChange}
+              placeholder="Например: офис, удалёнка"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Город</label>
+            <input
+              type="text"
+              name="work_city"
+              value={formData.work_city}
+              onChange={handleChange}
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Биография</label>
+            <textarea
+              name="biography"
+              value={formData.biography}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Карьера</label>
+            <textarea
+              name="career"
+              value={formData.career}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Навыки (через запятую)</label>
+            <input
+              type="text"
+              name="skills"
+              value={typeof formData.skills === 'string' ? formData.skills : formData.skills.join(', ')}
+              onChange={handleChange}
+              placeholder="Например: JavaScript, React, Node.js"
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Опыт работы (через запятую)</label>
+            <input
+              type="text"
+              name="work_experience"
+              value={typeof formData.work_experience === 'string' ? formData.work_experience : formData.work_experience.join(', ')}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Области деятельности (через запятую)</label>
+            <input
+              type="text"
+              name="activity_fields"
+              value={typeof formData.activity_fields === 'string' ? formData.activity_fields : formData.activity_fields.join(', ')}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Качества (через запятую)</label>
+            <input
+              type="text"
+              name="qualities"
+              value={typeof formData.qualities === 'string' ? formData.qualities : formData.qualities.join(', ')}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Образование (через запятую)</label>
+            <input
+              type="text"
+              name="educations"
+              value={typeof formData.educations === 'string' ? formData.educations : formData.educations.join(', ')}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Знание языков (через запятую)</label>
+            <input
+              type="text"
+              name="languages_knowledge"
+              value={typeof formData.languages_knowledge === 'string' ? formData.languages_knowledge : formData.languages_knowledge.join(', ')}
+              onChange={handleChange}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Дополнительная информация</label>
+            <textarea
+              name="additionally"
+              value={formData.additionally}
+              onChange={handleChange}
+            />
+          </div>
+
+          {/* Drag & Drop для изображения профиля */}
           <div className="form-section">
-            <h3 className="section-title">Логотип компании</h3>
-            <div 
-              className={`image-upload ${isDragging ? 'dragging' : ''}`}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
+            <h3 className="section-title">Изображение профиля</h3>
+            <div
+              className={`image-upload ${isDraggingImage ? 'dragging' : ''}`}
+              onDragOver={handleDragOverImage}
+              onDragLeave={handleDragLeaveImage}
+              onDrop={handleDropImage}
             >
               {imagePreview ? (
                 <>
                   <img src={imagePreview} alt="Preview" className="image-preview" />
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="change-image-btn"
-                    onClick={() => setImagePreview('')}
+                    onClick={() => {
+                      setImagePreview('');
+                      setFormData(prev => ({ ...prev, profile_image: '' }));
+                    }}
                   >
                     Изменить изображение
                   </button>
@@ -435,10 +398,10 @@ export function profile({ onClose }) {
                     <p>Перетащите изображение сюда или</p>
                     <label className="file-input-label">
                       Выберите файл
-                      <input 
-                        type="file" 
+                      <input
+                        type="file"
                         accept="image/*"
-                        onChange={handleFileChange}
+                        onChange={handleFileChangeImage}
                         className="file-input"
                       />
                     </label>
@@ -449,9 +412,57 @@ export function profile({ onClose }) {
             </div>
           </div>
 
+          {/* Drag & Drop для файла резюме .docx */}
+          <div className="form-section">
+            <h3 className="section-title">Загрузить резюме (.docx)</h3>
+            <div
+              className={`doc-upload ${isDraggingDoc ? 'dragging' : ''}`}
+              onDragOver={handleDragOverDoc}
+              onDragLeave={handleDragLeaveDoc}
+              onDrop={handleDropDoc}
+              style={{
+                border: '2px dashed #999',
+                padding: '20px',
+                textAlign: 'center',
+                cursor: 'pointer',
+                borderRadius: '8px',
+                marginBottom: '15px'
+              }}
+            >
+              {docName ? (
+                <>
+                  <p>Выбран файл: <strong>{docName}</strong></p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDocName('');
+                      setFormData(prev => ({ ...prev, user_resume: '' }));
+                    }}
+                  >
+                    Удалить файл
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p>Перетащите файл .docx сюда или</p>
+                  <label style={{ cursor: 'pointer', color: '#007bff', textDecoration: 'underline' }}>
+                    Выберите файл
+                    <input
+                      type="file"
+                      accept=".docx"
+                      onChange={handleFileChangeDoc}
+                      style={{ display: 'none' }}
+                    />
+                  </label>
+                  <p style={{ fontSize: '12px', color: '#666' }}>Максимальный размер файла: 10MB</p>
+                </>
+              )}
+            </div>
+          </div>
+
           <div className="form-actions">
-            {error && <div className="error-message">{error}</div>}
-            <button type="submit" className="submit-btn">Опубликовать вакансию</button>
+            {error && <div className="error-message" style={{ whiteSpace: 'pre-wrap' }}>{error}</div>}
+            <button type="submit" className="submit-btn">Сохранить профиль</button>
             <button type="button" className="cancel-btn" onClick={onClose}>Отмена</button>
           </div>
         </form>

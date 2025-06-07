@@ -5,8 +5,10 @@ import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import myImage from '../Images/Peoples/sergei.webp';
+import { Profile_Add } from './profile_add';
 export function UserRoom({ activeTab }) {
   const [showPopupAdd, setShowPopupAdd] = useState(false);
+  const [showPopupProfileAdd, setShowPopupProfileAdd] = useState(false);
   const [showPopupEdit, setShowPopupEdit] = useState(false);
   const [selectedVacation, setSelectedVacation] = useState(null);
   const [showArchived, setShowArchived] = useState(false);
@@ -98,6 +100,11 @@ export function UserRoom({ activeTab }) {
     }
   }, [showPopupAdd, activeTab]);
 
+  useEffect(()=>{
+    if(!showPopupProfileAdd && activeTab === 'profiles'){
+      //fetchProfiles();
+    }
+  })
   const filteredVacations = vacations.filter(vac => vac.active !== showArchived);
 
   
@@ -363,7 +370,12 @@ export function UserRoom({ activeTab }) {
         <div className='main-container-profiles'>
             <div className="profiles-user">
                     <div className="head-profiles">
-                        <a href="#" className='add-button'>Добавить анкету</a>
+                        <a href="#" onClick={() => setShowPopupProfileAdd(true)} className='add-button'>Добавить анкету</a>
+                        {showPopupProfileAdd && (
+                          <Profile_Add 
+                            onClose={() => setShowPopupProfileAdd(false)}
+                          />
+                        )}
                         <a>Активные анкеты</a>
                         <a>Архивные анкеты</a>
                     </div>
