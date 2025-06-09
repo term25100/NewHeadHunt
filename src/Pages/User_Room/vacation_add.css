@@ -198,6 +198,7 @@
 }
 
 .glowing-button {
+    width:fit-content;
     position: relative;
     padding: .5vw 1vw;
     font-size: .8vw;

@@ -6,6 +6,9 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import myImage from '../Images/Peoples/sergei.webp';
 import { Profile_Add } from './profile_add';
+import { ProfileAddSteps} from './steps';
+import { TourProvider } from "@reactour/tour";
+
 export function UserRoom({ activeTab }) {
   const [showPopupAdd, setShowPopupAdd] = useState(false);
   const [showPopupProfileAdd, setShowPopupProfileAdd] = useState(false);

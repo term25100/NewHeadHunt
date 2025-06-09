@@ -160,6 +160,18 @@ app.get('/api/user', authenticateUser, async (req, res) => {
   }
 });
 
+app.get('/api/user/:id', async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Пользователь не найден' });
+    }
+    res.json({ success: true, user });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Ошибка сервера' });
+  }
+});
+
 app.post('/api/vacations', authenticateUser, async (req, res) => {
   try {
     const {
@@ -721,7 +733,18 @@ app.post('/api/extract-and-fill', async (req, res) => {
   }
 });
 
-
+app.get('/api/profile/:id', async (req, res) => {
+  const id = req.params.id;
+  try {
+    const profile = await Profile.findByPk(id); // или другой метод поиска
+    if (!profile) {
+      return res.status(404).json({ success: false, message: 'Анкета не найдена' });
+    }
+    res.json({ success: true, profile });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Ошибка сервера' });
+  }
+});
 
 // Запуск сервера
 app.listen(PORT, () => {

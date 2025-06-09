@@ -4,6 +4,7 @@ import { useState } from 'react';
 import axios from 'axios';
 
 export function Profile_Add({ onClose }) {
+
   const [formData, setFormData] = useState({
     profile_name: '',
     salary_from: '',
@@ -248,9 +249,11 @@ export function Profile_Add({ onClose }) {
             <label>Имя профиля</label>
             <input
               type="text"
+              className='Profile_name'
               name="profile_name"
               value={formData.profile_name}
               onChange={handleChange}
+              placeholder='Введите название должности которую хотите занимать'
               required
             />
           </div>
@@ -262,6 +265,7 @@ export function Profile_Add({ onClose }) {
               name="salary_from"
               value={formData.salary_from}
               onChange={handleChange}
+              placeholder='Введите минимальную желаемую зарплату'
             />
           </div>
 
@@ -272,6 +276,7 @@ export function Profile_Add({ onClose }) {
               name="salary_to"
               value={formData.salary_to}
               onChange={handleChange}
+              placeholder='Введите желаемую зарплату'
             />
           </div>
 
@@ -305,6 +310,7 @@ export function Profile_Add({ onClose }) {
               value={formData.work_city}
               onChange={handleChange}
               required
+              placeholder='Введите название города в котором планируете работать'
             />
           </div>
 
@@ -314,6 +320,7 @@ export function Profile_Add({ onClose }) {
               name="biography"
               value={formData.biography}
               onChange={handleChange}
+              placeholder='Изложите свою биографию'
             />
           </div>
 
@@ -323,6 +330,7 @@ export function Profile_Add({ onClose }) {
               name="career"
               value={formData.career}
               onChange={handleChange}
+              placeholder='Изложите где вы раньше работали и какие должности занимали'
             />
           </div>
 
@@ -344,6 +352,7 @@ export function Profile_Add({ onClose }) {
               name="work_experience"
               value={typeof formData.work_experience === 'string' ? formData.work_experience : formData.work_experience.join(', ')}
               onChange={handleChange}
+              placeholder='Введите первым значением опыт вашей работы к примеру (3 года) а дальше перечисляйте места работы.'
             />
           </div>
 
@@ -354,6 +363,7 @@ export function Profile_Add({ onClose }) {
               name="activity_fields"
               value={typeof formData.activity_fields === 'string' ? formData.activity_fields : formData.activity_fields.join(', ')}
               onChange={handleChange}
+              placeholder='Перечислите чем вы занимались на прошлых работах'
             />
           </div>
 
@@ -364,6 +374,7 @@ export function Profile_Add({ onClose }) {
               name="qualities"
               value={typeof formData.qualities === 'string' ? formData.qualities : formData.qualities.join(', ')}
               onChange={handleChange}
+              placeholder='Перечислите ваши достойные качества по вашему мнению'
             />
           </div>
 
@@ -374,6 +385,7 @@ export function Profile_Add({ onClose }) {
               name="educations"
               value={typeof formData.educations === 'string' ? formData.educations : formData.educations.join(', ')}
               onChange={handleChange}
+              placeholder='Введите первым значением свою образовательную ступень например: (Высшее образование) а затем перечисляйте образовательные учреждения'
             />
           </div>
 
@@ -384,6 +396,7 @@ export function Profile_Add({ onClose }) {
               name="languages_knowledge"
               value={typeof formData.languages_knowledge === 'string' ? formData.languages_knowledge : formData.languages_knowledge.join(', ')}
               onChange={handleChange}
+              placeholder='Перечислите языки которые вы знаете и уровни владения'
             />
           </div>
 
@@ -393,6 +406,7 @@ export function Profile_Add({ onClose }) {
               name="additionally"
               value={formData.additionally}
               onChange={handleChange}
+              placeholder='Добавьте любую дополнительную информацию'
             />
           </div>
 
@@ -489,7 +503,7 @@ export function Profile_Add({ onClose }) {
 
           <div className="form-actions">
             {error && <div className="error-message" style={{ whiteSpace: 'pre-wrap' }}>{error}</div>}
-            <button className='glowing-button' onClick={handleExtractAndFill}>Подгрузить данные c AI</button>
+            <button className='glowing-button' title='ИИ подставит данные автоматически при загруженном docx файле' onClick={handleExtractAndFill}>Подгрузить данные c AI</button>
             <button type="submit" className="submit-btn">Сохранить профиль</button>
             <button type="button" className="cancel-btn" onClick={onClose}>Отмена</button>
           </div>

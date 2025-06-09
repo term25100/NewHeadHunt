@@ -9,6 +9,7 @@ import { Sign_In } from './Pages/sign_in';
 import { Sign_Up } from './Pages/sign_up';
 import { User_Room } from './Pages/user_room';
 import { Profile_Card } from './Pages/profile_card';
+
 function AppContent() {
   const location = useLocation();
   
@@ -57,7 +58,7 @@ function AppContent() {
         />
 
         <Route
-          path='/profile_card'
+          path='/profile/:profileId'
           element={<Profile_Card />}
         />
       </Routes>
@@ -68,7 +69,7 @@ function AppContent() {
 function App() {
   return (
     <Router>
-      <AppContent />
+        <AppContent />
     </Router>
   );
 }
