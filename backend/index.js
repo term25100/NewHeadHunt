@@ -11,9 +11,10 @@ const Profile = require('./models/Profile.model');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+const API_KEY = 'sk-0ssmtJ9iOuZESsp8WcWdrmJFHStvpQyeO6C3SWgdh5sWMm6s9KNlmydF9GbN';
+const API_URL = 'https://api.gen-api.ru/api/v1/networks/chat-gpt-3';
 // Middleware
 app.use(cors());
-app.use(express.json());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Проверка подключения к БД
@@ -623,6 +624,104 @@ app.post('/api/profiles', authenticateUser, async (req, res) => {
     });
   }
 });
+
+app.get('/api/profiles-extract', authenticateUser, async (req, res) => {
+  try {
+    const { archived } = req.query; // получаем параметр из query string // преобразуем в boolean
+
+    const profiles = await Profile.findAll({
+      where: { 
+        user_id: req.user.userId 
+      },
+      attributes: { exclude: ['user_id'] },
+      order: [['posted', 'DESC']]
+    });
+    const user = await User.findByPk(req.user.userId, {
+      attributes: ['user_id', 'name'] // Не возвращаем пароль
+    });
+    res.json({
+      success: true,
+      count: profiles.length,
+      user,
+      profiles
+    });
+  } catch (error) {
+    console.error('Ошибка получения вакансий:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка при получении вакансий' 
+    });
+  }
+});
+
+app.delete('/api/profile-delete/:id', authenticateUser, async (req, res) => {
+  const profileId = req.params.id;
+
+  try {
+    const profile = await Profile.findByPk(profileId);
+
+    if (!profile) {
+      return res.status(404).json({ success: false, message: 'Анкета не найдена' });
+    }
+
+    if (profile.user_id !== req.user.userId) {
+      return res.status(403).json({ success: false, message: 'Нет доступа к удалению этой анкеты' });
+    }
+
+    await profile.destroy();
+
+    res.json({ success: true, message: 'Анкета успешно удалена' });
+  } catch (error) {
+    console.error('Ошибка при удалении анкеты:', error);
+    res.status(500).json({ success: false, message: 'Ошибка при удалении анкеты' });
+  }
+});
+
+app.post('/api/extract-and-fill', async (req, res) => {
+  const { user_resume } = req.body;
+
+  if (!user_resume) {
+    return res.status(400).json({ message: 'Резюме не получено' });
+  }
+
+  try {
+    const payload = {
+      messages: [
+        {
+          role: 'user',
+          content: `Проанализируй это резюме и верни данные в формате JSON со следующими полями: profile_name, salary_from, salary_to, work_time, work_place, work_city, biography, career, skills, work_experience, activity_fields, qualities, educations, languages_knowledge, additionally. Резюме: ${user_resume}`
+        }
+      ],
+      callback_url: null
+    };
+
+    const headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': `Bearer ${API_KEY}`
+    };
+
+    const response = await axios.post(API_URL, payload, { headers });
+
+    const result = response.data?.response?.message?.content;
+
+    // Парсим ответ нейросети как JSON
+    let parsed;
+    try {
+      parsed = JSON.parse(result);
+    } catch (e) {
+      return res.status(500).json({ message: 'Ответ не в формате JSON', raw: result });
+    }
+
+    res.json(parsed);
+    console.log(res.json(parsed));
+  } catch (error) {
+    console.error('Ошибка запроса к нейросети:', error?.response?.data || error.message);
+    res.status(500).json({ message: 'Ошибка при обращении к нейросети' });
+  }
+});
+
+
 
 // Запуск сервера
 app.listen(PORT, () => {

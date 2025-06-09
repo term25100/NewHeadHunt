@@ -375,7 +375,7 @@
     justify-content: space-between;
 }
 .info{
-    width: 70%;
+    width: 80%;
     height: auto;
     display: flex;
     flex-direction: column;
@@ -408,18 +408,18 @@
 }
 .descriptions{
     display: flex;
-    justify-content: space-between;
-    width: 27vw;
+    justify-content: flex-start;
+    width: 100%;
     column-gap: 2vw;
 }
 .descriptions-fav{
     display: flex;
     justify-content: space-between;
     width: 35vw;
-    column-gap: 2vw;
 }
 .descript-flex{
     display: flex;
+    margin-right: 1vw;
     flex-direction: column;
     justify-content: flex-start;
 }

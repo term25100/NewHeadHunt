@@ -13,9 +13,11 @@ export function UserRoom({ activeTab }) {
   const [selectedVacation, setSelectedVacation] = useState(null);
   const [showArchived, setShowArchived] = useState(false);
   const [vacations, setVacations] = useState([]);
+  const [profiles, setProfiles] = useState([]);
   const [favoriteVacations, setFavoriteVacations] = useState([]);
   const [userName, setUserName]=useState([]);
   const [loadingVacations, setLoadingVacations] = useState(false);
+  const [loadingProfiles, setLoadingProfiles] = useState(false);
   const [error, setError] = useState('');
 
   // Функция загрузки вакансий пользователя с сервера
@@ -81,6 +83,37 @@ export function UserRoom({ activeTab }) {
       setLoadingVacations(false);
     }
   };
+
+  const fetchProfiles = async () => {
+    setLoadingProfiles(true);
+    setError('');
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setError('Ошибка аутентификации. Пожалуйста, войдите снова.');
+        setProfiles([]);
+        setLoadingProfiles(false);
+        return;
+      }
+      const response = await axios.get('http://localhost:5000/api/profiles-extract', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        },
+      });
+      if (response.data.success) {
+        setProfiles(response.data.profiles);
+        setUserName(response.data.user);
+      } else {
+        setError('Не удалось загрузить анкеты');
+      }
+    } catch (err) {
+      console.error('Ошибка при загрузке анкет:', err);
+      setError('Ошибка при загрузке Анкет');
+    } finally {
+      setLoadingProfiles(false);
+    }
+  };
+
   useEffect(() => {
     if (activeTab === 'favorites') {
       fetchFavoriteVacations();
@@ -102,9 +135,9 @@ export function UserRoom({ activeTab }) {
 
   useEffect(()=>{
     if(!showPopupProfileAdd && activeTab === 'profiles'){
-      //fetchProfiles();
+      fetchProfiles();
     }
-  })
+  }, [showPopupProfileAdd, activeTab]);
   const filteredVacations = vacations.filter(vac => vac.active !== showArchived);
 
   
@@ -175,6 +208,39 @@ export function UserRoom({ activeTab }) {
   const handleEditClick = (vacation) => {
     setSelectedVacation(vacation);
     setShowPopupEdit(true);
+  };
+
+  const handleDeleteProfile = async (profileId) => {
+    const confirmDelete = window.confirm('Вы действительно хотите удалить эту анкету?');
+    if (!confirmDelete) return;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        alert('Ошибка аутентификации. Пожалуйста, войдите снова.');
+        return;
+      }
+
+      const response = await axios.delete(`http://localhost:5000/api/profile-delete/${profileId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.data.success) {
+        setProfiles(prev => prev.filter(prof => prof.profile_id !== profileId));
+      } else {
+        alert('Не удалось удалить анкету.');
+      }
+    } catch (error) {
+      console.error('Ошибка при удалении анкеты:', error);
+      alert('Произошла ошибка при удалении анкеты.');
+    }
+  };
+
+  const handleEditProfileClick = (profile) => {
+    // Здесь можно реализовать логику редактирования профиля
+    console.log('Редактирование профиля:', profile);
   };
 
   return (
@@ -368,299 +434,171 @@ export function UserRoom({ activeTab }) {
 
       {activeTab === "profiles" && (
         <div className='main-container-profiles'>
-            <div className="profiles-user">
-                    <div className="head-profiles">
-                        <a href="#" onClick={() => setShowPopupProfileAdd(true)} className='add-button'>Добавить анкету</a>
-                        {showPopupProfileAdd && (
-                          <Profile_Add 
-                            onClose={() => setShowPopupProfileAdd(false)}
-                          />
-                        )}
-                        <a>Активные анкеты</a>
-                        <a>Архивные анкеты</a>
-                    </div>
-                    <div className="profiles-scrollblock">
-                        <div className="profiles-wrap profile-active">
-                            <div className="profile-info">
-                                <div className='profile_wrapper'>
-                                    <div className="info">
-                                        <p className="modificate">Продвинуто: Head / Hunt</p>
-                                        <a href="" className='name-profile'>Фронтенд разработчик</a>
-                                        <p className='post-message'>Размещено <span id='date'>19 декабря</span> <span><a href="#" id='person'>Сергей А.Ф.</a></span></p>
-                                        <div className="descriptions">
-                                            <div className="descript-flex">
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/ruble.png')} className='descript-image' alt="" />
-                                                    <p id='salary-description'>100000 - 120000 рублей в месяц</p>
-                                                </div>
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/graduation.png')} className='descript-image' alt="" />
-                                                    <p id='salary-description'>Образование: <span id='graduate'>Высшее</span></p>
-                                                </div>
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/exp.png')} className='descript-image' alt="" />
-                                                    <p id='salary-description'>Опыт работы: <span id='experiance'>3</span> года</p>
-                                                </div>
-                                            </div>
-                                            <div className="descript-flex">
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/clock.png')} className='descript-image' alt="" />
-                                                    <p id='time-description'>Полный рабочий день</p>
-                                                </div>
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
-                                                    <p id='location-description'>Офис, работа на дому</p>
-                                                </div>
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/location.png')} className='descript-image' alt="" />
-                                                    <p id='location-description'>Место жительства: <span id='city'>Тула</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="delete-button">
-                                        <button></button>
-                                        <div className="profile-photo p1"></div>
-                                    </div>
-                                </div>
-                                <div className="manual-buttons">
-                                    <details className='description_about'>
-                                        <summary>Подробнее</summary>
-                                        <div className="details-content">
-                                            <h3>Резюме:{}</h3>
-                                            <ul>
-                                                <li>ФИО: Аганов Сергей Федорович</li>
-                                                <li>Местоположение: Тула (готов к гибридному формату: офис + удалённая работа)</li>
-                                                <li>Занятость: Полный рабочий день</li>
-                                                <li>Ожидаемая зарплата: 100 000 – 120 000 рублей</li>
-                                            </ul>
-                                            <h3>Навыки:</h3>
-                                            <ul>
-                                                <li>JavaScript (ES6+), TypeScript;</li>
-                                                <li>React.js / Next.js (опыт от 3 лет);</li>
-                                                <li>Vue.js / Angular — базовое владение;</li>
-                                                <li>HTML5, CSS3 (Sass/SCSS, Tailwind CSS).</li>
-                                                <li>Webpack, Vite;</li>
-                                                <li>Git, GitHub/GitLab;</li>
-                                                <li>Figma (адаптивная вёрстка по макетам).</li>
-                                                <li>Знание REST API, GraphQL;</li>
-                                                <li>Базовый бэкенд (Node.js, Express).</li>
-                                            </ul>
-                                            <h3>Опыт работы:</h3>
-                                            <p>🚀 Frontend-разработчик (3 года)
-                                            Название компании / Фриланс | 2021 – н.в.</p>
-                                            <ul>
-                                                <li>Разработка SPA-приложений на React;</li>
-                                                <li>Оптимизация производительности (Lazy Loading, PWA);</li>
-                                                <li>Взаимодействие с дизайнерами и бэкенд-разработчиками.</li>
-                                            </ul>
-                                            <h3>Образование:</h3>
-                                            <p>Высшее образование:
-                                            Тульский государственный университет / IT-специальность (2015–2020).<br />
-                                            Курсы: «React Advanced» от Яндекс.Практикум; «Modern JavaScript» (Udemy).
-                                            </p>
-                                            <h3>Знание языков:</h3>
-                                            <p>Русский (родной), Английский (B1)</p>
-                                            <h3>Контакты:</h3>
-                                            <ul>
-                                                <li>Телефон: +7(354)343-43-33</li>
-                                                <li>Email: sergeiAF@gmail.com</li>
-                                                <li>GitHub: <a href='#'>https://github.com/sergeiAF/</a></li>
-                                            </ul>
-                                        </div>
-                                    </details>
-                                    <a href="#" className='edit-button'>Редактировать <span className='img-edit'>.</span></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="profiles-wrap profile-active">
-                            <div className="profile-info">
-                                <div className='profile_wrapper'>
-                                    <div className="info">
-                                        <p className="modificate">Продвинуто: Head / Hunt</p>
-                                        <a href="" className='name-profile'>Фронтенд разработчик</a>
-                                        <p className='post-message'>Размещено <span id='date'>19 декабря</span> <span><a href="#" id='person'>Сергей А.Ф.</a></span></p>
-                                        <div className="descriptions">
-                                            <div className="descript-flex">
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/ruble.png')} className='descript-image' alt="" />
-                                                    <p id='salary-description'>100000 - 120000 рублей в месяц</p>
-                                                </div>
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/graduation.png')} className='descript-image' alt="" />
-                                                    <p id='salary-description'>Образование: <span id='graduate'>Высшее</span></p>
-                                                </div>
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/exp.png')} className='descript-image' alt="" />
-                                                    <p id='salary-description'>Опыт работы: <span id='experiance'>3</span> года</p>
-                                                </div>
-                                            </div>
-                                            <div className="descript-flex">
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/clock.png')} className='descript-image' alt="" />
-                                                    <p id='time-description'>Полный рабочий день</p>
-                                                </div>
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
-                                                    <p id='location-description'>Офис, работа на дому</p>
-                                                </div>
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/location.png')} className='descript-image' alt="" />
-                                                    <p id='location-description'>Место жительства: <span id='city'>Тула</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="delete-button">
-                                        <button></button>
-                                        <div className="profile-photo p1"></div>
-                                    </div>
-                                </div>
-                                <div className="manual-buttons">
-                                    <details className='description_about'>
-                                        <summary>Подробнее</summary>
-                                        <div className="details-content">
-                                            <h3>Резюме:{}</h3>
-                                            <ul>
-                                                <li>ФИО: Аганов Сергей Федорович</li>
-                                                <li>Местоположение: Тула (готов к гибридному формату: офис + удалённая работа)</li>
-                                                <li>Занятость: Полный рабочий день</li>
-                                                <li>Ожидаемая зарплата: 100 000 – 120 000 рублей</li>
-                                            </ul>
-                                            <h3>Навыки:</h3>
-                                            <ul>
-                                                <li>JavaScript (ES6+), TypeScript;</li>
-                                                <li>React.js / Next.js (опыт от 3 лет);</li>
-                                                <li>Vue.js / Angular — базовое владение;</li>
-                                                <li>HTML5, CSS3 (Sass/SCSS, Tailwind CSS).</li>
-                                                <li>Webpack, Vite;</li>
-                                                <li>Git, GitHub/GitLab;</li>
-                                                <li>Figma (адаптивная вёрстка по макетам).</li>
-                                                <li>Знание REST API, GraphQL;</li>
-                                                <li>Базовый бэкенд (Node.js, Express).</li>
-                                            </ul>
-                                            <h3>Опыт работы:</h3>
-                                            <p>🚀 Frontend-разработчик (3 года)
-                                            Название компании / Фриланс | 2021 – н.в.</p>
-                                            <ul>
-                                                <li>Разработка SPA-приложений на React;</li>
-                                                <li>Оптимизация производительности (Lazy Loading, PWA);</li>
-                                                <li>Взаимодействие с дизайнерами и бэкенд-разработчиками.</li>
-                                            </ul>
-                                            <h3>Образование:</h3>
-                                            <p>Высшее образование:
-                                            Тульский государственный университет / IT-специальность (2015–2020).<br />
-                                            Курсы: «React Advanced» от Яндекс.Практикум; «Modern JavaScript» (Udemy).
-                                            </p>
-                                            <h3>Знание языков:</h3>
-                                            <p>Русский (родной), Английский (B1)</p>
-                                            <h3>Контакты:</h3>
-                                            <ul>
-                                                <li>Телефон: +7(354)343-43-33</li>
-                                                <li>Email: sergeiAF@gmail.com</li>
-                                                <li>GitHub: <a href='#'>https://github.com/sergeiAF/</a></li>
-                                            </ul>
-                                        </div>
-                                    </details>
-                                    <a href="#" className='edit-button'>Редактировать <span className='img-edit'>.</span></a>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="profiles-wrap profile-active">
-                            <div className="profile-info">
-                                <div className='profile_wrapper'>
-                                    <div className="info">
-                                        <p className="modificate">Продвинуто: Head / Hunt</p>
-                                        <a href="" className='name-profile'>Фронтенд разработчик</a>
-                                        <p className='post-message'>Размещено <span id='date'>19 декабря</span> <span><a href="#" id='person'>Сергей А.Ф.</a></span></p>
-                                        <div className="descriptions">
-                                            <div className="descript-flex">
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/ruble.png')} className='descript-image' alt="" />
-                                                    <p id='salary-description'>100000 - 120000 рублей в месяц</p>
-                                                </div>
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/graduation.png')} className='descript-image' alt="" />
-                                                    <p id='salary-description'>Образование: <span id='graduate'>Высшее</span></p>
-                                                </div>
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/exp.png')} className='descript-image' alt="" />
-                                                    <p id='salary-description'>Опыт работы: <span id='experiance'>3</span> года</p>
-                                                </div>
-                                            </div>
-                                            <div className="descript-flex">
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/clock.png')} className='descript-image' alt="" />
-                                                    <p id='time-description'>Полный рабочий день</p>
-                                                </div>
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
-                                                    <p id='location-description'>Офис, работа на дому</p>
-                                                </div>
-                                                <div className="description">
-                                                    <img src={require('../Images/Icons/location.png')} className='descript-image' alt="" />
-                                                    <p id='location-description'>Место жительства: <span id='city'>Тула</span></p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className="delete-button">
-                                        <button></button>
-                                        <div className="profile-photo p1"></div>
-                                    </div>
-                                </div>
-                                <div className="manual-buttons">
-                                    <details className='description_about'>
-                                        <summary>Подробнее</summary>
-                                        <div className="details-content">
-                                            <h3>Резюме:{}</h3>
-                                            <ul>
-                                                <li>ФИО: Аганов Сергей Федорович</li>
-                                                <li>Местоположение: Тула (готов к гибридному формату: офис + удалённая работа)</li>
-                                                <li>Занятость: Полный рабочий день</li>
-                                                <li>Ожидаемая зарплата: 100 000 – 120 000 рублей</li>
-                                            </ul>
-                                            <h3>Навыки:</h3>
-                                            <ul>
-                                                <li>JavaScript (ES6+), TypeScript;</li>
-                                                <li>React.js / Next.js (опыт от 3 лет);</li>
-                                                <li>Vue.js / Angular — базовое владение;</li>
-                                                <li>HTML5, CSS3 (Sass/SCSS, Tailwind CSS).</li>
-                                                <li>Webpack, Vite;</li>
-                                                <li>Git, GitHub/GitLab;</li>
-                                                <li>Figma (адаптивная вёрстка по макетам).</li>
-                                                <li>Знание REST API, GraphQL;</li>
-                                                <li>Базовый бэкенд (Node.js, Express).</li>
-                                            </ul>
-                                            <h3>Опыт работы:</h3>
-                                            <p>🚀 Frontend-разработчик (3 года)
-                                            Название компании / Фриланс | 2021 – н.в.</p>
-                                            <ul>
-                                                <li>Разработка SPA-приложений на React;</li>
-                                                <li>Оптимизация производительности (Lazy Loading, PWA);</li>
-                                                <li>Взаимодействие с дизайнерами и бэкенд-разработчиками.</li>
-                                            </ul>
-                                            <h3>Образование:</h3>
-                                            <p>Высшее образование:
-                                            Тульский государственный университет / IT-специальность (2015–2020).<br />
-                                            Курсы: «React Advanced» от Яндекс.Практикум; «Modern JavaScript» (Udemy).
-                                            </p>
-                                            <h3>Знание языков:</h3>
-                                            <p>Русский (родной), Английский (B1)</p>
-                                            <h3>Контакты:</h3>
-                                            <ul>
-                                                <li>Телефон: +7(354)343-43-33</li>
-                                                <li>Email: sergeiAF@gmail.com</li>
-                                                <li>GitHub: <a href='#'>https://github.com/sergeiAF/</a></li>
-                                            </ul>
-                                        </div>
-                                    </details>
-                                    <a href="#" className='edit-button'>Редактировать <span className='img-edit'>.</span></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+          <div className="profiles-user">
+            <div className="head-profiles">
+              <a href="#" onClick={() => setShowPopupProfileAdd(true)} className='add-button'>Добавить анкету</a>
+              {showPopupProfileAdd && (
+                <Profile_Add 
+                  onClose={() => setShowPopupProfileAdd(false)}
+                  onUpdateProfiles={fetchProfiles}
+                />
+              )}
+              <a
+                href="#"
+                className={!showArchived ? 'active-button' : 'default-button'}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowArchived(false);
+                  fetchProfiles();
+                }}
+              >
+                Активные анкеты
+              </a>
+              <a
+                href="#"
+                className={showArchived ? 'active-button' : 'default-button'}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setShowArchived(true);
+                  fetchProfiles();
+                }}
+              >
+                Архивные анкеты
+              </a>
             </div>
+            <div className="profiles-scrollblock">
+              {loadingProfiles && <p>Загрузка анкет...</p>}
+              {error && <p className="error-message">{error}</p>}
+              {!loadingProfiles && !error && profiles.length === 0 && (
+                <p>{showArchived ? 'Архивных анкет нет.' : 'Активных анкет нет.'}</p>
+              )}
+              {!loadingProfiles && !error && profiles.map(profile => (
+                <div key={profile.profile_id} className="profiles-wrap profile-active">
+                  <div className="profile-info">
+                    <div className='profile_wrapper'>
+                      <div className="info">
+                        <p className="modificate">Продвинуто: Head / Hunt</p>
+                        <Link to={`/profile/${profile.profile_id}`} className='name-profile'>
+                          {profile.profile_name || 'Фронтенд разработчик'}
+                        </Link>
+                        <p className='post-message'>
+                          Размещено <span id='date'>{new Date(profile.posted).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</span> 
+                          <span><a href="#" id='person'>{userName.name || 'Пользователь'}</a></span>
+                        </p>
+                        <div className="descriptions">
+                          <div className="descript-flex">
+                            <div className="description">
+                              <img src={require('../Images/Icons/ruble.png')} className='descript-image' alt="" />
+                              <p id='salary-description'>
+                                {profile.salary_from || '100000'} - {profile.salary_to || '120000'} рублей в месяц
+                              </p>
+                            </div>
+                            <div className="description">
+                              <img src={require('../Images/Icons/graduation.png')} className='descript-image' alt="" />
+                              <p id='graduate-description'>Образование: <span id='graduate'>{profile.educations?.length > 0 ? profile.educations[0] : 'Общее среднее'}</span></p>
+                            </div>
+                            <div className="description">
+                              <img src={require('../Images/Icons/exp.png')} className='descript-image' alt="" />
+                              <p id='experience-description'>Опыт работы: <span id='experience'>{profile.work_experience?.length > 0 ? profile.work_experience[0] : 'Нет опыта работы'}</span></p>
+                            </div>
+                          </div>
+                          <div className="descript-flex">
+                            <div className="description">
+                              <img src={require('../Images/Icons/clock.png')} className='descript-image' alt="" />
+                              <p id='time-description'>{profile.work_time?.join(', ') || 'Полный рабочий день'}</p>
+                            </div>
+                            <div className="description">
+                              <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
+                              <p id='workplace-description'>{profile.work_place?.join(', ') || 'Офис, работа на дому'}</p>
+                            </div>
+                            <div className="description">
+                              <img src={require('../Images/Icons/location.png')} className='descript-image' alt="" />
+                              <p id='location-description'>Город: <span id='city'>{profile.work_city || 'Тула'}</span></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="delete-button">
+                        <button onClick={() => handleDeleteProfile(profile.profile_id)} title="Удалить анкету"></button>
+                        <div 
+                          className="profile-photo p1"
+                          style={{ 
+                            backgroundImage: profile.profile_image 
+                              ? `url(data:image/png;base64,${profile.profile_image})` 
+                              : 'url(default-profile-image.jpg)'
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                    <div className="manual-buttons">
+                      <details className='description_about'>
+                        <summary>Подробнее</summary>
+                        <div className="details-content">
+                          <h3>Биография:</h3>
+                          <p>{profile.biography || 'Не указано'}</p>
+
+                          <h3>Карьера:</h3>
+                          <p>{profile.career || 'Не указано'}</p>
+
+                          <h3>Навыки:</h3>
+                          <ul>
+                            {profile.skills?.map((skill, idx) => (
+                              <li key={idx}>{skill}</li>
+                            )) || <li>Навыки не указаны</li>}
+                          </ul>
+                          
+                          <h3>Опыт работы:</h3>
+                          <ul>
+                            {profile.work_experience?.map((exp, idx) => (
+                              <li key={idx}>{exp}</li>
+                            )) || <li>Опыт работы не указан</li>}
+                          </ul>
+                          
+                          <h3>Сферы деятельности:</h3>
+                          <ul>
+                            {profile.activity_fields?.map((field, idx) => (
+                              <li key={idx}>{field}</li>
+                            )) || <li>Сферы деятельности не указаны</li>}
+                          </ul>
+                          
+                          <h3>Личные качества:</h3>
+                          <ul>
+                            {profile.qualities?.map((quality, idx) => (
+                              <li key={idx}>{quality}</li>
+                            )) || <li>Личные качества не указаны</li>}
+                          </ul>
+                          
+                          <h3>Образование:</h3>
+                          <ul>
+                            {profile.educations?.map((edu, idx) => (
+                              <li key={idx}>{edu}</li>
+                            )) || <li>Образование не указано</li>}
+                          </ul>
+                          
+                          <h3>Знание языков:</h3>
+                          <ul>
+                            {profile.languages_knowledge?.map((lang, idx) => (
+                              <li key={idx}>{lang}</li>
+                            )) || <li>Языки не указаны</li>}
+                          </ul>
+                          
+                          <h3>Дополнительно:</h3>
+                          <p>{profile.additionally || 'Не указано'}</p>
+                        </div>
+                      </details>
+                      <a 
+                        href="#" 
+                        className='edit-button'
+                        onClick={() => handleEditProfileClick(profile)}
+                      >
+                        Редактировать <span className='img-edit'>.</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 

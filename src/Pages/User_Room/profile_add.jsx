@@ -210,6 +210,33 @@ export function Profile_Add({ onClose }) {
     }
   };
 
+
+  const handleExtractAndFill = async () => {
+    if (!formData.user_resume) {
+      setError('Сначала загрузите резюме (.docx)');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/extract-and-fill', { user_resume: formData.user_resume });
+      
+      // Предполагаем, что API возвращает данные в формате:
+      // { profile_name, salary_from, salary_to, work_time, work_place, work_city, biography, career, skills, work_experience, activity_fields, qualities, educations, languages_knowledge, additionally }
+      const extractedData = response.data;
+
+      // Обновляем состояние формы с полученными данными
+      setFormData(prev => ({
+        ...prev,
+        ...extractedData // Распаковываем данные в состояние формы
+      }));
+
+      setError('');
+    } catch (err) {
+      console.error('Ошибка при извлечении текста:', err);
+      setError(err.response?.data?.message || 'Ошибка при извлечении текста');
+    }
+  };
+
   return (
     <div className="popup-overlay">
       <div className="popup-container">
@@ -462,6 +489,7 @@ export function Profile_Add({ onClose }) {
 
           <div className="form-actions">
             {error && <div className="error-message" style={{ whiteSpace: 'pre-wrap' }}>{error}</div>}
+            <button className='glowing-button' onClick={handleExtractAndFill}>Подгрузить данные c AI</button>
             <button type="submit" className="submit-btn">Сохранить профиль</button>
             <button type="button" className="cancel-btn" onClick={onClose}>Отмена</button>
           </div>

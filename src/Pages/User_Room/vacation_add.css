@@ -196,3 +196,70 @@
   color: #333;
   border: 0.1vw solid #ddd;
 }
+
+.glowing-button {
+    position: relative;
+    padding: .5vw 1vw;
+    font-size: .8vw;
+    color: #fff;
+    background: #494949;
+    border: none;
+    border-radius: .6vw;
+    cursor: pointer;
+    z-index: 0;
+    overflow: visible; /* чтобы тень не обрезалась */
+  }
+
+  /* Анимированный градиентный бордер */
+  .glowing-button::before {
+    content: "";
+    position: absolute;
+    top: -.1vw; 
+    bottom: -.1vw;
+    left: -.1vw; 
+    right: -.1vw;
+    background: linear-gradient(270deg,#ff00cc, #3333ff, #00ffcc, #ff00cc);
+    background-size: 550% 550%;
+    border-radius: .6vw;
+    z-index: -2;
+    animation: gradientBorder 3s ease infinite;
+  }
+
+  /* Внутренний слой, закрывающий градиент внутри */
+  .glowing-button::after {
+    content: "";
+    position: absolute;
+    top: .1vw; bottom: .1vw;
+    left: .1vw; right: .1vw;
+    background: #111;
+    border-radius: .4vw;
+    z-index: -1;
+  }
+
+  /* Анимированная тень с тем же градиентом */
+  .glowing-button-shadow {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    border-radius: .6vw;
+    pointer-events: none;
+    filter: blur(8px);
+    opacity: 0.7;
+    background: linear-gradient(270deg, 
+      #ff00cc, #3333ff, #00ffcc, #ff00cc);
+    background-size: 550% 550%;
+    animation: gradientBorder 3s ease infinite;
+    z-index: -3;
+  }
+
+  @keyframes gradientBorder {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
