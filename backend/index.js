@@ -316,14 +316,38 @@ app.get('/api/vacations-extract', authenticateUser, async (req, res) => {
 
 app.get('/api/vacations-extract-all', async (req, res) => {
   try {
+    // 1. Получаем все вакансии
     const vacations = await Vacation.findAll({
-      attributes: { exclude: ['user_id'] },
       order: [['posted', 'DESC']]
     });
+
+    // 2. Собираем все user_id из вакансий
+    const userIds = vacations.map(vacation => vacation.user_id).filter(Boolean);
+
+    // 3. Получаем пользователей по этим ID
+    const users = await User.findAll({
+      where: { user_id: userIds },
+      attributes: ['user_id', 'name', 'email', 'phone'] // Выбираем нужные поля
+    });
+
+    // 4. Создаем хеш-таблицу для быстрого доступа { user_id → user_data }
+    const usersMap = {};
+    users.forEach(user => {
+      usersMap[user.user_id] = user;
+    });
+
+    // 5. Объединяем вакансии с данными пользователей
+    const vacationsWithUsers = vacations.map(vacation => {
+      return {
+        ...vacation.get({ plain: true }), // Преобразуем в обычный объект
+        user: usersMap[vacation.user_id] || null // Добавляем данные пользователя
+      };
+    });
+
     res.json({
       success: true,
-      count: vacations.length,
-      vacations
+      count: vacationsWithUsers.length,
+      vacations: vacationsWithUsers
     });
   } catch (error) {
     console.error('Ошибка получения всех вакансий:', error);
@@ -746,6 +770,107 @@ app.get('/api/profile/:id', async (req, res) => {
   }
 });
 
+
+app.get('/api/profiles-extract-all', async (req, res) => {
+  try {
+    // 1. Получаем все профили
+    const profiles = await Profile.findAll({
+      order: [['posted', 'DESC']]
+    });
+
+    // 2. Собираем все user_id из профилей
+    const userIds = profiles.map(profile => profile.user_id).filter(Boolean);
+
+    // 3. Получаем пользователей по этим ID
+    const users = await User.findAll({
+      where: { user_id: userIds },
+      attributes: ['user_id', 'name', 'email', 'phone'] // Выбираем нужные поля
+    });
+
+    // 4. Создаем объект для быстрого доступа { user_id → user_data }
+    const usersMap = {};
+    users.forEach(user => {
+      usersMap[user.user_id] = user;
+    });
+
+    // 5. Объединяем профили с данными пользователей
+    const profilesWithUsers = profiles.map(profile => {
+      return {
+        ...profile.get({ plain: true }), // Преобразуем в обычный объект
+        user: usersMap[profile.user_id] || null // Добавляем данные пользователя
+      };
+    });
+
+    res.json({
+      success: true,
+      count: profilesWithUsers.length,
+      profiles: profilesWithUsers
+    });
+  } catch (error) {
+    console.error('Ошибка получения всех анкет:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка при получении анкет' 
+    });
+  }
+});
+
+app.put('/api/profile-edit/:id', async (req, res) => {
+  const id = req.params.id;
+  const {
+    profile_name,
+    salary_from,
+    salary_to,
+    work_time,
+    work_place,
+    work_city,
+    biography,
+    career,
+    skills,
+    work_experience,
+    activity_fields,
+    qualities,
+    educations,
+    languages_knowledge,
+    additionally,
+    profile_image,
+    user_resume
+  } = req.body;
+
+  try {
+    const profile = await Profile.findByPk(id);
+    if (!profile) {
+      return res.status(404).json({ success: false, message: 'Профиль не найден' });
+    }
+
+    // Обновляем поля профиля
+    await profile.update({
+      profile_name,
+      salary_from,
+      salary_to,
+      work_time,
+      work_place,
+      work_city,
+      biography,
+      career,
+      skills,
+      work_experience,
+      activity_fields,
+      qualities,
+      educations,
+      languages_knowledge,
+      additionally,
+      profile_image,
+      user_resume,
+      posted: new Date() // Добавляем или обновляем дату изменения
+    });
+
+    res.json({ success: true, message: 'Профиль обновлен' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Ошибка сервера при обновлении профиля' });
+  }
+});
 // Запуск сервера
 app.listen(PORT, () => {
   console.log(`Сервер запущен на http://localhost:${PORT}`);

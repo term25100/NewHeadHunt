@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import myImage from '../Images/Peoples/sergei.webp';
 import { Profile_Add } from './profile_add';
+import { Profile_Edit } from './profile_edit';
 import { ProfileAddSteps} from './steps';
 import { TourProvider } from "@reactour/tour";
 
@@ -22,6 +23,8 @@ export function UserRoom({ activeTab }) {
   const [loadingVacations, setLoadingVacations] = useState(false);
   const [loadingProfiles, setLoadingProfiles] = useState(false);
   const [error, setError] = useState('');
+  const [showPopupProfileEdit, setShowPopupProfileEdit] = useState(false);
+  const [selectedProfile, setSelectedProfile] = useState(null);
 
   // Функция загрузки вакансий пользователя с сервера
   const fetchVacations = async () => {
@@ -242,8 +245,8 @@ export function UserRoom({ activeTab }) {
   };
 
   const handleEditProfileClick = (profile) => {
-    // Здесь можно реализовать логику редактирования профиля
-    console.log('Редактирование профиля:', profile);
+    setSelectedProfile(profile);
+    setShowPopupProfileEdit(true);
   };
 
   return (
@@ -445,6 +448,17 @@ export function UserRoom({ activeTab }) {
                   onClose={() => setShowPopupProfileAdd(false)}
                   onUpdateProfiles={fetchProfiles}
                 />
+                
+              )}
+              {showPopupProfileEdit && selectedProfile && (
+                <Profile_Edit 
+                  profileId={selectedProfile.profile_id}
+                  onClose={() => {
+                    setShowPopupProfileEdit(false);
+                    setSelectedProfile(null);
+                  }}
+                  onUpdate={fetchProfiles} // Функция для обновления списка профилей
+                />
               )}
               <a
                 href="#"
@@ -486,7 +500,7 @@ export function UserRoom({ activeTab }) {
                         </Link>
                         <p className='post-message'>
                           Размещено <span id='date'>{new Date(profile.posted).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</span> 
-                          <span><a href="#" id='person'>{userName.name || 'Пользователь'}</a></span>
+                          <span> пользователем: <a href="#" id='person'>{userName.name || 'Пользователь'}</a></span>
                         </p>
                         <div className="descriptions">
                           <div className="descript-flex">
@@ -589,8 +603,7 @@ export function UserRoom({ activeTab }) {
                           <p>{profile.additionally || 'Не указано'}</p>
                         </div>
                       </details>
-                      <a 
-                        href="#" 
+                      <a
                         className='edit-button'
                         onClick={() => handleEditProfileClick(profile)}
                       >

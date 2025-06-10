@@ -269,7 +269,10 @@ export function Vacations() {
                                     {vacation.vacation_name}
                                   </Link>
                                   <p className='post-message'>
-                                    Размещено <span id='date'>{new Date(vacation.posted).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</span> 
+                                    Размещено <span id='date'>{new Date(vacation.posted).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</span>
+                                    {vacation.user && (
+                                    <span> пользователем: <Link to={`/user/${vacation.user.user_id}`}>{vacation.user.name}</Link></span>
+                                    )} 
                                   </p>
                                   <div className="descriptions">
                                     <div className="descript-flex">
