@@ -343,11 +343,11 @@ export function Profiles() {
                                                     <li>Телефон: {user.phone || 'Не указано'}</li>
                                                 </ul>
                                                 
-                                                <a 
-                                                    href="#" 
+                                                <a  
                                                     className='full-button' 
                                                     onClick={() => handleInviteClick({
                                                         id: profile.profile_id,
+                                                        user_id: user.user_id,
                                                         name: user.name,
                                                         position: profile.profile_name
                                                     })}

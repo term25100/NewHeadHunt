@@ -36,3 +36,5 @@ const Vacations_response = sequelize.define('Vacations-response', {
   tableName: 'vacations_response',
   timestamps: false
 });
+
+module.exports = Vacations_response;

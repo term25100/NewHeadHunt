@@ -8,6 +8,7 @@ const User = require('./models/User.model');
 const Vacation = require('./models/Vacation.model');
 const Favourite = require('./models/Favourite.model');
 const Profile = require('./models/Profile.model');
+const Profiles_response = require('./models/Profile_response.model');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -110,7 +111,7 @@ app.post('/api/login', async (req, res) => {
         const token = jwt.sign(
             { userId: user.user_id },
             process.env.JWT_SECRET || '09u85yhtg9wio5',
-            { expiresIn: '2h' }
+            { expiresIn: '1h' }
         );
 
         // Ответ
@@ -132,6 +133,22 @@ app.post('/api/login', async (req, res) => {
         });
     }
 });
+
+const authenticateUser = (req, res, next) => {
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+  
+  if (!token) {
+    return res.status(401).json({ message: 'Требуется авторизация' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // Добавляем данные пользователя в запрос
+    next();
+  } catch (err) {
+    res.status(401).json({ message: 'Недействительный токен' });
+  }
+};
 
 app.get('/api/user', authenticateUser, async (req, res) => {
   try {
@@ -155,22 +172,6 @@ app.get('/api/user/:id', async (req, res) => {
     res.status(500).json({ success: false, message: 'Ошибка сервера' });
   }
 });
-
-const authenticateUser = (req, res, next) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
-  
-  if (!token) {
-    return res.status(401).json({ message: 'Требуется авторизация' });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Добавляем данные пользователя в запрос
-    next();
-  } catch (err) {
-    res.status(401).json({ message: 'Недействительный токен' });
-  }
-};
 
 app.post('/api/vacations', authenticateUser, async (req, res) => {
   try {
@@ -280,6 +281,8 @@ app.post('/api/vacations', authenticateUser, async (req, res) => {
     });
   }
 });
+
+
 // Роут для получения вакансий пользователя
 app.get('/api/vacations-extract', authenticateUser, async (req, res) => {
   try {
@@ -869,6 +872,80 @@ app.put('/api/profile-edit/:id', async (req, res) => {
     res.status(500).json({ success: false, message: 'Ошибка сервера при обновлении профиля' });
   }
 });
+
+
+app.post('/api/profiles-response', async (req, res) => {
+  try {
+    const { 
+      title_message, 
+      name_company, 
+      salary_range, 
+      message_response, 
+      email,
+      defaultMessage, 
+      profile_id, 
+      user_id 
+    } = req.body;
+
+    // Валидация обязательных полей
+    if (!title_message || !name_company || !message_response || !email || !profile_id || !user_id) {
+      return res.status(400).json({ error: 'Все обязательные поля должны быть заполнены' });
+    }
+
+    // Проверка валидности email
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Укажите корректный email адрес' });
+    }
+
+    // Создание отклика
+    const newResponse = await Profiles_response.create({
+      title_message,
+      name_company,
+      salary_range: salary_range || null, // если не указано, будет null
+      message_response: message_response || defaultMessage,
+      email,
+      profile_id,
+      user_id
+    });
+
+    // Формируем ответ с основными данными
+    const responseData = {
+      response_id: newResponse.response_id,
+      profile_id: newResponse.profile_id,
+      user_id: newResponse.user_id,
+      name_company: newResponse.name_company,
+      title_message: newResponse.title_message,
+      created_at: newResponse.created_at // если есть timestamp в модели
+    };
+
+    res.status(201).json({
+      message: 'Приглашение успешно отправлено',
+      response: responseData
+    });
+
+  } catch (error) {
+    console.error('Ошибка при создании отклика:', error);
+    
+    // Обработка ошибок Sequelize
+    if (error.name === 'SequelizeValidationError') {
+      const errors = error.errors.map(err => err.message);
+      return res.status(400).json({ error: 'Ошибка валидации', details: errors });
+    }
+    
+    if (error.name === 'SequelizeForeignKeyConstraintError') {
+      return res.status(400).json({ 
+        error: 'Ошибка связи', 
+        details: 'Указанный профиль или пользователь не существует' 
+      });
+    }
+
+    res.status(500).json({ 
+      error: 'Внутренняя ошибка сервера',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
 
 
 // Запуск сервера

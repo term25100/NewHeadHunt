@@ -2,12 +2,17 @@ import './vacation.css'
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+//import { ResponsePopup } from './vacation_response';
 
 export function Vacation_Body(){
   const { vacationId } = useParams();
   const [vacation, setVacation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [showPopup, setShowPopup] = useState(false);
+  const [selectedVacation, setSelectedVacation] = useState(null);
+
+
 
   useEffect(() => {
     async function fetchVacation() {
@@ -58,6 +63,21 @@ export function Vacation_Body(){
 
   // Средняя зарплата (если нужно)
   const salary_mid = salary_from && salary_to ? Math.round((salary_from + salary_to) / 2) : null;
+
+  const handleResponseClick = () => {
+    setSelectedVacation({
+      id: vacation.id,
+      user_id: vacation.user_id,  // владелец вакансии
+      title: vacation.vacation_name
+    });
+    console.log(vacation.user_id);
+    setShowPopup(true);
+  };
+
+  const handleSendResponse = (responseData) => {
+    console.log('Отправка отклика:', responseData);
+    setShowPopup(false);
+  };
 
   return (
     <div className='frame-container'>
@@ -217,11 +237,27 @@ export function Vacation_Body(){
                 </>
               )}
 
-              <a href="/vacation" className='response-button'>Откликнуться на вакансию</a>
+              <a 
+                className='response-button' 
+                href="#"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleResponseClick();
+                }}
+              >
+                Откликнуться на вакансию
+              </a>
             </div>
           </div>
         </div>
       </div>
+        {/* {showPopup && selectedVacation && (
+          <ResponsePopup
+            vacation={selectedVacation}
+            onClose={() => setShowPopup(false)}
+            onSend={handleSendResponse}
+          />
+        )} */}
     </div>
   );
 }

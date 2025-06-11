@@ -15,6 +15,10 @@ const Profiles_response = sequelize.define('Profiles-response', {
     type: DataTypes.INTEGER,
     allowNull: false
   },
+  name_company: {
+    type: DataTypes.STRING(255),
+    allowNull: false
+  },
   title_message: {
     type: DataTypes.STRING(255),
     allowNull: false
@@ -34,3 +38,5 @@ const Profiles_response = sequelize.define('Profiles-response', {
   tableName: 'profiles_response',
   timestamps: false
 });
+
+module.exports = Profiles_response;

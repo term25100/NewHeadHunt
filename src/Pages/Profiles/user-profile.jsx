@@ -199,7 +199,16 @@ export function User_Profile() {
       )}
 
       <div className="flex-Profile-buttons">
-        <a href="#" onClick={() => handleInviteClick(candidate)}>Пригласить на работу</a>
+        <a   
+          onClick={() => handleInviteClick({
+              id: profile.profile_id,
+              user_id: user.user_id,
+              name: user.name,
+              position: profile.profile_name
+          })}
+        >
+              Пригласить на работу
+        </a>
         <a href={resumeSrc} download>Скачать резюме</a>
       </div>
 

@@ -4,9 +4,11 @@ import './invitation.css';
 export const InvitationPopup = ({ candidate, onClose, onSend }) => {
   const [formData, setFormData] = React.useState({
     title_message: '',
+    name_company: '',
     salary_range: '',
-    message_response: `Уважаемый(ая) ${candidate.name}, мы рады предложить вам позицию в нашей компании!`,
-    email: ''
+    message_response: '',
+    email: '',
+    defautMessage: `Уважаемый(ая) ${candidate.name}, мы рады предложить вам позицию ${candidate.position} в нашей компании!`
   });
 
   const handleChange = (e) => {
@@ -14,12 +16,33 @@ export const InvitationPopup = ({ candidate, onClose, onSend }) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSend({
-      ...formData,
-      candidateId: candidate.id
-    });
+    
+    try {
+      const response = await fetch('http://localhost:5000/api/profiles-response', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          profile_id: candidate.id,       
+          user_id: candidate.user_id
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Ошибка при отправке приглашения');
+      }
+
+      onSend(); // Оповещаем родительский компонент
+      alert("Сообщение отправлено!");
+      onClose(); // Закрываем попап
+    } catch (error) {
+      console.error('Ошибка:', error);
+      alert('Произошла ошибка при отправке приглашения');
+    }
   };
 
   return (
@@ -33,10 +56,22 @@ export const InvitationPopup = ({ candidate, onClose, onSend }) => {
             <label>Тема обращения:</label>
             <input
               type="text"
-              name="subject"
+              name="title_message"
               value={formData.title_message}
               onChange={handleChange}
               placeholder="Например: Предложение работы Frontend разработчиком"
+              required
+            />
+          </div>
+
+          <div className="invitation-popup-form-group">
+            <label>Название вашей организации:</label>
+            <input
+              type="text"
+              name="name_company"
+              value={formData.name_company}
+              onChange={handleChange}
+              placeholder="Например: 'ООО Диол'"
               required
             />
           </div>
@@ -45,7 +80,7 @@ export const InvitationPopup = ({ candidate, onClose, onSend }) => {
             <label>Диапазон заработной платы:</label>
             <input
               type="text"
-              name="salaryRange"
+              name="salary_range"
               value={formData.salary_range}
               onChange={handleChange}
               placeholder="Например: Мы готовы платить вам 100 000 - 150 000 руб."
@@ -56,7 +91,7 @@ export const InvitationPopup = ({ candidate, onClose, onSend }) => {
           <div className="invitation-popup-form-group">
             <label>Сообщение:</label>
             <textarea
-              name="message"
+              name="message_response"
               value={formData.message_response}
               onChange={handleChange}
               rows="6"
@@ -67,7 +102,7 @@ export const InvitationPopup = ({ candidate, onClose, onSend }) => {
           <div className="invitation-popup-form-group">
             <label>Ваш email для обратной связи с пользователем:</label>
             <input
-              type="text"
+              type="email"
               name="email"
               value={formData.email}
               onChange={handleChange}

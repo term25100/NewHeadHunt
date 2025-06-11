@@ -1,0 +1,139 @@
+@import url(../Home/fonts.css);
+@import url(../../App.css);
+.invitation-popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.invitation-popup-container {
+  background: white;
+  box-sizing: border-box;
+  padding: 1vw;
+  border-radius: .7vw;
+  width: 30vw;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+.invitation-popup-container h3{
+    font-size: 1.2vw;
+}
+.invitation-popup-container p,strong{
+    font-size: 1vw;
+    text-indent: 0px !important; 
+}
+.invitation-popup-form-group {
+  margin-bottom: 20px;
+}
+
+.invitation-popup-form-group label {
+  display: block;
+  margin-bottom: .5vw;
+  font-size: .9vw;
+  font-weight: 500;
+  color: #333;
+}
+
+.invitation-popup-form-group input,
+.invitation-popup-form-group textarea {
+  box-sizing: border-box;
+  padding: .5vw;
+  width: 100%;
+  max-height: 20vw;
+  margin: 0 auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: .8vw;
+}
+
+.invitation-popup-form-group textarea {
+  min-height: 10vw;
+  resize: vertical;
+}
+
+.invitation-popup-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: .5vw;    
+  margin-top: 1vw;
+}
+
+.invitation-popup-actions button {
+  padding: .5vw 1vw;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: .8vw;
+}
+
+.invitation-popup-actions button:first-child {
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+}
+
+.invitation-popup-actions button:last-child {
+  background: #4CAF50;
+  color: white;
+  border: none;
+}
+
+.invitation-popup-actions button:last-child:hover {
+  background: #45a049;
+}
+
+.file-uploader {
+  border: 0.15vw dashed #ddd;
+  border-radius: 0.3vw;
+  padding: 1.5vw;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.9vw;
+  margin-top: 0.5vw;
+}
+
+.file-uploader.dragging {
+  border-color: #4CAF50;
+  background-color: rgba(76, 175, 80, 0.1);
+}
+
+.file-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0.5vw;
+}
+
+.file-info span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 85%;
+  font-size: 0.85vw;
+}
+
+.remove-file {
+  background: none;
+  border: none;
+  color: #ff4d4d;
+  font-size: 1.2vw;
+  cursor: pointer;
+  padding: 0 0.5vw;
+}
+
+.upload-instructions {
+  color: #666;
+  padding: 0.5vw;
+}
+
+.upload-instructions p {
+  margin: 0.4vw 0;
+  font-size: 0.85vw;
+}
