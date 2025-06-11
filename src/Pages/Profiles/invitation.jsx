@@ -3,9 +3,10 @@ import './invitation.css';
 
 export const InvitationPopup = ({ candidate, onClose, onSend }) => {
   const [formData, setFormData] = React.useState({
-    subject: '',
-    salaryRange: '',
-    message: `Уважаемый(ая) ${candidate.name}, мы рады предложить вам позицию в нашей компании!`
+    title_message: '',
+    salary_range: '',
+    message_response: `Уважаемый(ая) ${candidate.name}, мы рады предложить вам позицию в нашей компании!`,
+    email: ''
   });
 
   const handleChange = (e) => {
@@ -25,7 +26,7 @@ export const InvitationPopup = ({ candidate, onClose, onSend }) => {
     <div className="invitation-popup-overlay">
       <div className="invitation-popup-container">
         <h3>Приглашение на работу</h3>
-        <p>Кандидат: <strong>{candidate.name}Аганов Сергей Федорович</strong></p>
+        <p>Кандидат: <strong>{candidate.name}</strong></p>
         
         <form onSubmit={handleSubmit}>
           <div className="invitation-popup-form-group">
@@ -33,7 +34,7 @@ export const InvitationPopup = ({ candidate, onClose, onSend }) => {
             <input
               type="text"
               name="subject"
-              value={formData.subject}
+              value={formData.title_message}
               onChange={handleChange}
               placeholder="Например: Предложение работы Frontend разработчиком"
               required
@@ -45,9 +46,9 @@ export const InvitationPopup = ({ candidate, onClose, onSend }) => {
             <input
               type="text"
               name="salaryRange"
-              value={formData.salaryRange}
+              value={formData.salary_range}
               onChange={handleChange}
-              placeholder="Например: 100 000 - 150 000 руб."
+              placeholder="Например: Мы готовы платить вам 100 000 - 150 000 руб."
               required
             />
           </div>
@@ -56,9 +57,21 @@ export const InvitationPopup = ({ candidate, onClose, onSend }) => {
             <label>Сообщение:</label>
             <textarea
               name="message"
-              value={formData.message}
+              value={formData.message_response}
               onChange={handleChange}
               rows="6"
+              required
+            />
+          </div>
+
+          <div className="invitation-popup-form-group">
+            <label>Ваш email для обратной связи с пользователем:</label>
+            <input
+              type="text"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="Введите email для обратной связи с кандидатом"
               required
             />
           </div>

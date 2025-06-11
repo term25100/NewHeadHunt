@@ -110,7 +110,7 @@ app.post('/api/login', async (req, res) => {
         const token = jwt.sign(
             { userId: user.user_id },
             process.env.JWT_SECRET || '09u85yhtg9wio5',
-            { expiresIn: '1h' }
+            { expiresIn: '2h' }
         );
 
         // Ответ
@@ -132,22 +132,6 @@ app.post('/api/login', async (req, res) => {
         });
     }
 });
-
-const authenticateUser = (req, res, next) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
-  
-  if (!token) {
-    return res.status(401).json({ message: 'Требуется авторизация' });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Добавляем данные пользователя в запрос
-    next();
-  } catch (err) {
-    res.status(401).json({ message: 'Недействительный токен' });
-  }
-};
 
 app.get('/api/user', authenticateUser, async (req, res) => {
   try {
@@ -171,6 +155,22 @@ app.get('/api/user/:id', async (req, res) => {
     res.status(500).json({ success: false, message: 'Ошибка сервера' });
   }
 });
+
+const authenticateUser = (req, res, next) => {
+  const token = req.header('Authorization')?.replace('Bearer ', '');
+  
+  if (!token) {
+    return res.status(401).json({ message: 'Требуется авторизация' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // Добавляем данные пользователя в запрос
+    next();
+  } catch (err) {
+    res.status(401).json({ message: 'Недействительный токен' });
+  }
+};
 
 app.post('/api/vacations', authenticateUser, async (req, res) => {
   try {
@@ -280,8 +280,6 @@ app.post('/api/vacations', authenticateUser, async (req, res) => {
     });
   }
 });
-
-
 // Роут для получения вакансий пользователя
 app.get('/api/vacations-extract', authenticateUser, async (req, res) => {
   try {
@@ -871,6 +869,8 @@ app.put('/api/profile-edit/:id', async (req, res) => {
     res.status(500).json({ success: false, message: 'Ошибка сервера при обновлении профиля' });
   }
 });
+
+
 // Запуск сервера
 app.listen(PORT, () => {
   console.log(`Сервер запущен на http://localhost:${PORT}`);
