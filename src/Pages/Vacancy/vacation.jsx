@@ -2,7 +2,7 @@ import './vacation.css'
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-//import { ResponsePopup } from './vacation_response';
+import { ResponsePopup } from './vacation_response';
 
 export function Vacation_Body(){
   const { vacationId } = useParams();
@@ -12,8 +12,7 @@ export function Vacation_Body(){
   const [showPopup, setShowPopup] = useState(false);
   const [selectedVacation, setSelectedVacation] = useState(null);
 
-
-
+  //console.log(vacationId);
   useEffect(() => {
     async function fetchVacation() {
       try {
@@ -64,18 +63,14 @@ export function Vacation_Body(){
   // Средняя зарплата (если нужно)
   const salary_mid = salary_from && salary_to ? Math.round((salary_from + salary_to) / 2) : null;
 
-  const handleResponseClick = () => {
-    setSelectedVacation({
-      id: vacation.id,
-      user_id: vacation.user_id,  // владелец вакансии
-      title: vacation.vacation_name
-    });
-    console.log(vacation.user_id);
+  const handleResponseClick = (vacation) => {
+    setSelectedVacation(vacation);
     setShowPopup(true);
   };
 
   const handleSendResponse = (responseData) => {
-    console.log('Отправка отклика:', responseData);
+    console.log('Отправка приглашения:', responseData);
+    // Здесь можно добавить логику отправки на сервер
     setShowPopup(false);
   };
 
@@ -239,11 +234,11 @@ export function Vacation_Body(){
 
               <a 
                 className='response-button' 
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleResponseClick();
-                }}
+                onClick={() => handleResponseClick({
+                  id: vacation.vacation_id,
+                  user_id: vacation.user_id,
+                  vacation_name: vacation.vacation_name
+                })}
               >
                 Откликнуться на вакансию
               </a>
@@ -251,13 +246,13 @@ export function Vacation_Body(){
           </div>
         </div>
       </div>
-        {/* {showPopup && selectedVacation && (
+        {showPopup && selectedVacation && (
           <ResponsePopup
             vacation={selectedVacation}
             onClose={() => setShowPopup(false)}
             onSend={handleSendResponse}
           />
-        )} */}
+        )}
     </div>
   );
 }

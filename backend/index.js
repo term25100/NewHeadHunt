@@ -9,6 +9,7 @@ const Vacation = require('./models/Vacation.model');
 const Favourite = require('./models/Favourite.model');
 const Profile = require('./models/Profile.model');
 const Profiles_response = require('./models/Profile_response.model');
+const Vacations_response = require('./models/Vacation_response.model');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -914,8 +915,7 @@ app.post('/api/profiles-response', async (req, res) => {
       profile_id: newResponse.profile_id,
       user_id: newResponse.user_id,
       name_company: newResponse.name_company,
-      title_message: newResponse.title_message,
-      created_at: newResponse.created_at // если есть timestamp в модели
+      title_message: newResponse.title_message
     };
 
     res.status(201).json({
@@ -946,6 +946,81 @@ app.post('/api/profiles-response', async (req, res) => {
   }
 });
 
+
+app.post('/api/vacations-response', async (req, res) => {
+  try {
+    const { 
+      title_message,  
+      message_response, 
+      email,
+      resume_file,
+      defaultMessage, 
+      vacation_id, 
+      user_id 
+    } = req.body;
+
+    // Валидация обязательных полей
+    if (!title_message?.trim() || !email?.trim() || !resume_file || !vacation_id || !user_id) {
+      return res.status(400).json({ error: 'Все обязательные поля должны быть заполнены' });
+    }
+
+    // Проверка валидности email
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return res.status(400).json({ error: 'Укажите корректный email адрес' });
+    }
+    const finalMessage = message_response?.trim() ? message_response : defaultMessage;
+
+    if (!finalMessage) {
+      return res.status(400).json({ error: 'Сообщение не может быть пустым' });
+    }
+    // Создание отклика
+    const newResponse = await Vacations_response.create({
+      title_message,
+      message_response: finalMessage,
+      email,
+      resume_file,
+      vacation_id,
+      user_id
+    });
+
+    // Формируем ответ с основными данными
+    const responseData = {
+      response_id: newResponse.response_id,
+      vacation_id: newResponse.vacation_id,
+      user_id: newResponse.user_id,
+      title_message: newResponse.title_message,
+      message_response: newResponse.message_response,
+      email: newResponse.email,
+      resume_file: newResponse.resume_file
+    };
+    console.log(responseData);
+    res.status(201).json({
+      message: 'Приглашение успешно отправлено',
+      response: responseData
+    });
+
+  } catch (error) {
+    console.error('Ошибка при создании отклика:', error);
+    
+    // Обработка ошибок Sequelize
+    if (error.name === 'SequelizeValidationError') {
+      const errors = error.errors.map(err => err.message);
+      return res.status(400).json({ error: 'Ошибка валидации', details: errors });
+    }
+    
+    if (error.name === 'SequelizeForeignKeyConstraintError') {
+      return res.status(400).json({ 
+        error: 'Ошибка связи', 
+        details: 'Указанный профиль или пользователь не существует' 
+      });
+    }
+
+    res.status(500).json({ 
+      error: 'Внутренняя ошибка сервера',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
 
 
 // Запуск сервера

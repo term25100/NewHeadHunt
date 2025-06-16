@@ -92,9 +92,9 @@ export const InvitationPopup = ({ candidate, onClose, onSend }) => {
             <label>Сообщение:</label>
             <textarea
               name="message_response"
-              value={formData.message_response}
+              value={`Мы были впечатлены вашим профилем "${candidate.position}" и хотели бы предложить вам сотрудничество.`}
               onChange={handleChange}
-              rows="6"
+              rows="5"
               required
             />
           </div>

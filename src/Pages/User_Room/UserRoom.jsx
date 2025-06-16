@@ -16,6 +16,7 @@ export function UserRoom({ activeTab }) {
   const [showPopupEdit, setShowPopupEdit] = useState(false);
   const [selectedVacation, setSelectedVacation] = useState(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [showResponses, setShowResponses] = useState(false);
   const [vacations, setVacations] = useState([]);
   const [profiles, setProfiles] = useState([]);
   const [favoriteVacations, setFavoriteVacations] = useState([]);
@@ -619,14 +620,40 @@ export function UserRoom({ activeTab }) {
       )}
 
       {activeTab === "responses" && (
-        <div className='main-container'>
-          <div className="manual-container">
+        <div className='main-responses-container'>
+          <div className="vacation-response">
+            <h1 className='response-h'>Отклики на вакансии</h1>
+            <div className="vacation-response-scroll">
+              <div className="vacation-response-card">
+                <a className='card'>
+                  <div>
+                    <h2>Заголовок: </h2>
+                    <p><strong>Обращение:</strong> <br />
+                      
+                    </p>
+                    <p><strong>Контактный адрес:</strong><br></br>
+                    
+                    </p>
+                    <div className='flex-buttons'>
+                      <a className='response-button'>Скачать резюме</a>
+                      <a className='response-button'>Ответить кандидату</a>
+                    </div>
+                  </div>
+                  <div>
+                    <button></button>
+                  </div>
+                </a>
+              </div>
+            </div>
+          </div>
+          <div className="divide-line"></div>
+          <div className="profile-response">
+            <h1 className='response-h'>Отклики на профили</h1>
+            <div className="profile-response-scroll">
 
+            </div>
           </div>
-          <div className="content-container">
-            
-          </div>
-        </div>
+        </div>  
       )}
 
       {activeTab === "favorites" && (

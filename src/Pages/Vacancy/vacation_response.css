@@ -25,6 +25,7 @@
 }
 .invitation-popup-container h3{
     font-size: 1.2vw;
+    margin: 0;
 }
 .invitation-popup-container p,strong{
     font-size: 1vw;

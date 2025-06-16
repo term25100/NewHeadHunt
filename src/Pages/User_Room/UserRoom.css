@@ -237,3 +237,97 @@
 .head-fav a:hover{
     background-color: rgba(0, 0, 255, 0.07);
 }
+
+.main-responses-container{
+    margin: 0 auto;
+    margin-top: 4vw;
+    width: 70%;
+    height: auto;
+    display: flex;
+    justify-content: space-around;
+}
+.divide-line{
+    width: .1vw;
+    background-color: grey;
+    height: 42vw;
+}
+.vacation-response{
+    box-sizing: border-box;
+    padding: .5vw;
+    width: 50%;
+    height: 40vw;
+    color: var(--primary-color);
+    font-size: .8vw;
+}
+.response-h{
+    width: fit-content;
+    font-size: 1.2vw;
+    margin: 0 auto;
+}
+.profile-response{
+    box-sizing: border-box;
+    padding: .5vw;
+    width: 50%;
+    height: 40vw;
+    height: auto;
+    color: var(--primary-color);
+    font-size: .8vw;
+}
+
+.vacation-response-scroll{
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+}
+
+.profile-response-scroll{
+    width: 100%;
+    height: 100%;
+    overflow-y: scroll;
+}
+.vacation-response-card{
+    width: 95%;
+    margin: .5vw auto;
+    border: .1vw solid var(--primary-color);
+    border-radius: .5vw;
+    transition: all .4s ease-out;
+}
+.vacation-response-card:hover{
+    border: .1vw solid var(--banner-background);
+    box-shadow: 0px 0px 9px 0px var(--banner-background);
+    transition: all .4s ease-out;
+}
+.card{
+    box-sizing: border-box;
+    padding: .5vw;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    cursor: pointer;
+    justify-content: space-between;
+}
+.card h2{
+    font-size: 1vw;
+}
+.card strong{
+    font-size: .8vw;
+}
+
+.card button{
+    width: 1.2vw;
+    height: 1.2vw;
+    background-color: transparent;
+    background-image: url(../Images/Icons/close.png);
+    background-image: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none;   
+    transition: all .4s ease-out;
+}
+.flex-buttons{
+    display: flex;
+    column-gap: 2vw;
+}
+.response-button{
+    font-size: .7vw;
+}
