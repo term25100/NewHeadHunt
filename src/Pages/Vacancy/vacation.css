@@ -270,7 +270,7 @@
     scale: 1.2;
 }
 
-@media screen and (max-width: 1200px){
+/* @media screen and (max-width: 1200px){
     .vac-banner{
         display: none;
     }
@@ -281,4 +281,5 @@
     .main-info-container{
         flex-wrap: wrap;
     }
-}
+} */
+

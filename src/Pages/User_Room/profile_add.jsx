@@ -2,6 +2,9 @@ import React from 'react';
 import './vacation_add.css';
 import { useState } from 'react';
 import axios from 'axios';
+import mammoth from 'mammoth';
+import Together from "together-ai";
+import e from 'cors';
 
 export function Profile_Add({ onClose }) {
 
@@ -30,6 +33,10 @@ export function Profile_Add({ onClose }) {
   const [isDraggingDoc, setIsDraggingDoc] = useState(false);
   const [docName, setDocName] = useState('');
   const [error, setError] = useState('');
+  const [isParsing, setIsParsing] = useState(false);
+  const together = new Together({
+    apiKey: "d299d08e7b85aacf3e0e1fed64541c89307a8f1cf8dbe27742a12bd30a65ece1"
+  });
 
   // Обработчик изменения полей (для простых полей)
   const handleChange = (e) => {
@@ -214,27 +221,70 @@ export function Profile_Add({ onClose }) {
 
   const handleExtractAndFill = async () => {
     if (!formData.user_resume) {
-      setError('Сначала загрузите резюме (.docx)');
-      return;
+        setError('Сначала загрузите резюме (.docx)');
+        return;
     }
-
+    setIsParsing(true);
     try {
-      const response = await axios.post('http://localhost:5000/api/extract-and-fill', { user_resume: formData.user_resume });
-      
-      // Предполагаем, что API возвращает данные в формате:
-      // { profile_name, salary_from, salary_to, work_time, work_place, work_city, biography, career, skills, work_experience, activity_fields, qualities, educations, languages_knowledge, additionally }
-      const extractedData = response.data;
+        // Преобразуем base64 в Blob
+        const byteCharacters = atob(formData.user_resume);
+        const byteNumbers = new Uint8Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const blob = new Blob([byteNumbers], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
 
-      // Обновляем состояние формы с полученными данными
-      setFormData(prev => ({
-        ...prev,
-        ...extractedData // Распаковываем данные в состояние формы
-      }));
+        // Используем Mammoth для извлечения текста из Blob
+        const arrayBuffer = await blob.arrayBuffer();
+        const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
 
-      setError('');
+        console.log(result.value); // Выводим текст в консоль
+
+        const response = await together.chat.completions.create({
+          messages: [
+            {
+              role: "system",
+              content: `${result.value}
+              Разбей этот текст на такие поля как: profile_name- название проффесии пользователя, salary_from- желаемая зарплата(число в рублях), salary_to- желаемая зарплата(число в рублях), work_time- Перечисление предпочтительного времени работы (полный рабочий день, частичная занятость, удаленно), biography- полнотекстовая информация, career - Карьерное развитие полнотекстовая информация, skills - навыки перечисление через запятые, work_experience - Опыт работы сначала опыт работы в годах далее перечисление мест работы через запятую, activity_fields - Перечисление через запятые того чем занимался на прошлых местах работы, qualities- Перечисление через запятые важных человеческих качеств качеств, educations- Перечисление образований через запятую первым должна идти степень образования например(высшее, среднее, техническое) далее перечисление образовательных учреждений, languages_knowledge- Перечисление в языков которым владеет человек со степенью владения через запятую,city- Город в котором проживает, additionally - дополнительная информация о человеке. Выведи ответ в JSON формате Если какое либо из полей заполнить не удалось поставь пустую строку.`
+            }
+          ],
+          model: "deepseek-ai/DeepSeek-V3",
+          response_format: { type: "json_object" }
+        });
+
+        const jsonResponse = response.choices[0]?.message?.content;
+        console.log("Ответ ИИ (JSON):", jsonResponse);
+
+        const parsedData = JSON.parse(jsonResponse);
+        console.log("Распарсенные данные:", parsedData);
+
+        const formattedData = {
+            ...parsedData,
+            // Преобразуем строки с перечислениями в массивы
+            skills: parsedData.skills ? parsedData.skills.split(',').map(s => s.trim()) : [],
+            work_experience: parsedData.work_experience ? parsedData.work_experience.split(',').map(s => s.trim()) : [],
+            activity_fields: parsedData.activity_fields ? parsedData.activity_fields.split(',').map(s => s.trim()) : [],
+            qualities: parsedData.qualities ? parsedData.qualities.split(',').map(s => s.trim()) : [],
+            educations: parsedData.educations ? parsedData.educations.split(',').map(s => s.trim()) : [],
+            languages_knowledge: parsedData.languages_knowledge ? parsedData.languages_knowledge.split(',').map(s => s.trim()) : [],
+            work_city: parsedData.city || '' // Особое поле (city → work_city)
+        };
+
+        // Обновляем состояние формы
+        setFormData(prev => ({
+            ...prev,
+            ...formattedData,
+            // Сохраняем оригинальные файлы
+            profile_image: prev.profile_image,
+            user_resume: prev.user_resume
+        }));
+
+        setError('');
     } catch (err) {
-      console.error('Ошибка при извлечении текста:', err);
-      setError(err.response?.data?.message || 'Ошибка при извлечении текста');
+        console.error('Ошибка при извлечении текста:', err);
+        setError(err.response?.data?.message || 'Ошибка при извлечении текста');
+    } finally{
+      setIsParsing(false);
     }
   };
 
@@ -502,8 +552,14 @@ export function Profile_Add({ onClose }) {
           </div>
 
           <div className="form-actions">
+            {isParsing && (
+              <div className="parsing-indicator">
+                <div className="spinner"></div>
+                <p>Идет обработка резюме...</p>
+              </div>
+            )}
             {error && <div className="error-message" style={{ whiteSpace: 'pre-wrap' }}>{error}</div>}
-            <button className='glowing-button' title='ИИ подставит данные автоматически при загруженном docx файле' onClick={handleExtractAndFill}>Подгрузить данные c AI</button>
+            <button className='glowing-button' title='ИИ подставит данные автоматически при загруженном docx файле' onClick={(e)=>{handleExtractAndFill(); e.preventDefault();}}>Подгрузить данные c AI</button>
             <button type="submit" className="submit-btn">Сохранить профиль</button>
             <button type="button" className="cancel-btn" onClick={onClose}>Отмена</button>
           </div>
