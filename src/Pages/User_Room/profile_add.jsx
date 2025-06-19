@@ -263,6 +263,7 @@ export function Profile_Add({ onClose }) {
             // Преобразуем строки с перечислениями в массивы
             skills: parsedData.skills ? parsedData.skills.split(',').map(s => s.trim()) : [],
             work_experience: parsedData.work_experience ? parsedData.work_experience.split(',').map(s => s.trim()) : [],
+            work_time: parsedData.work_time ? parsedData.work_time.split(',').map(s => s.trim()) : [],
             activity_fields: parsedData.activity_fields ? parsedData.activity_fields.split(',').map(s => s.trim()) : [],
             qualities: parsedData.qualities ? parsedData.qualities.split(',').map(s => s.trim()) : [],
             educations: parsedData.educations ? parsedData.educations.split(',').map(s => s.trim()) : [],

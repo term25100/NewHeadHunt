@@ -4,12 +4,14 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { sequelize } = require('./config/db');
+const axios = require('axios');
 const User = require('./models/User.model');
 const Vacation = require('./models/Vacation.model');
 const Favourite = require('./models/Favourite.model');
 const Profile = require('./models/Profile.model');
 const Profiles_response = require('./models/Profile_response.model');
 const Vacations_response = require('./models/Vacation_response.model');
+const nodemailer = require('nodemailer');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -28,6 +30,30 @@ sequelize.authenticate()
 sequelize.sync({ alter: true })
   .then(() => console.log('Модели синхронизированы'))
   .catch(err => console.error('Ошибка синхронизации:', err));
+
+
+async function sendMailRuEmail({from, to, subject, text, attachments }) {
+  
+  const transporter = nodemailer.createTransport({
+    host: 'smtp.mail.ru',
+    port: 465,
+    secure: true, 
+    auth: {
+      user: 'new-head-hunt-responser@mail.ru', 
+      pass: 'Wsdw0ABpw6min7g0vbWr' 
+    }
+  });
+
+  const mailOptions = {
+    from, 
+    to,
+    subject,
+    text,
+    attachments
+  };
+
+  await transporter.sendMail(mailOptions);
+}
 
 // Роут для регистрации (совпадает с фронтендом)
 app.post('/api/users', async (req, res) => {
@@ -898,6 +924,35 @@ app.post('/api/profiles-response', async (req, res) => {
       return res.status(400).json({ error: 'Укажите корректный email адрес' });
     }
 
+    let EmailTo;
+    let NameProfile;
+    
+    try {
+      const user = await User.findByPk(user_id);
+      if (!user || !user.email) {
+        console.log("Работодатель не найден или email отсутствует");
+        return res.status(404).json({ error: 'Не удалось получить данные работодателя' });
+      }
+      EmailTo = user.email;
+      console.log("Email работодателя:", EmailTo);
+    } catch(userError) {
+      console.log("Ошибка при получении данных пользователя:", userError);
+      return res.status(404).json({ error: 'Не удалось получить данные работодателя' });
+    }
+    
+    try {
+      const profile = await Profile.findByPk(profile_id);
+      if (!profile || !profile.profile_name) {
+        console.log("Профиль не найден или название отсутствует");
+        return res.status(404).json({ error: 'Не удалось получить данные о профиле' });
+      }
+      NameProfile = profile.profile_name;
+      console.log("Название вакансии:", NameProfile);
+    } catch(profileError) {
+      console.log("Ошибка при получении данных о вакансии:", profileError);
+      return res.status(404).json({ error: 'Не удалось получить данные о вакансии' });
+    }
+
     // Создание отклика
     const newResponse = await Profiles_response.create({
       title_message,
@@ -908,6 +963,28 @@ app.post('/api/profiles-response', async (req, res) => {
       profile_id,
       user_id
     });
+
+    try {
+      await sendMailRuEmail({
+        from: '"Head / Hunt" <new-head-hunt-responser@mail.ru>',
+        to: EmailTo,
+        subject: `На вашу анкету "${NameProfile}" откликнулась компания "${name_company}"!`,
+        text: `
+Отправитель: Head / Hunt
+
+Сообщение от компании:
+${message_response || defaultMessage}
+
+Предложение о зарплате:
+${salary_range || "Не указано"}
+
+Контактные данные компании:
+Email: ${email}
+`
+      });
+    } catch (emailError) {
+      console.error('Ошибка при отправке email:', emailError);
+    }
 
     // Формируем ответ с основными данными
     const responseData = {
@@ -973,6 +1050,37 @@ app.post('/api/vacations-response', async (req, res) => {
     if (!finalMessage) {
       return res.status(400).json({ error: 'Сообщение не может быть пустым' });
     }
+    let EmailTo;
+    let NameVacation;
+    
+    try {
+      // Получаем email работодателя напрямую из БД
+      const user = await User.findByPk(user_id);
+      if (!user || !user.email) {
+        console.log("Работодатель не найден или email отсутствует");
+        return res.status(404).json({ error: 'Не удалось получить данные работодателя' });
+      }
+      EmailTo = user.email;
+      console.log("Email работодателя:", EmailTo);
+    } catch(userError) {
+      console.log("Ошибка при получении данных пользователя:", userError);
+      return res.status(404).json({ error: 'Не удалось получить данные работодателя' });
+    }
+    
+    try {
+      // Получаем название вакансии напрямую из БД
+      const vacation = await Vacation.findByPk(vacation_id);
+      if (!vacation || !vacation.vacation_name) {
+        console.log("Вакансия не найдена или название отсутствует");
+        return res.status(404).json({ error: 'Не удалось получить данные о вакансии' });
+      }
+      NameVacation = vacation.vacation_name;
+      console.log("Название вакансии:", NameVacation);
+    } catch(vacError) {
+      console.log("Ошибка при получении данных о вакансии:", vacError);
+      return res.status(404).json({ error: 'Не удалось получить данные о вакансии' });
+    }
+
     // Создание отклика
     const newResponse = await Vacations_response.create({
       title_message,
@@ -982,6 +1090,34 @@ app.post('/api/vacations-response', async (req, res) => {
       vacation_id,
       user_id
     });
+
+
+
+    try {
+      await sendMailRuEmail({
+        from: 'new-head-hunt-responser@mail.ru',
+        to: EmailTo, // Email пользователя (работодателя)
+        subject: `На вашу вакансию "${NameVacation}" откликнулись!`,
+        text: `
+Отправитель: Head / Hunt
+
+Сообщение от кандидата:
+${finalMessage}
+
+Контактные данные кандидата:
+Email: ${email}
+`,
+        attachments: [
+          {
+            filename: 'Резюме_кандидата.docx',
+            content: resume_file.split('base64,')[1] || resume_file,
+            encoding: 'base64'
+          }
+        ]
+      });
+    } catch (emailError) {
+      console.error('Ошибка при отправке email:', emailError);
+    }
 
     // Формируем ответ с основными данными
     const responseData = {
@@ -993,7 +1129,7 @@ app.post('/api/vacations-response', async (req, res) => {
       email: newResponse.email,
       resume_file: newResponse.resume_file
     };
-    console.log(responseData);
+    //console.log(responseData);
     res.status(201).json({
       message: 'Приглашение успешно отправлено',
       response: responseData
