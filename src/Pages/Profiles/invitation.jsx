@@ -57,7 +57,7 @@ export const InvitationPopup = ({ candidate, onClose, onSend }) => {
             <input
               type="text"
               name="title_message"
-              value={formData.title_message}
+              value={`Анкета - ${candidate.position}`}
               onChange={handleChange}
               placeholder="Например: Предложение работы Frontend разработчиком"
               required

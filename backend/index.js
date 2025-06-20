@@ -1158,6 +1158,69 @@ Email: ${email}
   }
 });
 
+app.get('/api/responseVacation-extract', authenticateUser, async (req, res) => {
+  try {
+    const userId = req.user.userId; 
+    const responseVacations = await Vacations_response.findAll({
+      where: { 
+        user_id: userId 
+      },
+      order: [['response_id', 'DESC']]
+    });
+
+    const vacationIds = responseVacations.map(response => response.vacation_id);
+
+    const vacations = await Vacation.findAll({
+      where: {
+        vacation_id: vacationIds
+      },
+      attributes: ['vacation_id', 'vacation_name']
+    });
+
+    // Соединяем данные откликов с данными вакансий
+    const responseWithVacations = responseVacations.map(response => {
+      const vacation = vacations.find(v => v.id === response.vacation_id);
+      return {
+        ...response.get({ plain: true }),
+        vacation: vacation ? vacation.get({ plain: true }) : null
+      };
+    });
+
+    res.json({
+      success: true,
+      responseVacations: responseWithVacations
+    });
+  } catch (error) {
+    console.error('Ошибка получения откликов на вакансии:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка при получении откликов на вакансии' 
+    });
+  }
+});
+
+app.delete('/api/vacationResponse-delete/:id', authenticateUser, async (req, res) => {
+  const responseId = req.params.id;
+
+  try {
+    const response = await Vacations_response.findByPk(responseId);
+
+    if (!response) {
+      return res.status(404).json({ success: false, message: 'Отклик не найден' });
+    }
+
+    if (response.user_id !== req.user.userId) {
+      return res.status(403).json({ success: false, message: 'Нет доступа к удалению этого отклика' });
+    }
+
+    await response.destroy();
+
+    res.json({ success: true, message: 'Отклик успешно удален' });
+  } catch (error) {
+    console.error('Ошибка при удалении отклика:', error);
+    res.status(500).json({ success: false, message: 'Ошибка при удалении отклика' });
+  }
+});
 
 // Запуск сервера
 app.listen(PORT, () => {

@@ -306,6 +306,9 @@
     cursor: pointer;
     justify-content: space-between;
 }
+.card h1{
+    font-size: 1.2vw;
+}
 .card h2{
     font-size: 1vw;
 }
@@ -313,7 +316,7 @@
     font-size: .8vw;
 }
 
-.card button{
+/* .card button{
     width: 1.2vw;
     height: 1.2vw;
     background-color: transparent;
@@ -323,7 +326,7 @@
     background-position: center;
     border: none;   
     transition: all .4s ease-out;
-}
+} */
 .flex-buttons{
     display: flex;
     column-gap: 2vw;

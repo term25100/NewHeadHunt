@@ -110,7 +110,7 @@ export function ResponsePopup({ vacation, onClose, onSend }) {
             <input
               type="text"
               name="title_message"
-              value={formData.title_message}
+              value={`Вакансия - ${vacation.vacation_name}`}
               onChange={handleChange}
               placeholder="Например: Предложение работы Frontend разработчиком"
               required

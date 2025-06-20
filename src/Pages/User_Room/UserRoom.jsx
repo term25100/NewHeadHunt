@@ -16,7 +16,8 @@ export function UserRoom({ activeTab }) {
   const [showPopupEdit, setShowPopupEdit] = useState(false);
   const [selectedVacation, setSelectedVacation] = useState(null);
   const [showArchived, setShowArchived] = useState(false);
-  const [showResponses, setShowResponses] = useState(false);
+  const [responseVacations, setResponseVacations] = useState([]);
+  const [loadingResponses, setLoadingResponses] = useState(false);
   const [vacations, setVacations] = useState([]);
   const [profiles, setProfiles] = useState([]);
   const [favoriteVacations, setFavoriteVacations] = useState([]);
@@ -26,6 +27,7 @@ export function UserRoom({ activeTab }) {
   const [error, setError] = useState('');
   const [showPopupProfileEdit, setShowPopupProfileEdit] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(null);
+  const [resumeFile, setResumeFile] = useState(null);
 
   // Функция загрузки вакансий пользователя с сервера
   const fetchVacations = async () => {
@@ -121,6 +123,44 @@ export function UserRoom({ activeTab }) {
     }
   };
 
+  const fetchResponseVacations = async () => {
+    setLoadingResponses(true);
+    setError('');
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setError('Ошибка аутентификации. Пожалуйста, войдите снова.');
+        setLoadingResponses(false);
+        return;
+      }
+
+      const response = await axios.get('http://localhost:5000/api/responseVacation-extract', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.data.resume_file) {
+        const base64Resume = `data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${response.data.resume_file}`;
+        setResumeFile(base64Resume);
+      }
+      if (response.data.success) {
+        setResponseVacations(response.data.responseVacations);
+      } else {
+        setError('Не удалось загрузить отклики на вакансии');
+      }
+    } catch (err) {
+      console.error('Ошибка при загрузке откликов:', err);
+      setError('Ошибка при загрузке откликов на вакансии');
+    } finally {
+      setLoadingResponses(false);
+    }
+  };
+  useEffect(()=>{
+    if(activeTab === 'responses'){
+      fetchResponseVacations();
+    }
+  }, [activeTab]);
+
   useEffect(() => {
     if (activeTab === 'favorites') {
       fetchFavoriteVacations();
@@ -215,6 +255,33 @@ export function UserRoom({ activeTab }) {
   const handleEditClick = (vacation) => {
     setSelectedVacation(vacation);
     setShowPopupEdit(true);
+  };
+
+  const handleDeleteVacResponse = async (responseId) => {
+    const confirmDelete = window.confirm('Вы действительно хотите удалить этот отклик?');
+    if (!confirmDelete) return;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        alert('Ошибка аутентификации. Пожалуйста, войдите снова.');
+        return;
+      }
+      
+      const response = await axios.delete(`http://localhost:5000/api/vacationResponse-delete/${responseId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (response.data.success) {
+        fetchResponseVacations();
+      } else {
+        alert('Не удалось удалить отклик.');
+      }
+    } catch (error) {
+      console.error('Ошибка при удалении отклика:', error);
+      alert('Произошла ошибка при удалении отклика.');
+    }
   };
 
   const handleDeleteProfile = async (profileId) => {
@@ -624,33 +691,54 @@ export function UserRoom({ activeTab }) {
           <div className="vacation-response">
             <h1 className='response-h'>Отклики на вакансии</h1>
             <div className="vacation-response-scroll">
-              <div className="vacation-response-card">
-                <a className='card'>
-                  <div>
-                    <h2>Заголовок: </h2>
-                    <p><strong>Обращение:</strong> <br />
-                      
-                    </p>
-                    <p><strong>Контактный адрес:</strong><br></br>
-                    
-                    </p>
-                    <div className='flex-buttons'>
-                      <a className='response-button'>Скачать резюме</a>
-                      <a className='response-button'>Ответить кандидату</a>
+              {loadingResponses && <p>Загрузка откликов...</p>}
+              {error && <p className="error-message">{error}</p>}
+              {!loadingResponses && !error && responseVacations.length === 0 && (
+                <p>У вас пока нет откликов на вакансии</p>
+              )}
+              {!loadingResponses && !error && responseVacations.map(response => (
+                <div key={response.response_id} className="vacation-response-card">
+                  <div className="card">
+                    <div>
+                      {/* <h1>Вакансия: {response.vacation_name || 'Название не указано'}</h1> */}
+                      <h2>Заголовок: {response.title_message}</h2>
+                      <p>
+                        <strong>Обращение:</strong><br />
+                        {response.message_response}
+                      </p>
+                      <p>
+                        <strong>Контактный адрес:</strong><br />
+                        {response.email}
+                      </p>
+                      <div className='flex-buttons'>
+                        <a 
+                          href={`data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${response.resume_file}`} 
+                          download
+                          className='response-button'
+                        >
+                          Скачать резюме
+                        </a>
+                        <a 
+                          href={`mailto:${response.email}`} 
+                          className='response-button'
+                        >
+                          Ответить кандидату
+                        </a>
+                      </div>
+                    </div>
+                    <div className='delete-button'>
+                      <button onClick={() => handleDeleteVacResponse(response.response_id)}></button>
                     </div>
                   </div>
-                  <div>
-                    <button></button>
-                  </div>
-                </a>
-              </div>
+                </div>
+              ))}
             </div>
           </div>
           <div className="divide-line"></div>
           <div className="profile-response">
             <h1 className='response-h'>Отклики на профили</h1>
             <div className="profile-response-scroll">
-
+              {/* Здесь можно добавить аналогичную логику для откликов на профили */}
             </div>
           </div>
         </div>  
