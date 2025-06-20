@@ -1095,7 +1095,7 @@ app.post('/api/vacations-response', async (req, res) => {
 
     try {
       await sendMailRuEmail({
-        from: 'new-head-hunt-responser@mail.ru',
+        from: '"Head / Hunt" <new-head-hunt-responser@mail.ru>',
         to: EmailTo, // Email пользователя (работодателя)
         subject: `На вашу вакансию "${NameVacation}" откликнулись!`,
         text: `
@@ -1199,11 +1199,75 @@ app.get('/api/responseVacation-extract', authenticateUser, async (req, res) => {
   }
 });
 
+app.get('/api/responseProfile-extract', authenticateUser, async (req, res) => {
+  try {
+    const userId = req.user.userId; 
+    const responseProfiles = await Profiles_response.findAll({
+      where: { 
+        user_id: userId 
+      },
+      order: [['response_id', 'DESC']]
+    });
+
+    const profileIds = responseProfiles.map(responseProfiles => responseProfiles.profile_id);
+
+    const profiles = await Profile.findAll({
+      where: {
+        profile_id: profileIds
+      },
+      attributes: ['profile_id', 'profile_name']
+    });
+
+    // Соединяем данные откликов с данными вакансий
+    const responseWithProfiles = responseProfiles.map(response => {
+      const profile = profiles.find(v => v.id === responseProfiles.profile_id);
+      return {
+        ...response.get({ plain: true }),
+        profile: profile ? profile.get({ plain: true }) : null
+      };
+    });
+
+    res.json({
+      success: true,
+      responseProfiles: responseWithProfiles
+    });
+  } catch (error) {
+    console.error('Ошибка получения откликов на анкеты:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка при получении откликов на анкеты' 
+    });
+  }
+});
+
 app.delete('/api/vacationResponse-delete/:id', authenticateUser, async (req, res) => {
   const responseId = req.params.id;
 
   try {
     const response = await Vacations_response.findByPk(responseId);
+
+    if (!response) {
+      return res.status(404).json({ success: false, message: 'Отклик не найден' });
+    }
+
+    if (response.user_id !== req.user.userId) {
+      return res.status(403).json({ success: false, message: 'Нет доступа к удалению этого отклика' });
+    }
+
+    await response.destroy();
+
+    res.json({ success: true, message: 'Отклик успешно удален' });
+  } catch (error) {
+    console.error('Ошибка при удалении отклика:', error);
+    res.status(500).json({ success: false, message: 'Ошибка при удалении отклика' });
+  }
+});
+
+app.delete('/api/profileResponse-delete/:id', authenticateUser, async (req, res) => {
+  const responseId = req.params.id;
+
+  try {
+    const response = await Profiles_response.findByPk(responseId);
 
     if (!response) {
       return res.status(404).json({ success: false, message: 'Отклик не найден' });

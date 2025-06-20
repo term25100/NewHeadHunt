@@ -3,7 +3,7 @@ import './invitation.css';
 
 export const InvitationPopup = ({ candidate, onClose, onSend }) => {
   const [formData, setFormData] = React.useState({
-    title_message: '',
+    title_message: `Анкета - ${candidate.position}`,
     name_company: '',
     salary_range: '',
     message_response: '',

@@ -3,7 +3,7 @@ import React from 'react';
 import { useState } from 'react';
 export function ResponsePopup({ vacation, onClose, onSend }) {
     const [formData, setFormData] = React.useState({
-      title_message: '',
+      title_message: `Вакансия - ${vacation.vacation_name}`,
       message_response: '',
       email: '',
       resume_file: '',
