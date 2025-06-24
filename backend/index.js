@@ -196,6 +196,7 @@ app.get('/api/userData', authenticateUser, async (req, res) => {
 
     // Возвращаем данные пользователя (без пароля)
     const userResponse = {
+      user_id: user.user_id,
       fullName: user.name,
       email: user.email,
       phone: user.phone,
@@ -218,6 +219,78 @@ app.get('/api/user/:id', async (req, res) => {
     res.json({ success: true, user });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Ошибка сервера' });
+  }
+});
+
+app.put('/api/user-edit/:userId', authenticateUser, async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { username, email, phone, password, profile_image } = req.body;
+
+    // Проверяем, что userId из URL совпадает с userId из токена
+    if (parseInt(userId) !== req.user.userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'Вы можете редактировать только свой профиль'
+      });
+    }
+
+    // Находим пользователя
+    const user = await User.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Пользователь не найден'
+      });
+    }
+
+    // Проверяем уникальность email, если он изменен
+    if (email && email !== user.email) {
+      const existingUser = await User.findOne({ where: { email } });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          message: 'Этот email уже используется другим пользователем'
+        });
+      }
+    }
+
+    // Подготавливаем обновления
+    const updateData = {
+      name: username || user.name,
+      email: email || user.email,
+      phone: phone || user.phone,
+      user_image: profile_image || user.user_image
+    };
+
+    // Обновляем пароль, если он предоставлен
+    if (password) {
+      const salt = await bcrypt.genSalt(10);
+      updateData.password_hash = await bcrypt.hash(password, salt);
+    }
+
+    // Выполняем обновление
+    await User.update(updateData, {
+      where: { user_id: userId }
+    });
+
+    // Получаем обновленные данные пользователя (без пароля)
+    const updatedUser = await User.findByPk(userId, {
+      attributes: ['user_id', 'name', 'email', 'phone', 'user_image']
+    });
+
+    res.json({
+      success: true,
+      message: 'Данные пользователя успешно обновлены',
+      user: updatedUser
+    });
+
+  } catch (error) {
+    console.error('Ошибка при обновлении пользователя:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Произошла ошибка при обновлении данных'
+    });
   }
 });
 

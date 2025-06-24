@@ -1,8 +1,8 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import './user_edit.css';
 import axios from 'axios';
-
-export function User_Edit({ userId, onClose, onUpdate }) {
+import { IMaskInput } from 'react-imask';
+export function User_Edit({onClose, onUpdate }) {
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -11,11 +11,59 @@ export function User_Edit({ userId, onClose, onUpdate }) {
     confirmPassword: '',
     profile_image: ''
   });
-
+  const [currentUserId, setCurrentUserId] = useState(null);
   const [isDraggingImage, setIsDraggingImage] = useState(false);
   const [imagePreview, setImagePreview] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(true);
 
+  // Функция загрузки данных пользователя
+  const fetchUserData = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setError('Ошибка аутентификации. Пожалуйста, войдите снова.');
+        return;
+      }
+
+      const response = await axios.get('http://localhost:5000/api/userData', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.data.success) {
+        const userData = response.data.userResponse;
+        console.log(userData.user_id);
+        setCurrentUserId(userData.user_id);
+        setFormData(prev => ({
+          ...prev,
+          username: userData.fullName || '',
+          email: userData.email || '',
+          phone: userData.phone || '',
+          profile_image: userData.user_image || ''
+        }));
+
+        if (userData.user_image) {
+          setImagePreview(`data:image/png;base64,${userData.user_image}`);
+        }
+      } else {
+        setError(response.data.message || 'Не удалось загрузить данные пользователя');
+      }
+    } catch (err) {
+      console.error('Ошибка при загрузке данных пользователя:', err);
+      setError(err.response?.data?.message || 'Ошибка при загрузке данных пользователя');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Загружаем данные при монтировании компонента
+  useEffect(() => {
+    fetchUserData();
+  }, [fetchUserData]);
+
+  // Остальные обработчики остаются без изменений
   const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -92,47 +140,58 @@ export function User_Edit({ userId, onClose, onUpdate }) {
   }, [formData]);
 
   const handleSubmit = useCallback(async (e) => {
-    e.preventDefault();
-    if (!validateForm()) return;
+      e.preventDefault();
+      if (!validateForm()) return;
 
-    try {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        setError('Ошибка аутентификации. Пожалуйста, войдите снова.');
-        return;
-      }
-
-      // Удаляем confirmPassword из данных перед отправкой
-      const { confirmPassword, ...requestData } = formData;
-      
-      // Если пароль не менялся, не отправляем его
-      if (!requestData.password) {
-        delete requestData.password;
-      }
-
-      const response = await axios.put(
-        `http://localhost:5000/api/user-edit/${userId}`,
-        requestData,
-        {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+      try {
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+          setError('Ошибка аутентификации. Пожалуйста, войдите снова.');
+          return;
         }
-      );
 
-      if (response.data.success) {
-        alert('Данные успешно обновлены!');
-        onUpdate();
-        onClose();
-      } else {
-        setError(response.data.message || 'Ошибка при обновлении данных');
+        const { confirmPassword, ...requestData } = formData;
+
+        if (!requestData.password) {
+          delete requestData.password;
+        }
+
+        // Убираем отправку user_id, так как он уже есть в URL
+        const response = await axios.put(
+          `http://localhost:5000/api/user-edit/${currentUserId}`, // Используем currentUserId из состояния
+          requestData,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          }
+        );
+
+        if (response.data.success) {
+          alert('Данные успешно обновлены!');
+          onUpdate();
+          setTimeout(() => {
+            onClose(); // Закрываем форму через 2 секунды после алерта
+          }, 1000);
+        } else {
+          setError(response.data.message || 'Ошибка при обновлении данных');
+        }
+      } catch (err) {
+        // console.error(err);
+        // setError(err.response?.data?.message || 'Ошибка при отправке данных');
       }
-    } catch (err) {
-      console.error(err);
-      setError(err.response?.data?.message || 'Ошибка при отправке данных');
-    }
-  }, [formData, userId, onClose, onUpdate, validateForm]);
+  }, [formData, currentUserId, onClose, onUpdate, validateForm]);
+
+  if (loading) {
+    return (
+      <div className="popup-overlay">
+        <div className="popup-container">
+          <div className="loading-message">Загрузка данных пользователя...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="popup-overlay">
@@ -167,13 +226,14 @@ export function User_Edit({ userId, onClose, onUpdate }) {
 
           <div className="form-group">
             <label>Телефон</label>
-            <input
+            {/* <input
               type="tel"
               name="phone"
               value={formData.phone}
               onChange={handleChange}
               placeholder="Введите ваш телефон"
-            />
+            /> */}
+            <IMaskInput mask="+7 (000) 000-00-00" definitions={{ '0': /[0-9]/ }} type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="+7 (___) ___-__-__" />
           </div>
 
           <div className="form-group">

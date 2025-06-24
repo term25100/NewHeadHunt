@@ -48,6 +48,10 @@ export function UserRoom({ activeTab }) {
     setShowEditForm(true);
   };
 
+  const handleUpdateData = () => {
+    fetchUserData(); 
+  };
+
   const formatPhoneNumber = (phone) => {
     if (!phone) return "Не указано";
   
@@ -1018,6 +1022,7 @@ export function UserRoom({ activeTab }) {
           {showEditForm && (
             <User_Edit 
               onClose={() => setShowEditForm(false)}
+              onUpdate={handleUpdateData}
             />
           )}
           <div className="user_form">

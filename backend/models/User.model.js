@@ -45,10 +45,10 @@ const User = sequelize.define('User', {
     }
   }
 });
-User.associate = function(models) {
-  User.hasMany(models.Vacation, {
-    foreignKey: 'user_id',
-    as: 'vacations'
-  });
-};
+// User.associate = function(models) {
+//   User.hasMany(models.Vacation, {
+//     foreignKey: 'user_id',
+//     as: 'vacations'
+//   });
+// };
 module.exports = User;
