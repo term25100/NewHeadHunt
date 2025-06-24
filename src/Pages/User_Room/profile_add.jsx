@@ -34,22 +34,23 @@ export function Profile_Add({ onClose }) {
   const [docName, setDocName] = useState('');
   const [error, setError] = useState('');
   const [isParsing, setIsParsing] = useState(false);
+  const togetherApiKey = process.env.REACT_APP_TOGETHER_API_KEY;
   const together = new Together({
-    apiKey: "d299d08e7b85aacf3e0e1fed64541c89307a8f1cf8dbe27742a12bd30a65ece1"
+    apiKey: togetherApiKey
   });
 
-  // Обработчик изменения полей (для простых полей)
+
   const handleChange = (e) => {
     const { name, type, value, checked } = e.target;
 
-    // Для массивов (skills, work_time и т.п.) можно добавить отдельную логику, но здесь пока простой вариант
+    
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value
     }));
   };
 
-  // Drag & Drop для изображения профиля
+
   const handleDragOverImage = (e) => {
     e.preventDefault();
     setIsDraggingImage(true);
@@ -83,7 +84,7 @@ export function Profile_Add({ onClose }) {
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target.result;
-      const base64 = dataUrl.split(',')[1]; // base64 без префикса
+      const base64 = dataUrl.split(',')[1]; 
       setImagePreview(dataUrl);
       setFormData(prev => ({
         ...prev,
@@ -94,7 +95,7 @@ export function Profile_Add({ onClose }) {
     reader.readAsDataURL(file);
   };
 
-  // Drag & Drop для .docx файла (резюме)
+  
   const handleDragOverDoc = (e) => {
     e.preventDefault();
     setIsDraggingDoc(true);
@@ -128,7 +129,7 @@ export function Profile_Add({ onClose }) {
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target.result;
-      // dataUrl будет в формате data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,...
+      
       const base64 = dataUrl.split(',')[1];
       setDocName(file.name);
       setFormData(prev => ({
@@ -140,7 +141,7 @@ export function Profile_Add({ onClose }) {
     reader.readAsDataURL(file);
   };
 
-  // Валидация формы (пример, можно расширить)
+  
   const validateForm = () => {
     let errors = [];
 
@@ -148,7 +149,7 @@ export function Profile_Add({ onClose }) {
       errors.push('Имя профиля обязательно');
     }
 
-    // Пример проверки зарплаты (если заполнено)
+    
     if (formData.salary_from && isNaN(formData.salary_from)) {
       errors.push('Зарплата "от" должна быть числом');
     }
@@ -157,7 +158,7 @@ export function Profile_Add({ onClose }) {
       errors.push('Зарплата "до" должна быть числом');
     }
 
-    // Проверка города
+    
     if (!formData.work_city.trim()) {
       errors.push('Город обязателен');
     }
@@ -182,12 +183,12 @@ export function Profile_Add({ onClose }) {
         return;
       }
 
-      // Подготовка данных для отправки
+      
       const requestData = {
         ...formData,
         salary_from: formData.salary_from ? parseInt(formData.salary_from) : null,
         salary_to: formData.salary_to ? parseInt(formData.salary_to) : null,
-        // Преобразование строк в массивы, если нужно (например, skills)
+        
         skills: typeof formData.skills === 'string' ? formData.skills.split(',').map(s => s.trim()).filter(Boolean) : formData.skills,
         work_time: typeof formData.work_time === 'string' ? formData.work_time.split(',').map(s => s.trim()).filter(Boolean) : formData.work_time,
         work_place: typeof formData.work_place === 'string' ? formData.work_place.split(',').map(s => s.trim()).filter(Boolean) : formData.work_place,
@@ -226,7 +227,7 @@ export function Profile_Add({ onClose }) {
     }
     setIsParsing(true);
     try {
-        // Преобразуем base64 в Blob
+        
         const byteCharacters = atob(formData.user_resume);
         const byteNumbers = new Uint8Array(byteCharacters.length);
         for (let i = 0; i < byteCharacters.length; i++) {
@@ -234,11 +235,11 @@ export function Profile_Add({ onClose }) {
         }
         const blob = new Blob([byteNumbers], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
 
-        // Используем Mammoth для извлечения текста из Blob
+        
         const arrayBuffer = await blob.arrayBuffer();
         const result = await mammoth.extractRawText({ arrayBuffer: arrayBuffer });
 
-        console.log(result.value); // Выводим текст в консоль
+        console.log(result.value); 
 
         const response = await together.chat.completions.create({
           messages: [
@@ -260,7 +261,7 @@ export function Profile_Add({ onClose }) {
 
         const formattedData = {
             ...parsedData,
-            // Преобразуем строки с перечислениями в массивы
+            
             skills: parsedData.skills ? parsedData.skills.split(',').map(s => s.trim()) : [],
             work_experience: parsedData.work_experience ? parsedData.work_experience.split(',').map(s => s.trim()) : [],
             work_time: parsedData.work_time ? parsedData.work_time.split(',').map(s => s.trim()) : [],
@@ -268,14 +269,14 @@ export function Profile_Add({ onClose }) {
             qualities: parsedData.qualities ? parsedData.qualities.split(',').map(s => s.trim()) : [],
             educations: parsedData.educations ? parsedData.educations.split(',').map(s => s.trim()) : [],
             languages_knowledge: parsedData.languages_knowledge ? parsedData.languages_knowledge.split(',').map(s => s.trim()) : [],
-            work_city: parsedData.city || '' // Особое поле (city → work_city)
+            work_city: parsedData.city || '' 
         };
 
-        // Обновляем состояние формы
+        
         setFormData(prev => ({
             ...prev,
             ...formattedData,
-            // Сохраняем оригинальные файлы
+            
             profile_image: prev.profile_image,
             user_resume: prev.user_resume
         }));

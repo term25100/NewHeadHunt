@@ -100,7 +100,7 @@
     display: flex;
     align-items: flex-start;
 }
-.edit-button{
+.edit-button {
     display: flex;
     margin-top: 1vw;
     margin-right: .5vw;
@@ -210,6 +210,7 @@
 }
 .image-place{
     margin: 0 auto !important;
+    background-image: none;
 }
 
 .head-fav{

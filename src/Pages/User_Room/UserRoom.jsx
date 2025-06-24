@@ -4,11 +4,14 @@ import { Vacancy_Edit } from './vacation_edit';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import myImage from '../Images/Peoples/sergei.webp';
+import myImage from '../Images/user.png';
 import { Profile_Add } from './profile_add';
 import { Profile_Edit } from './profile_edit';
+import { PasswordConfirm } from './password_confirmation';
+import { User_Edit } from './user_edit';
 import { ProfileAddSteps} from './steps';
 import { TourProvider } from "@reactour/tour";
+import InputMask from 'react-input-mask';
 
 export function UserRoom({ activeTab }) {
   const [showPopupAdd, setShowPopupAdd] = useState(false);
@@ -24,12 +27,38 @@ export function UserRoom({ activeTab }) {
   const [profiles, setProfiles] = useState([]);
   const [favoriteVacations, setFavoriteVacations] = useState([]);
   const [userName, setUserName]=useState([]);
+  const [userData, setUserData] = useState(null); 
+  const [userLoading, setUserLoading] = useState(true);
   const [loadingVacations, setLoadingVacations] = useState(false);
   const [loadingProfiles, setLoadingProfiles] = useState(false);
   const [error, setError] = useState('');
   const [showPopupProfileEdit, setShowPopupProfileEdit] = useState(false);
   const [selectedProfile, setSelectedProfile] = useState(null);
+  const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
   const [resumeFile, setResumeFile] = useState(null);
+  
+
+  const handleEditUserClick = () => {
+    setShowPasswordConfirm(true);
+  };
+
+  const handlePasswordConfirm = () => {
+    setShowPasswordConfirm(false);
+    setShowEditForm(true);
+  };
+
+  const formatPhoneNumber = (phone) => {
+    if (!phone) return "Не указано";
+  
+    const cleaned = phone.toString().replace(/\D/g, '');
+
+    if (cleaned.length >= 11 && (cleaned.startsWith('7') || cleaned.startsWith('8'))) {
+      return `+7 (${cleaned.substring(1, 4)})-${cleaned.substring(4, 7)}-${cleaned.substring(7, 9)}-${cleaned.substring(9, 11)}`;
+    }
+
+    return phone;
+  };
 
   // Функция загрузки вакансий пользователя с сервера
   const fetchVacations = async () => {
@@ -125,6 +154,35 @@ export function UserRoom({ activeTab }) {
     }
   };
 
+  const fetchUserData = async()=>{
+    setUserLoading(true);
+    setError('');
+    try{
+      const token = localStorage.getItem('authToken');
+      if(!token){
+        alert('Ошибка аутентификации. Пожалуйста, войдите снова.');
+        setError('Ошибка аутентификации. Пожалуйста, войдите снова.');
+        setUserLoading(false);
+        return;
+      }
+      const response = await axios.get('http://localhost:5000/api/userData',{
+        headers:{
+          'Authorization': `Bearer ${token}`
+        },
+      });
+      if(response.data.success){
+        setUserData(response.data.userResponse);
+      }else{
+        setError('Не удалось загрузить данные пользователя.');
+      }
+    }catch (err){
+      console.error('Ошибка при загрузке данных пользователя: ',err);
+      setError('Ошибка при загрузке данных пользователя');
+    }finally{
+      setUserLoading(false);
+    }
+  }
+
   const fetchResponseVacations = async () => {
     setLoadingResponsesVac(true);
     setError('');
@@ -182,6 +240,12 @@ export function UserRoom({ activeTab }) {
       setLoadingResponsesProf(false);
     }
   };
+
+  useEffect(()=>{
+    if(activeTab === 'user_menu'){
+      fetchUserData();
+    }
+  },[activeTab]);
 
   useEffect(()=>{
     if(activeTab === 'responses'){
@@ -944,32 +1008,55 @@ export function UserRoom({ activeTab }) {
 
       {activeTab === "user_menu" && (
         <div className="main-container">
+          {showPasswordConfirm && (
+            <PasswordConfirm 
+              onConfirm={handlePasswordConfirm}
+              onCancel={() => setShowPasswordConfirm(false)}
+            />
+          )}
+
+          {showEditForm && (
+            <User_Edit 
+              onClose={() => setShowEditForm(false)}
+            />
+          )}
           <div className="user_form">
             <h1>Ваши личные данные</h1>
-            <div className="group_userData">
-              <div>
-                <div className="group-form">
-                  <label>Ваше имя:</label>
-                  <p>Левин Андрей Андреевич</p>
+            {userLoading ? (
+              <div>Загрузка данных...</div>
+            ) : error ? (
+              <div className="error-message">{error}</div>
+            ) : (
+              <div className="group_userData">
+                <div>
+                  <div className="group-form">
+                    <label>Ваше имя:</label>
+                    <p>{userData?.fullName || 'Не указано'}</p>
+                  </div>
+                  <div className="group-form">
+                    <label>Ваш email:</label>
+                    <p>{userData?.email || 'Не указано'}</p>
+                  </div>
+                  <div className="group-form">
+                    <label>Ваш телефон:</label>
+                    <p>{formatPhoneNumber(userData?.phone)}</p>
+                  </div>  
                 </div>
-                <div className="group-form">
-                  <label>Ваш email:</label>
-                  <p>term25100@gmail.com</p>
+                <div>
+                  <div className="image-place">
+                    <img 
+                      src={userData?.user_image ? `data:image/png;base64,${userData.user_image}` : myImage} 
+                      alt="Фото пользователя" 
+                    />
+                  </div>
                 </div>
-                <div className="group-form">
-                  <label>Ваш телефон:</label>
-                  <p>+7(919)-073-00-61</p>
+                <div className="group-buttons">
+                  <button onClick={handleEditUserClick} className="response-button">
+                    Редактировать данные
+                  </button>
                 </div>
               </div>
-              <div>
-                <div className="image-place">
-                    <img src={myImage} alt="Фото соискателя    " />
-                </div>
-              </div>
-              <div className="group-buttons">
-                <a>Редактировать данные</a>
-              </div>
-            </div>
+            )}
           </div>
         </div>
       )}

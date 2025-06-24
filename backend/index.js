@@ -15,18 +15,15 @@ const nodemailer = require('nodemailer');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const API_KEY = 'sk-0ssmtJ9iOuZESsp8WcWdrmJFHStvpQyeO6C3SWgdh5sWMm6s9KNlmydF9GbN';
-const API_URL = 'https://api.gen-api.ru/api/v1/networks/chat-gpt-3';
-// Middleware
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
-// Проверка подключения к БД
+
 sequelize.authenticate()
   .then(() => console.log('PostgreSQL подключен успешно'))
   .catch(err => console.error('Ошибка подключения к PostgreSQL:', err));
 
-// Синхронизация моделей
+
 sequelize.sync({ alter: true })
   .then(() => console.log('Модели синхронизированы'))
   .catch(err => console.error('Ошибка синхронизации:', err));
@@ -55,25 +52,25 @@ async function sendMailRuEmail({from, to, subject, text, attachments }) {
   await transporter.sendMail(mailOptions);
 }
 
-// Роут для регистрации (совпадает с фронтендом)
+
 app.post('/api/users', async (req, res) => {
   try {
     const { name, email, phone, password_hash } = req.body;
 
-    // Валидация
+
     if (!name || !email || !phone || !password_hash) {
       return res.status(400).json({ error: 'Все поля обязательны' });
     }
 
-    // Создание пользователя (пароль хешируется автоматически в модели)
+
     const newUser = await User.create({
       name,
       email,
-      phone: phone.replace(/\D/g, ''), // Очищаем номер
+      phone: phone.replace(/\D/g, ''), 
       password_hash
     });
 
-    // Формируем ответ без пароля
+
     const userResponse = {
       user_id: newUser.user_id,
       name: newUser.name,
@@ -104,7 +101,7 @@ app.post('/api/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Валидация
+
         if (!email || !password) {
             return res.status(400).json({ 
                 success: false,
@@ -112,7 +109,7 @@ app.post('/api/login', async (req, res) => {
             });
         }
 
-        // Поиск пользователя
+
         const user = await User.findOne({ 
             where: { email },
             attributes: ['user_id', 'name', 'email', 'password_hash']
@@ -125,7 +122,7 @@ app.post('/api/login', async (req, res) => {
             });
         }
 
-        // Проверка пароля
+
         const isMatch = await bcrypt.compare(password, user.password_hash);
         if (!isMatch) {
             return res.status(401).json({ 
@@ -134,10 +131,10 @@ app.post('/api/login', async (req, res) => {
             });
         }
 
-        // Генерация токена
+
         const token = jwt.sign(
             { userId: user.user_id },
-            process.env.JWT_SECRET || '09u85yhtg9wio5',
+            process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
 
@@ -170,7 +167,7 @@ const authenticateUser = (req, res, next) => {
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = decoded; // Добавляем данные пользователя в запрос
+    req.user = decoded; 
     next();
   } catch (err) {
     res.status(401).json({ message: 'Недействительный токен' });
@@ -180,11 +177,35 @@ const authenticateUser = (req, res, next) => {
 app.get('/api/user', authenticateUser, async (req, res) => {
   try {
     const user = await User.findByPk(req.user.userId, {
-      attributes: ['user_id', 'name', 'email'] // Не возвращаем пароль
+      attributes: ['user_id', 'name', 'email'] 
     });
     res.json(user);
   } catch (err) {
     res.status(500).json({ message: 'Ошибка сервера' });
+  }
+});
+
+app.get('/api/userData', authenticateUser, async (req, res) => {
+  try {
+    
+    const user = await User.findByPk(req.user.userId);
+    
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Пользователь не найден' });
+    }
+
+    // Возвращаем данные пользователя (без пароля)
+    const userResponse = {
+      fullName: user.name,
+      email: user.email,
+      phone: user.phone,
+      user_image: user.user_image
+    };
+
+    res.json({ success: true, userResponse });
+  } catch (error) {
+    console.error('Ошибка при получении данных пользователя:', error);
+    res.status(500).json({ success: false, message: 'Ошибка сервера' });
   }
 });
 
@@ -197,6 +218,46 @@ app.get('/api/user/:id', async (req, res) => {
     res.json({ success: true, user });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Ошибка сервера' });
+  }
+});
+
+app.post('/api/verify-password', authenticateUser, async (req, res) => {
+  try {
+    const { password } = req.body; // Получаем пароль из тела запроса
+    
+    if (!password) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'Пароль не предоставлен' 
+      });
+    }
+
+    const user = await User.findByPk(req.user.userId);
+    if (!user) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'Пользователь не найден' 
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!isMatch) {
+      return res.status(401).json({ 
+        success: false,
+        message: 'Неверный пароль' 
+      });
+    }
+
+    res.json({ 
+      success: true,
+      message: 'Пароль верный' 
+    });
+  } catch (err) {
+    console.error('Ошибка при проверке пароля:', err);
+    res.status(500).json({ 
+      success: false, 
+      message: 'Внутренняя ошибка сервера' 
+    });
   }
 });
 
@@ -225,7 +286,6 @@ app.post('/api/vacations', authenticateUser, async (req, res) => {
       active
     } = req.body;
 
-    // Валидация обязательных полей
     if (!vacation_name || !salary_from || !salary_to || !work_type || !work_place ||
         !work_region || !work_city || !company_email || !company_phone || 
         !work_description || !required_skills) {
@@ -235,7 +295,6 @@ app.post('/api/vacations', authenticateUser, async (req, res) => {
       });
     }
 
-    // Преобразование и значения по умолчанию
     const parsedSalaryFrom = parseInt(salary_from) || 0;
     const parsedSalaryTo = parseInt(salary_to) || 0;
     const parsedZipCode = zip_code ? parseInt(zip_code) : 0;
@@ -257,7 +316,7 @@ app.post('/api/vacations', authenticateUser, async (req, res) => {
       : [];
 
     console.log('req.body:', req.body);  
-    // Создание вакансии с дефолтными значениями вместо null
+
     const newVacation = await Vacation.create({
       user_id: req.user.userId,
       vacation_name: vacation_name || ' ',
@@ -304,17 +363,16 @@ app.post('/api/vacations', authenticateUser, async (req, res) => {
       success: false,
       message: errorMessage,
       details: error.stack
-      // details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 });
 
 
-// Роут для получения вакансий пользователя
+
 app.get('/api/vacations-extract', authenticateUser, async (req, res) => {
   try {
-    const { archived } = req.query; // получаем параметр из query string
-    const isArchived = archived === 'true'; // преобразуем в boolean
+    const { archived } = req.query; 
+    const isArchived = archived === 'true'; 
 
     const vacations = await Vacation.findAll({
       where: { 
@@ -325,7 +383,7 @@ app.get('/api/vacations-extract', authenticateUser, async (req, res) => {
       order: [['posted', 'DESC']]
     });
     const user = await User.findByPk(req.user.userId, {
-      attributes: ['user_id', 'name'] // Не возвращаем пароль
+      attributes: ['user_id', 'name'] 
     });
     res.json({
       success: true,
@@ -344,31 +402,31 @@ app.get('/api/vacations-extract', authenticateUser, async (req, res) => {
 
 app.get('/api/vacations-extract-all', async (req, res) => {
   try {
-    // 1. Получаем все вакансии
+    
     const vacations = await Vacation.findAll({
       order: [['posted', 'DESC']]
     });
 
-    // 2. Собираем все user_id из вакансий
+    
     const userIds = vacations.map(vacation => vacation.user_id).filter(Boolean);
 
-    // 3. Получаем пользователей по этим ID
+    
     const users = await User.findAll({
       where: { user_id: userIds },
-      attributes: ['user_id', 'name', 'email', 'phone'] // Выбираем нужные поля
+      attributes: ['user_id', 'name', 'email', 'phone'] 
     });
 
-    // 4. Создаем хеш-таблицу для быстрого доступа { user_id → user_data }
+    
     const usersMap = {};
     users.forEach(user => {
       usersMap[user.user_id] = user;
     });
 
-    // 5. Объединяем вакансии с данными пользователей
+    
     const vacationsWithUsers = vacations.map(vacation => {
       return {
-        ...vacation.get({ plain: true }), // Преобразуем в обычный объект
-        user: usersMap[vacation.user_id] || null // Добавляем данные пользователя
+        ...vacation.get({ plain: true }), 
+        user: usersMap[vacation.user_id] || null 
       };
     });
 
@@ -389,7 +447,7 @@ app.get('/api/vacations-extract-all', async (req, res) => {
 app.get('/api/vacation/:id', async (req, res) => {
   const id = req.params.id;
   try {
-    const vacation = await Vacation.findByPk(id); // или другой метод поиска
+    const vacation = await Vacation.findByPk(id); 
     if (!vacation) {
       return res.status(404).json({ success: false, message: 'Вакансия не найдена' });
     }
@@ -430,7 +488,7 @@ app.put('/api/vacation-edit/:id', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Вакансия не найдена' });
     }
 
-    // Обновляем поля вакансии
+    
     await vacation.update({
       vacation_name,
       salary_from,
@@ -466,19 +524,17 @@ app.delete('/api/vacation-delete/:id', authenticateUser, async (req, res) => {
   const vacationId = req.params.id;
 
   try {
-    // Находим вакансию
+    
     const vacation = await Vacation.findByPk(vacationId);
 
     if (!vacation) {
       return res.status(404).json({ success: false, message: 'Вакансия не найдена' });
     }
-
-    // Проверяем, принадлежит ли вакансия текущему пользователю
+    
     if (vacation.user_id !== req.user.userId) {
       return res.status(403).json({ success: false, message: 'Нет доступа к удалению этой вакансии' });
     }
 
-    // Удаляем вакансию (или можно сделать vacation.active = false и сохранить)
     await vacation.destroy();
 
     res.json({ success: true, message: 'Вакансия успешно удалена' });
@@ -499,7 +555,6 @@ app.post('/api/favourites', authenticateUser, async (req, res) => {
       });
     }
 
-    // Проверяем, есть ли уже такая запись
     const existingFavourite = await Favourite.findOne({
       where: {
         user_id: req.user.userId,
@@ -514,7 +569,6 @@ app.post('/api/favourites', authenticateUser, async (req, res) => {
       });
     }
 
-    // Создаем новую запись
     const newFavourite = await Favourite.create({
       user_id: req.user.userId,
       vacation_id
@@ -537,7 +591,7 @@ app.post('/api/favourites', authenticateUser, async (req, res) => {
 
 app.get('/api/favourites/vacations', authenticateUser, async (req, res) => {
   try {
-    // Находим все избранные вакансии пользователя
+    
     const favourites = await Favourite.findAll({
       where: { 
         user_id: req.user.userId,
@@ -562,7 +616,7 @@ app.get('/api/favourites/vacations', authenticateUser, async (req, res) => {
       });
     }
 
-    // Форматируем данные для ответа
+    
     const formattedVacations = favourites.map(fav => ({
       ...fav.vacation.get({ plain: true }),
       user_name: fav.vacation.user?.name || 'Неизвестный пользователь'
@@ -630,7 +684,7 @@ app.post('/api/profiles', authenticateUser, async (req, res) => {
       user_resume
     } = req.body;
 
-    // Валидация (пример, можно расширить)
+    
     if (!profile_name || !work_city) {
       return res.status(400).json({ 
         success: false,
@@ -638,7 +692,7 @@ app.post('/api/profiles', authenticateUser, async (req, res) => {
       });
     }
 
-    // Преобразуем некоторые поля в массивы, если они пришли строками
+    
     const normalizeArrayField = (field) => {
       if (!field) return [];
       if (Array.isArray(field)) return field;
@@ -691,7 +745,7 @@ app.post('/api/profiles', authenticateUser, async (req, res) => {
 
 app.get('/api/profiles-extract', authenticateUser, async (req, res) => {
   try {
-    const { archived } = req.query; // получаем параметр из query string // преобразуем в boolean
+    const { archived } = req.query; 
 
     const profiles = await Profile.findAll({
       where: { 
@@ -701,7 +755,7 @@ app.get('/api/profiles-extract', authenticateUser, async (req, res) => {
       order: [['posted', 'DESC']]
     });
     const user = await User.findByPk(req.user.userId, {
-      attributes: ['user_id', 'name'] // Не возвращаем пароль
+      attributes: ['user_id', 'name'] 
     });
     res.json({
       success: true,
@@ -741,54 +795,12 @@ app.delete('/api/profile-delete/:id', authenticateUser, async (req, res) => {
   }
 });
 
-app.post('/api/extract-and-fill', async (req, res) => {
-  const { user_resume } = req.body;
 
-  if (!user_resume) {
-    return res.status(400).json({ message: 'Резюме не получено' });
-  }
-
-  try {
-    const payload = {
-      messages: [
-        {
-          role: 'user',
-          content: `Проанализируй это резюме и верни данные в формате JSON со следующими полями: profile_name, salary_from, salary_to, work_time, work_place, work_city, biography, career, skills, work_experience, activity_fields, qualities, educations, languages_knowledge, additionally. Резюме: ${user_resume}`
-        }
-      ],
-      callback_url: null
-    };
-
-    const headers = {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-      'Authorization': `Bearer ${API_KEY}`
-    };
-
-    const response = await axios.post(API_URL, payload, { headers });
-
-    const result = response.data?.response?.message?.content;
-
-    // Парсим ответ нейросети как JSON
-    let parsed;
-    try {
-      parsed = JSON.parse(result);
-    } catch (e) {
-      return res.status(500).json({ message: 'Ответ не в формате JSON', raw: result });
-    }
-
-    res.json(parsed);
-    console.log(res.json(parsed));
-  } catch (error) {
-    console.error('Ошибка запроса к нейросети:', error?.response?.data || error.message);
-    res.status(500).json({ message: 'Ошибка при обращении к нейросети' });
-  }
-});
 
 app.get('/api/profile/:id', async (req, res) => {
   const id = req.params.id;
   try {
-    const profile = await Profile.findByPk(id); // или другой метод поиска
+    const profile = await Profile.findByPk(id); 
     if (!profile) {
       return res.status(404).json({ success: false, message: 'Анкета не найдена' });
     }
@@ -801,31 +813,31 @@ app.get('/api/profile/:id', async (req, res) => {
 
 app.get('/api/profiles-extract-all', async (req, res) => {
   try {
-    // 1. Получаем все профили
+    
     const profiles = await Profile.findAll({
       order: [['posted', 'DESC']]
     });
 
-    // 2. Собираем все user_id из профилей
+    
     const userIds = profiles.map(profile => profile.user_id).filter(Boolean);
 
-    // 3. Получаем пользователей по этим ID
+    
     const users = await User.findAll({
       where: { user_id: userIds },
-      attributes: ['user_id', 'name', 'email', 'phone'] // Выбираем нужные поля
+      attributes: ['user_id', 'name', 'email', 'phone'] 
     });
 
-    // 4. Создаем объект для быстрого доступа { user_id → user_data }
+    
     const usersMap = {};
     users.forEach(user => {
       usersMap[user.user_id] = user;
     });
 
-    // 5. Объединяем профили с данными пользователей
+    
     const profilesWithUsers = profiles.map(profile => {
       return {
-        ...profile.get({ plain: true }), // Преобразуем в обычный объект
-        user: usersMap[profile.user_id] || null // Добавляем данные пользователя
+        ...profile.get({ plain: true }), 
+        user: usersMap[profile.user_id] || null 
       };
     });
 
@@ -871,7 +883,7 @@ app.put('/api/profile-edit/:id', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Профиль не найден' });
     }
 
-    // Обновляем поля профиля
+    
     await profile.update({
       profile_name,
       salary_from,
@@ -890,7 +902,7 @@ app.put('/api/profile-edit/:id', async (req, res) => {
       additionally,
       profile_image,
       user_resume,
-      posted: new Date() // Добавляем или обновляем дату изменения
+      posted: new Date() 
     });
 
     res.json({ success: true, message: 'Профиль обновлен' });
@@ -914,12 +926,10 @@ app.post('/api/profiles-response', async (req, res) => {
       user_id 
     } = req.body;
 
-    // Валидация обязательных полей
     if (!title_message || !name_company || !message_response || !email || !profile_id || !user_id) {
       return res.status(400).json({ error: 'Все обязательные поля должны быть заполнены' });
     }
 
-    // Проверка валидности email
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ error: 'Укажите корректный email адрес' });
     }
@@ -953,11 +963,10 @@ app.post('/api/profiles-response', async (req, res) => {
       return res.status(404).json({ error: 'Не удалось получить данные о вакансии' });
     }
 
-    // Создание отклика
     const newResponse = await Profiles_response.create({
       title_message,
       name_company,
-      salary_range: salary_range || null, // если не указано, будет null
+      salary_range: salary_range || null, 
       message_response: message_response || defaultMessage,
       email,
       profile_id,
@@ -986,7 +995,6 @@ Email: ${email}
       console.error('Ошибка при отправке email:', emailError);
     }
 
-    // Формируем ответ с основными данными
     const responseData = {
       response_id: newResponse.response_id,
       profile_id: newResponse.profile_id,
@@ -1003,7 +1011,6 @@ Email: ${email}
   } catch (error) {
     console.error('Ошибка при создании отклика:', error);
     
-    // Обработка ошибок Sequelize
     if (error.name === 'SequelizeValidationError') {
       const errors = error.errors.map(err => err.message);
       return res.status(400).json({ error: 'Ошибка валидации', details: errors });
@@ -1036,12 +1043,10 @@ app.post('/api/vacations-response', async (req, res) => {
       user_id 
     } = req.body;
 
-    // Валидация обязательных полей
     if (!title_message?.trim() || !email?.trim() || !resume_file || !vacation_id || !user_id) {
       return res.status(400).json({ error: 'Все обязательные поля должны быть заполнены' });
     }
 
-    // Проверка валидности email
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return res.status(400).json({ error: 'Укажите корректный email адрес' });
     }
@@ -1054,7 +1059,7 @@ app.post('/api/vacations-response', async (req, res) => {
     let NameVacation;
     
     try {
-      // Получаем email работодателя напрямую из БД
+
       const user = await User.findByPk(user_id);
       if (!user || !user.email) {
         console.log("Работодатель не найден или email отсутствует");
@@ -1068,7 +1073,7 @@ app.post('/api/vacations-response', async (req, res) => {
     }
     
     try {
-      // Получаем название вакансии напрямую из БД
+
       const vacation = await Vacation.findByPk(vacation_id);
       if (!vacation || !vacation.vacation_name) {
         console.log("Вакансия не найдена или название отсутствует");
@@ -1081,7 +1086,6 @@ app.post('/api/vacations-response', async (req, res) => {
       return res.status(404).json({ error: 'Не удалось получить данные о вакансии' });
     }
 
-    // Создание отклика
     const newResponse = await Vacations_response.create({
       title_message,
       message_response: finalMessage,
@@ -1096,7 +1100,7 @@ app.post('/api/vacations-response', async (req, res) => {
     try {
       await sendMailRuEmail({
         from: '"Head / Hunt" <new-head-hunt-responser@mail.ru>',
-        to: EmailTo, // Email пользователя (работодателя)
+        to: EmailTo, 
         subject: `На вашу вакансию "${NameVacation}" откликнулись!`,
         text: `
 Отправитель: Head / Hunt
@@ -1119,7 +1123,7 @@ Email: ${email}
       console.error('Ошибка при отправке email:', emailError);
     }
 
-    // Формируем ответ с основными данными
+
     const responseData = {
       response_id: newResponse.response_id,
       vacation_id: newResponse.vacation_id,
@@ -1129,7 +1133,7 @@ Email: ${email}
       email: newResponse.email,
       resume_file: newResponse.resume_file
     };
-    //console.log(responseData);
+
     res.status(201).json({
       message: 'Приглашение успешно отправлено',
       response: responseData
@@ -1138,7 +1142,6 @@ Email: ${email}
   } catch (error) {
     console.error('Ошибка при создании отклика:', error);
     
-    // Обработка ошибок Sequelize
     if (error.name === 'SequelizeValidationError') {
       const errors = error.errors.map(err => err.message);
       return res.status(400).json({ error: 'Ошибка валидации', details: errors });
@@ -1177,7 +1180,7 @@ app.get('/api/responseVacation-extract', authenticateUser, async (req, res) => {
       attributes: ['vacation_id', 'vacation_name']
     });
 
-    // Соединяем данные откликов с данными вакансий
+
     const responseWithVacations = responseVacations.map(response => {
       const vacation = vacations.find(v => v.id === response.vacation_id);
       return {
@@ -1218,7 +1221,6 @@ app.get('/api/responseProfile-extract', authenticateUser, async (req, res) => {
       attributes: ['profile_id', 'profile_name']
     });
 
-    // Соединяем данные откликов с данными вакансий
     const responseWithProfiles = responseProfiles.map(response => {
       const profile = profiles.find(v => v.id === responseProfiles.profile_id);
       return {
@@ -1286,7 +1288,7 @@ app.delete('/api/profileResponse-delete/:id', authenticateUser, async (req, res)
   }
 });
 
-// Запуск сервера
+
 app.listen(PORT, () => {
   console.log(`Сервер запущен на http://localhost:${PORT}`);
 });
