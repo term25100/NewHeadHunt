@@ -909,21 +909,19 @@ export function UserRoom({ activeTab }) {
         <div className='main-container-fav'>
           <div className="head-fav">
             <a
-              href="#"
-              className={!showArchived ? 'active-button' : 'default-button'}
+              className={!showFavourites ? 'active-button' : 'default-button'}
               onClick={(e) => {
                 e.preventDefault();
-                setShowArchived(false);
+                setShowFavourite(false);
               }}
             >
               Избранные вакансии
             </a>
             <a
-              href="#"
-              className={showArchived ? 'active-button' : 'default-button'}
+              className={showFavourites ? 'active-button' : 'default-button'}
               onClick={(e) => {
                 e.preventDefault();
-                setShowArchived(true);
+                setShowFavourite(true);
               }}
             >
               Избранные профили
