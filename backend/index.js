@@ -695,7 +695,40 @@ app.get('/api/favourites/vacations-extract', authenticateUser, async(req, res)=>
   }
 });
 
-app.delete('/api/favourites/:vacationId', authenticateUser, async (req, res) => {
+app.get('/api/favourites/profiles-extract', authenticateUser, async(req, res)=>{
+  try {
+    const userId = req.user.userId; 
+    const favorites = await Favourite.findAll({
+      where: { 
+        user_id: userId,
+        profile_id: { [Op.not]: null }  
+      },
+      attributes: ['profile_id'],
+      raw: true
+    });
+
+    const profileIds = favorites.map(fav => fav.profile_id);
+
+    const profiles = await Profile.findAll({
+      where: {
+        profile_id: profileIds
+      }
+    });
+
+    res.json({
+      success: true,
+      favoriteProfiles: profiles.map(prof => prof.get({ plain: true }))
+    });
+  } catch (error) {
+    console.error('Ошибка получения избранных вакансий:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка при получении избранных вакансий' 
+    });
+  }
+});
+
+app.delete('/api/favourites-vac/:vacationId', authenticateUser, async (req, res) => {
   const { vacationId } = req.params;
 
   try {
@@ -710,6 +743,31 @@ app.delete('/api/favourites/:vacationId', authenticateUser, async (req, res) => 
       res.json({ success: true, message: 'Вакансия удалена из избранного' });
     } else {
       res.status(404).json({ success: false, message: 'Вакансия не найдена в избранном' });
+    }
+  } catch (error) {
+    console.error('Ошибка удаления из избранного:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка при удалении из избранного' 
+    });
+  }
+});
+
+app.delete('/api/favourites-prof/:profileId', authenticateUser, async (req, res) => {
+  const { profileId } = req.params;
+
+  try {
+    const deleted = await Favourite.destroy({
+      where: {
+        user_id: req.user.userId,
+        profile_id: profileId
+      }
+    });
+
+    if (deleted) {
+      res.json({ success: true, message: 'Анкета удалена из избранного' });
+    } else {
+      res.status(404).json({ success: false, message: 'Анкета не найдена в избранном' });
     }
   } catch (error) {
     console.error('Ошибка удаления из избранного:', error);

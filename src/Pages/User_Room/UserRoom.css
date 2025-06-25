@@ -14,9 +14,12 @@
     justify-content: space-between;
 }
 .main-container-fav{
-    width: 60%;
+    width: 90%;
     height: auto;
     margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }
 .main-container-profiles{
     width: 80%;
@@ -34,9 +37,29 @@
     scrollbar-width: .3vw;
     scrollbar-color: #D1DBE3 transparent;
 }
+.fav-vacations h1{
+    font-size: 1.2vw;
+    margin: 0 auto;
+    width: fit-content;
+}
+.fav-profiles h1{
+    font-size: 1.2vw;
+    margin: 0 auto;
+    width: fit-content;
+}
 .vac-fav-scrollblock{
     margin: 0 auto;
-    width: 90%;
+    width: 43vw;
+    height: 40vw;
+    box-sizing: border-box;
+    padding: .8vw;
+    overflow-y: scroll;
+    scrollbar-width: .3vw;
+    scrollbar-color: #D1DBE3 transparent;
+}
+.fav-profiles-scrollblock{
+    margin: 0 auto;
+    width: 43vw;
     height: 40vw;
     box-sizing: border-box;
     padding: .8vw;

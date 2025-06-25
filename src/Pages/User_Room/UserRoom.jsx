@@ -19,6 +19,7 @@ export function UserRoom({ activeTab }) {
   const [showPopupEdit, setShowPopupEdit] = useState(false);
   const [selectedVacation, setSelectedVacation] = useState(null);
   const [showArchived, setShowArchived] = useState(false);
+  const [showFavourites, setShowFavourites] = useState(false);
   const [responseVacations, setResponseVacations] = useState([]);
   const [loadingResponsesVac, setLoadingResponsesVac] = useState(false);
   const [responseProfiles, setResponseProfiles] = useState([]);
@@ -30,7 +31,9 @@ export function UserRoom({ activeTab }) {
   const [userLoading, setUserLoading] = useState(true);
   const [loadingVacations, setLoadingVacations] = useState(false);
   const [loadingFavVacations, setLoadingFavVacations] = useState(false);
+  const [loadingFavProfiles, setLoadingFavProfiles] = useState(false);
   const [favoriteVacations, setFavoriteVacations] = useState([]);
+  const [favoriteProfiles, setFavoriteProfiles] = useState([]);
   const [loadingProfiles, setLoadingProfiles] = useState(false);
   const [error, setError] = useState('');
   const [showPopupProfileEdit, setShowPopupProfileEdit] = useState(false);
@@ -118,13 +121,43 @@ export function UserRoom({ activeTab }) {
       if (response.data.success) {
         setFavoriteVacations(response.data.favoriteVacations);
       } else {
-        setError('Не удалось загрузить отклики на вакансии');
+        setError('Не удалось загрузить избранные вакансии');
       }
     } catch (err) {
-      console.error('Ошибка при загрузке откликов:', err);
-      setError('Ошибка при загрузке откликов на вакансии');
+      console.error('Ошибка при загрузке избранных вакансий:', err);
+      setError('Ошибка при загрузке избранных вакансий');
     } finally {
       setLoadingFavVacations(false);
+    }
+  }
+
+  const fetchFavouriteProfiles = async ()=>{
+    setLoadingFavProfiles(true);
+    setError('');
+    try{
+      const token = localStorage.getItem('authToken');
+      if(!token){
+        setError('Ошибка аутентификации. Пожалуйста, войдите снова.');
+        setLoadingFavProfiles(false);
+        return;
+      }
+
+      const response = await axios.get('http://localhost:5000/api/favourites/profiles-extract', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.data.success) {
+        setFavoriteProfiles(response.data.favoriteProfiles);
+      } else {
+        setError('Не удалось загрузить избранные анкеты');
+      }
+    } catch (err) {
+      console.error('Ошибка при загрузке избранных анкет:', err);
+      setError('Ошибка при загрузке избранных анкет');
+    } finally {
+      setLoadingFavProfiles(false);
     }
   }
 
@@ -261,6 +294,7 @@ export function UserRoom({ activeTab }) {
   useEffect(() => {
     if (activeTab === 'favorites') {
       fetchFavoriteVacations();
+      fetchFavouriteProfiles();
     }
   }, [activeTab]);
   // Загружаем вакансии при открытии вкладки "vacancy" и при закрытии попапа добавления вакансии
@@ -317,35 +351,6 @@ export function UserRoom({ activeTab }) {
     } catch (error) {
       console.error('Ошибка при удалении вакансии:', error);
       alert('Произошла ошибка при удалении вакансии.');
-    }
-  };
-
-  const handleDeleteFavorite = async (vacationId) => {
-    const confirmDelete = window.confirm('Вы действительно хотите удалить эту вакансию из избранного?');
-    if (!confirmDelete) return;
-
-    try {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        alert('Ошибка аутентификации. Пожалуйста, войдите снова.');
-        return;
-      }
-
-      const response = await axios.delete(`http://localhost:5000/api/favourites/${vacationId}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.data.success) {
-        // Обновляем список избранных вакансий
-        setFavoriteVacations(prev => prev.filter(vac => vac.vacation_id !== vacationId));
-      } else {
-        alert('Не удалось удалить вакансию из избранного.');
-      }
-    } catch (error) {
-      console.error('Ошибка при удалении из избранного:', error);
-      alert('Произошла ошибка при удалении из избранного.');
     }
   };
 
@@ -436,9 +441,67 @@ export function UserRoom({ activeTab }) {
     }
   };
 
-  const handleEditProfileClick = (profile) => {
+  const handleEditProfileClick = async (profile) => {
     setSelectedProfile(profile);
     setShowPopupProfileEdit(true);
+  };
+
+  const handleDeleteFavouriteVac = async (vacationId) =>{
+    const confirmDelete = window.confirm('Вы действительно хотите удалить эту вакансию из избранного?');
+    if (!confirmDelete) return;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        alert('Ошибка аутентификации. Пожалуйста, войдите снова.');
+        return;
+      }
+
+      const response = await axios.delete(`http://localhost:5000/api/favourites-vac/${vacationId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.data.success) {
+        fetchFavoriteVacations();
+        alert('Вакансия удалена из избранного!')
+      } else {
+        alert('Не удалось удалить вакансию из избранного.');
+      }
+    } catch (error) {
+      console.error('Ошибка при удалении вакансии из избранного:', error);
+      alert('Произошла ошибка при удалении вакансии из избранного.');
+    }
+  };
+
+  const handleDeleteFavouriteProf = async (profileId) =>{
+    const confirmDelete = window.confirm('Вы действительно хотите удалить эту анкету из избранного?');
+    if (!confirmDelete) return;
+
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        alert('Ошибка аутентификации. Пожалуйста, войдите снова.');
+        return;
+      }
+
+      const response = await axios.delete(`http://localhost:5000/api/favourites-prof/${profileId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.data.success) {
+        fetchFavouriteProfiles();
+        alert('Анкета удалена из избранного!')
+      } else {
+        alert('Не удалось удалить анкету.');
+      }
+    } catch (error) {
+      console.error('Ошибка при удалении анкеты из избранного:', error);
+      alert('Произошла ошибка при удалении анкеты из избранного.');
+    }
   };
 
   return (
@@ -907,104 +970,217 @@ export function UserRoom({ activeTab }) {
 
       {activeTab === "favorites" && (
         <div className='main-container-fav'>
-          <div className="head-fav">
-            <a
-              className={!showFavourites ? 'active-button' : 'default-button'}
-              onClick={(e) => {
-                e.preventDefault();
-                setShowFavourite(false);
-              }}
-            >
-              Избранные вакансии
-            </a>
-            <a
-              className={showFavourites ? 'active-button' : 'default-button'}
-              onClick={(e) => {
-                e.preventDefault();
-                setShowFavourite(true);
-              }}
-            >
-              Избранные профили
-            </a>
-          </div>
-          <div className="vac-fav-scrollblock">
-            {loadingVacations && <p>Загрузка избранных вакансий...</p>}
-            {error && <p className="error-message">{error}</p>}
-            {!loadingVacations && !error && favoriteVacations.length === 0 && (
-              <p>У вас пока нет избранных вакансий</p>
-            )}
-            {!loadingVacations && !error && favoriteVacations.map(vacation => (
-              <div key={vacation.vacation_id} className="vacation-wrap vac-active">
-                <div className="vacation-info">
-                  <div className='flex_wrapper'>
-                    <div className="info">
-                      <p className="modificate">Продвинуто: Head / Hunt</p>
-                      <Link to={`/vacation/${vacation.vacation_id}`} className='name-vac'>
-                          {vacation.vacation_name}
-                      </Link>
-                      <p className='post-message'>
-                        Размещено <span id='date'>{new Date(vacation.posted).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</span> пользователем <span><a href="#" id='company'>{vacation.user_name || 'Компания'}</a></span>
-                      </p>
-                      <div className="descriptions-fav">
-                        <div className="descript-flex">
-                          <div className="description">
-                            <img src={require('../Images/Icons/ruble.png')} className='descript-image' alt="" />
-                            <p id='salary-description'>{vacation.salary_from} - {vacation.salary_to} рублей в месяц</p>
+          <div className='fav-vacations'>
+            <h1>Избранные вакансии</h1>
+            <div className="vac-fav-scrollblock">
+              {loadingFavVacations && <p>Загрузка избранных вакансий...</p>}
+              {error && <p className="error-message">{error}</p>}
+              {!loadingFavVacations && !error && favoriteVacations.length === 0 && (
+                <p>У вас пока нет избранных вакансий</p>
+              )}
+              {!loadingFavVacations && !error && favoriteVacations.map(vacation => (
+                <div key={vacation.vacation_id} className="vacation-wrap vac-active">
+                  <div className="vacation-info">
+                    <div className='flex_wrapper'>
+                      <div className="info">
+                        <p className="modificate">Размещено: Head / Hunt</p>
+                        <Link to={`/vacation/${vacation.vacation_id}`} className='name-vac'>
+                            {vacation.vacation_name}
+                        </Link>
+                        <p className='post-message'>
+                          Размещено <span id='date'>{new Date(vacation.posted).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</span> пользователем <span><a href="#" id='company'>{vacation.user_name || 'Компания'}</a></span>
+                        </p>
+                        <div className="descriptions">
+                          <div className="descript-flex">
+                            <div className="description">
+                              <img src={require('../Images/Icons/ruble.png')} className='descript-image' alt="" />
+                              <p id='salary-description'>{vacation.salary_from} - {vacation.salary_to} рублей в месяц</p>
+                            </div>
+                            <div className="description">
+                              <img src={require('../Images/Icons/location.png')} className='descript-image' alt="" />
+                              <p id='location-description'>{vacation.work_city}. {vacation.work_adress}</p>
+                            </div>
                           </div>
-                          <div className="description">
-                            <img src={require('../Images/Icons/location.png')} className='descript-image' alt="" />
-                            <p id='location-description'>{vacation.work_city}. {vacation.work_adress}</p>
-                          </div>
-                        </div>
-                        <div className="descript-flex">
-                          <div className="description">
-                            <img src={require('../Images/Icons/clock.png')} className='descript-image' alt="" />
-                            <p id='time-description'>{Array.isArray(vacation.work_type) ? vacation.work_type.join(', ') : vacation.work_type}</p>
-                          </div>
-                          <div className="description">
-                            <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
-                            <p id='location-description'>{Array.isArray(vacation.work_place) ? vacation.work_place.join(', ') : vacation.work_place}</p>
+                          <div className="descript-flex">
+                            <div className="description">
+                              <img src={require('../Images/Icons/clock.png')} className='descript-image' alt="" />
+                              <p id='time-description'>{Array.isArray(vacation.work_type) ? vacation.work_type.join(', ') : vacation.work_type}</p>
+                            </div>
+                            <div className="description">
+                              <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
+                              <p id='location-description'>{Array.isArray(vacation.work_place) ? vacation.work_place.join(', ') : vacation.work_place}</p>
+                            </div>
                           </div>
                         </div>
                       </div>
+                      <div className="delete-button">
+                        <button onClick={() => handleDeleteFavouriteVac(vacation.vacation_id)} title="Удалить из избранного"></button>
+                        <div className="company-logo company1" style={{ backgroundImage: `url(data:image/png;base64,${vacation.company_image})` }}></div>
+                      </div>
                     </div>
-                    <div className="delete-button">
-                      <button onClick={() => handleDeleteFavorite(vacation.vacation_id)} title="Удалить из избранного"></button>
-                      <div className="company-logo company1" style={{ backgroundImage: `url(data:image/png;base64,${vacation.company_image})` }}></div>
+                    <details className='description_about'>
+                      <summary>Подробнее</summary>
+                      <h3 className='title_vacation'>Описание вакансии:</h3>
+                      <p>{vacation.work_description}</p>
+                      <h3 className='requirement'>Требования:</h3>
+                      <ul>
+                        {Array.isArray(vacation.required_skills) ? (
+                          vacation.required_skills.map((skill, idx) => (
+                            <li key={idx}>{skill}</li>
+                          ))
+                        ) : (
+                          <li>{vacation.required_skills}</li>
+                        )}
+                      </ul>
+                      <h3 className='conditions'>Условия:</h3>
+                      <ul>
+                        {vacation.work_advantages && vacation.work_advantages.length > 0 ? (
+                          Array.isArray(vacation.work_advantages) ? (
+                            vacation.work_advantages.map((adv, idx) => <li key={idx}>{adv}</li>)
+                          ) : (
+                            <li>{vacation.work_advantages}</li>
+                          )
+                        ) : (
+                          <li>{vacation.advantages_describe}</li>
+                        )}
+                      </ul>
+                      <p className='finals'>Дополнительно: {vacation.additionally}</p>
+                    </details>
+                  </div>
+                </div>
+              ))}
+            </div> 
+          </div>
+          <div className="divide-line">
+          </div>
+          <div className="fav-profiles">
+            <h1>Избранные анкеты</h1>
+            <div className="fav-profiles-scrollblock">
+              {loadingProfiles && <p>Загрузка анкет...</p>}
+              {error && <p className="error-message">{error}</p>}
+              {!loadingProfiles && !error && favoriteProfiles.length === 0 && (
+                <p>{showArchived ? 'Архивных анкет нет.' : 'Активных анкет нет.'}</p>
+              )}
+              {!loadingProfiles && !error && favoriteProfiles.map(profile => (
+                <div key={profile.profile_id} className="profiles-wrap profile-active">
+                  <div className="profile-info">
+                    <div className='profile_wrapper'>
+                      <div className="info">
+                        <p className="modificate">Размещено: Head / Hunt</p>
+                        <Link to={`/profile/${profile.profile_id}`} className='name-profile'>
+                          {profile.profile_name || 'Фронтенд разработчик'}
+                        </Link>
+                        <p className='post-message'>
+                          Размещено <span id='date'>{new Date(profile.posted).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</span> 
+                          <span> пользователем: <a href="#" id='person'>{userName.name || 'Пользователь'}</a></span>
+                        </p>
+                        <div className="descriptions">
+                          <div className="descript-flex">
+                            <div className="description">
+                              <img src={require('../Images/Icons/ruble.png')} className='descript-image' alt="" />
+                              <p id='salary-description'>
+                                {profile.salary_from || '100000'} - {profile.salary_to || '120000'} рублей в месяц
+                              </p>
+                            </div>
+                            <div className="description">
+                              <img src={require('../Images/Icons/graduation.png')} className='descript-image' alt="" />
+                              <p id='graduate-description'>Образование: <span id='graduate'>{profile.educations?.length > 0 ? profile.educations[0] : 'Общее среднее'}</span></p>
+                            </div>
+                            <div className="description">
+                              <img src={require('../Images/Icons/exp.png')} className='descript-image' alt="" />
+                              <p id='experience-description'>Опыт работы: <span id='experience'>{profile.work_experience?.length > 0 ? profile.work_experience[0] : 'Нет опыта работы'}</span></p>
+                            </div>
+                          </div>
+                          <div className="descript-flex">
+                            <div className="description">
+                              <img src={require('../Images/Icons/clock.png')} className='descript-image' alt="" />
+                              <p id='time-description'>{profile.work_time?.join(', ') || 'Полный рабочий день'}</p>
+                            </div>
+                            <div className="description">
+                              <img src={require('../Images/Icons/home.png')} className='descript-image' alt="" />
+                              <p id='workplace-description'>{profile.work_place?.join(', ') || 'Офис, работа на дому'}</p>
+                            </div>
+                            <div className="description">
+                              <img src={require('../Images/Icons/location.png')} className='descript-image' alt="" />
+                              <p id='location-description'>Город: <span id='city'>{profile.work_city || 'Тула'}</span></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="delete-button">
+                        <button onClick={() => handleDeleteFavouriteProf(profile.profile_id)} title="Удалить анкету"></button>
+                        <div 
+                          className="profile-photo p1"
+                          style={{ 
+                            backgroundImage: profile.profile_image 
+                              ? `url(data:image/png;base64,${profile.profile_image})` 
+                              : 'url(default-profile-image.jpg)'
+                          }}
+                        ></div>
+                      </div>
+                    </div>
+                    <div className="manual-buttons">
+                      <details className='description_about'>
+                        <summary>Подробнее</summary>
+                        <div className="details-content">
+                          <h3>Биография:</h3>
+                          <p>{profile.biography || 'Не указано'}</p>
+
+                          <h3>Карьера:</h3>
+                          <p>{profile.career || 'Не указано'}</p>
+
+                          <h3>Навыки:</h3>
+                          <ul>
+                            {profile.skills?.map((skill, idx) => (
+                              <li key={idx}>{skill}</li>
+                            )) || <li>Навыки не указаны</li>}
+                          </ul>
+                          
+                          <h3>Опыт работы:</h3>
+                          <ul>
+                            {profile.work_experience?.map((exp, idx) => (
+                              <li key={idx}>{exp}</li>
+                            )) || <li>Опыт работы не указан</li>}
+                          </ul>
+                          
+                          <h3>Сферы деятельности:</h3>
+                          <ul>
+                            {profile.activity_fields?.map((field, idx) => (
+                              <li key={idx}>{field}</li>
+                            )) || <li>Сферы деятельности не указаны</li>}
+                          </ul>
+                          
+                          <h3>Личные качества:</h3>
+                          <ul>
+                            {profile.qualities?.map((quality, idx) => (
+                              <li key={idx}>{quality}</li>
+                            )) || <li>Личные качества не указаны</li>}
+                          </ul>
+                          
+                          <h3>Образование:</h3>
+                          <ul>
+                            {profile.educations?.map((edu, idx) => (
+                              <li key={idx}>{edu}</li>
+                            )) || <li>Образование не указано</li>}
+                          </ul>
+                          
+                          <h3>Знание языков:</h3>
+                          <ul>
+                            {profile.languages_knowledge?.map((lang, idx) => (
+                              <li key={idx}>{lang}</li>
+                            )) || <li>Языки не указаны</li>}
+                          </ul>
+                          
+                          <h3>Дополнительно:</h3>
+                          <p>{profile.additionally || 'Не указано'}</p>
+                        </div>
+                      </details>
                     </div>
                   </div>
-                  <details className='description_about'>
-                    <summary>Подробнее</summary>
-                    <h3 className='title_vacation'>Описание вакансии:</h3>
-                    <p>{vacation.work_description}</p>
-                    <h3 className='requirement'>Требования:</h3>
-                    <ul>
-                      {Array.isArray(vacation.required_skills) ? (
-                        vacation.required_skills.map((skill, idx) => (
-                          <li key={idx}>{skill}</li>
-                        ))
-                      ) : (
-                        <li>{vacation.required_skills}</li>
-                      )}
-                    </ul>
-                    <h3 className='conditions'>Условия:</h3>
-                    <ul>
-                      {vacation.work_advantages && vacation.work_advantages.length > 0 ? (
-                        Array.isArray(vacation.work_advantages) ? (
-                          vacation.work_advantages.map((adv, idx) => <li key={idx}>{adv}</li>)
-                        ) : (
-                          <li>{vacation.work_advantages}</li>
-                        )
-                      ) : (
-                        <li>{vacation.advantages_describe}</li>
-                      )}
-                    </ul>
-                    <p className='finals'>Дополнительно: {vacation.additionally}</p>
-                  </details>
                 </div>
-              </div>
-            ))}
-          </div>    
+              ))}
+            </div>
+          </div>   
         </div>
       )}
 
