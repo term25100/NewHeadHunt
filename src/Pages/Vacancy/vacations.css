@@ -330,7 +330,7 @@
 }
 .vac-scrollblock{
     width: 100%;
-    height: 70vw;
+    height: 40vw;
     box-sizing: border-box;
     padding: .8vw;
     overflow-y: scroll;

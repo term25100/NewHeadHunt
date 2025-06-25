@@ -5,83 +5,98 @@ import { Link } from 'react-router-dom';
 
 export function Vacations() {
     const [vacations, setVacations] = useState([]);
-    const [favoriteVacations, setFavoriteVacations] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-
-    const fetchFavoriteVacations = async () => {
-      const token = localStorage.getItem('authToken');
-      if (!token) return;
-
+    const fetchVacations = async () => {
+      setLoading(true);
+      setError('');
       try {
-        const response = await axios.get('http://localhost:5000/api/favourites/vacations', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const token = localStorage.getItem('authToken');
+        const url = token 
+          ? 'http://localhost:5000/api/vacations-extract-all/auth'
+          : 'http://localhost:5000/api/vacations-extract-all';
+
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+        const response = await axios.get(url, { headers });
 
         if (response.data.success) {
-          // Теперь получаем просто массив ID
-          setFavoriteVacations(response.data.vacation_ids || []);
-        }
-      } catch (error) {
-        console.error('Ошибка загрузки избранного:', error);
-      }
-    };
+          // Нормализуем данные (на случай, если сервер вернет разные структуры)
+          const normalizedVacations = response.data.vacations.map(vac => ({
+            ...vac,
+            user: vac.user || (vac.User ? {
+              user_id: vac.User.user_id,
+              name: vac.User.name,
+              email: vac.User.email,
+              phone: vac.User.phone
+            } : null),
+            isFavourite: vac.isFavourite || false // По умолчанию false
+          }));
 
-    const fetchVacations = async () => {
-        setLoading(true);
-        setError('');
-        try {
-            const response = await axios.get('http://localhost:5000/api/vacations-extract-all');
-            if (response.data.success) {
-                setVacations(response.data.vacations);
-            } else {
-                setError('Не удалось загрузить вакансии');
-            }
-        } catch (err) {
-            console.error('Ошибка при загрузке вакансий:', err);
-            setError('Ошибка при загрузке вакансий');
-        } finally {
-            setLoading(false);
+          setVacations(normalizedVacations);
+        } else {
+          setError(response.data.message || 'Не удалось загрузить вакансии');
         }
+      } catch (err) {
+        console.error('Ошибка при загрузке вакансий:', err);
+        setError(err.response?.data?.message || err.message || 'Ошибка при загрузке вакансий');
+      } finally {
+        setLoading(false);
+      }
     };
 
 
     const handleLikeClick = async (vacationId) => {
-        const token = localStorage.getItem('authToken');
-    
-        if (!token) {
-            alert('Для добавления в избранное необходимо авторизоваться');
-            return;
-        }
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        alert('Для добавления в избранное необходимо авторизоваться');
+        return;
+      }
 
-        try {
-            if (favoriteVacations.includes(vacationId)) {
-                await axios.delete(`http://localhost:5000/api/favourites/${vacationId}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                setFavoriteVacations(prev => prev.filter(id => id !== vacationId));
-            } else {
-                await axios.post(
-                    'http://localhost:5000/api/favourites',
-                    { vacation_id: vacationId },
-                    { headers: { 'Authorization': `Bearer ${token}` } }
-                );
-                setFavoriteVacations(prev => [...prev, vacationId]);
-            }
-        } catch (error) {
-            console.error('Ошибка:', error);
-            if (error.response?.status === 401) {
-                alert('Сессия истекла. Пожалуйста, войдите снова.');
-            } else {
-                alert('Ошибка при обработке запроса');
-            }
+      try {
+        // Оптимистичное обновление
+        setVacations(prev => prev.map(vacation => 
+          vacation.vacation_id === vacationId 
+            ? { ...vacation, isFavourite: !vacation.isFavourite } 
+            : vacation
+        ));
+
+        if (vacations.find(v => v.vacation_id === vacationId)?.isFavourite) {
+          // Удаление из избранного
+          await axios.delete(`http://localhost:5000/api/favourites-vac/${vacationId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }).catch(error => {
+            // Игнорируем 404 ошибку - запись уже удалена
+            if (error.response?.status !== 404) throw error;
+          });
+        } else {
+          // Добавление в избранное
+          await axios.post(
+            'http://localhost:5000/api/favourites',
+            { vacation_id: vacationId },
+            { headers: { 'Authorization': `Bearer ${token}` } }
+          );
         }
+      } catch (error) {
+        console.error('Ошибка:', error);
+        // Откатываем изменения
+        setVacations(prev => prev.map(vacation => 
+          vacation.vacation_id === vacationId 
+            ? { ...vacation, isFavourite: !vacation.isFavourite } 
+            : vacation
+        ));
+
+        if (error.response?.status === 401) {
+          alert('Сессия истекла. Пожалуйста, войдите снова.');
+        } else if (error.response?.status !== 404) {
+          alert('Ошибка при обработке запроса');
+        }
+      }
     };
-
+    
     useEffect(() => {
         const loadData = async () => {
-            await fetchFavoriteVacations();
             await fetchVacations();
         };
         loadData();
@@ -264,7 +279,7 @@ export function Vacations() {
                             <div className="vacation-info">
                               <div className='flex_wrapper'>
                                 <div className="info">
-                                  <p className="modificate">Продвинуто: Head / Hunt</p>
+                                  <p className="modificate">Размещено: Head / Hunt</p>
                                   <Link to={`/vacation/${vacation.vacation_id}`} className='name-vac'>
                                     {vacation.vacation_name}
                                   </Link>
@@ -298,7 +313,10 @@ export function Vacations() {
                                   </div>
                                 </div>  
                                 <div className="like">
-                                  <button className={favoriteVacations.includes(vacation.vacation_id) ? 'liked' : 'unliked'} onClick={() => handleLikeClick(vacation.vacation_id)}></button>
+                                  <button 
+                                    className={vacation.isFavourite ? 'liked' : 'unliked'} 
+                                    onClick={() => handleLikeClick(vacation.vacation_id)}
+                                  ></button>
                                   <div className="company-logo company1" style={{ backgroundImage: `url(data:image/png;base64,${vacation.company_image})` }}></div>
                                 </div>
                                 

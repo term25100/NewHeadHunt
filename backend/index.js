@@ -473,6 +473,64 @@ app.get('/api/vacations-extract', authenticateUser, async (req, res) => {
   }
 });
 
+
+app.get('/api/vacations-extract-all/auth', authenticateUser, async (req, res) => {
+  try {
+    // 1. Получаем все вакансии
+    const vacations = await Vacation.findAll({
+      order: [['posted', 'DESC']]
+    });
+
+    // 2. Получаем ID избранных вакансий пользователя
+    const favorites = await Favourite.findAll({
+      where: { 
+        user_id: req.user.userId,
+        vacation_id: { [Op.not]: null }
+      },
+      attributes: ['vacation_id'],
+      raw: true
+    });
+    
+    const favoriteVacationIds = favorites.map(fav => fav.vacation_id);
+
+    // 3. Получаем информацию о пользователях, создавших вакансии
+    const userIds = [...new Set(vacations.map(v => v.user_id).filter(Boolean))];
+    const users = await User.findAll({
+      where: { user_id: userIds },
+      attributes: ['user_id', 'name', 'email', 'phone'],
+      raw: true
+    });
+    
+    const usersMap = users.reduce((acc, user) => {
+      acc[user.user_id] = user;
+      return acc;
+    }, {});
+
+    // 4. Формируем окончательный ответ
+    const result = vacations.map(vacation => {
+      const vacationData = vacation.get({ plain: true });
+      return {
+        ...vacationData,
+        isFavourite: favoriteVacationIds.includes(vacation.vacation_id),
+        user: vacation.user_id ? usersMap[vacation.user_id] || null : null
+      };
+    });
+
+    res.json({
+      success: true,
+      vacations: result
+    });
+
+  } catch (error) {
+    console.error('Ошибка получения вакансий:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка при получении вакансий',
+      error: error.message
+    });
+  }
+});
+
 app.get('/api/vacations-extract-all', async (req, res) => {
   try {
     
