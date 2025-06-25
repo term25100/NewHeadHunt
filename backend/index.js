@@ -4,7 +4,7 @@ const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { sequelize } = require('./config/db');
-const axios = require('axios');
+const { Op } = require('sequelize');
 const User = require('./models/User.model');
 const Vacation = require('./models/Vacation.model');
 const Favourite = require('./models/Favourite.model');
@@ -662,50 +662,35 @@ app.post('/api/favourites', authenticateUser, async (req, res) => {
   }
 });
 
-app.get('/api/favourites/vacations', authenticateUser, async (req, res) => {
+app.get('/api/favourites/vacations-extract', authenticateUser, async(req, res)=>{
   try {
-    
-    const favourites = await Favourite.findAll({
+    const userId = req.user.userId; 
+    const favorites = await Favourite.findAll({
       where: { 
-        user_id: req.user.userId,
-        vacation_id: { [Sequelize.Op.not]: null }
+        user_id: userId,
+        vacation_id: { [Op.not]: null }  
       },
-      include: [{
-        model: Vacation,
-        as: 'vacation',
-        include: [{
-          model: User,
-          as: 'user',
-          attributes: ['name']
-        }]
-      }]
+      attributes: ['vacation_id'],
+      raw: true
     });
 
-    if (!favourites.length) {
-      return res.json({
-        success: true,
-        count: 0,
-        vacations: []
-      });
-    }
+    const vacationIds = favorites.map(fav => fav.vacation_id);
 
-    
-    const formattedVacations = favourites.map(fav => ({
-      ...fav.vacation.get({ plain: true }),
-      user_name: fav.vacation.user?.name || 'Неизвестный пользователь'
-    }));
+    const vacations = await Vacation.findAll({
+      where: {
+        vacation_id: vacationIds
+      }
+    });
 
     res.json({
       success: true,
-      count: formattedVacations.length,
-      vacations: formattedVacations
+      favoriteVacations: vacations.map(vac => vac.get({ plain: true }))
     });
-
   } catch (error) {
     console.error('Ошибка получения избранных вакансий:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Ошибка при получении избранных вакансий'
+      message: 'Ошибка при получении избранных вакансий' 
     });
   }
 });

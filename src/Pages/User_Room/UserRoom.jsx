@@ -25,11 +25,12 @@ export function UserRoom({ activeTab }) {
   const [loadingResponsesProf, setLoadingResponsesProf] = useState(false);
   const [vacations, setVacations] = useState([]);
   const [profiles, setProfiles] = useState([]);
-  const [favoriteVacations, setFavoriteVacations] = useState([]);
   const [userName, setUserName]=useState([]);
   const [userData, setUserData] = useState(null); 
   const [userLoading, setUserLoading] = useState(true);
   const [loadingVacations, setLoadingVacations] = useState(false);
+  const [loadingFavVacations, setLoadingFavVacations] = useState(false);
+  const [favoriteVacations, setFavoriteVacations] = useState([]);
   const [loadingProfiles, setLoadingProfiles] = useState(false);
   const [error, setError] = useState('');
   const [showPopupProfileEdit, setShowPopupProfileEdit] = useState(false);
@@ -98,35 +99,34 @@ export function UserRoom({ activeTab }) {
     }
   };
 
-  const fetchFavoriteVacations = async () => {
-    setLoadingVacations(true);
+  const fetchFavoriteVacations = async ()=>{
+    setLoadingFavVacations(true);
     setError('');
     try {
       const token = localStorage.getItem('authToken');
       if (!token) {
         setError('Ошибка аутентификации. Пожалуйста, войдите снова.');
-        setLoadingVacations(false);
+        setLoadingFavVacations(false);
         return;
       }
 
-      const response = await axios.get('http://localhost:5000/api/favourites/vacations', {
+      const response = await axios.get('http://localhost:5000/api/favourites/vacations-extract', {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
-
       if (response.data.success) {
-        setFavoriteVacations(response.data.vacations);
+        setFavoriteVacations(response.data.favoriteVacations);
       } else {
-        setError('Не удалось загрузить избранные вакансии');
+        setError('Не удалось загрузить отклики на вакансии');
       }
     } catch (err) {
-      console.error('Ошибка при загрузке избранных вакансий:', err);
-      setError('Ошибка при загрузке избранных вакансий');
+      console.error('Ошибка при загрузке откликов:', err);
+      setError('Ошибка при загрузке откликов на вакансии');
     } finally {
-      setLoadingVacations(false);
+      setLoadingFavVacations(false);
     }
-  };
+  }
 
   const fetchProfiles = async () => {
     setLoadingProfiles(true);
