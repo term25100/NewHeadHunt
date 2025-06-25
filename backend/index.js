@@ -720,6 +720,51 @@ app.post('/api/favourites', authenticateUser, async (req, res) => {
   }
 });
 
+app.post('/api/favourites-prof', authenticateUser, async (req, res) => {
+  try {
+    const { profile_id } = req.body;
+
+    if (!profile_id) {
+      return res.status(400).json({ 
+        success: false,
+        message: 'profile_id обязателен' 
+      });
+    }
+
+    const existingFavourite = await Favourite.findOne({
+      where: {
+        user_id: req.user.userId,
+        profile_id
+      }
+    });
+
+    if (existingFavourite) {
+      return res.status(400).json({
+        success: false,
+        message: 'Анкета уже в избранном'
+      });
+    }
+
+    const newFavourite = await Favourite.create({
+      user_id: req.user.userId,
+      profile_id
+    });
+
+    res.status(201).json({
+      success: true,
+      message: 'Анкета добавлена в избранное',
+      favourite: newFavourite
+    });
+
+  } catch (error) {
+    console.error('Ошибка добавления в избранное:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка при добавлении в избранное' 
+    });
+  }
+});
+
 app.get('/api/favourites/vacations-extract', authenticateUser, async(req, res)=>{
   try {
     const userId = req.user.userId; 
@@ -984,6 +1029,62 @@ app.get('/api/profile/:id', async (req, res) => {
   }
 });
 
+app.get('/api/profiles-extract-all/auth', authenticateUser, async (req, res) => {
+  try {
+    // 1. Получаем все анкеты
+    const profiles = await Profile.findAll({
+      order: [['posted', 'DESC']]
+    });
+
+    // 2. Получаем ID избранных анкет пользователя
+    const favorites = await Favourite.findAll({
+      where: { 
+        user_id: req.user.userId,
+        profile_id: { [Op.not]: null }
+      },
+      attributes: ['profile_id'],
+      raw: true
+    });
+    
+    const favoriteProfileIds = favorites.map(fav => fav.profile_id);
+
+    // 3. Получаем информацию о пользователях
+    const userIds = [...new Set(profiles.map(p => p.user_id).filter(Boolean))];
+    const users = await User.findAll({
+      where: { user_id: userIds },
+      attributes: ['user_id', 'name', 'email', 'phone'],
+      raw: true
+    });
+    
+    const usersMap = users.reduce((acc, user) => {
+      acc[user.user_id] = user;
+      return acc;
+    }, {});
+
+    // 4. Формируем окончательный ответ
+    const result = profiles.map(profile => {
+      const profileData = profile.get({ plain: true });
+      return {
+        ...profileData,
+        isFavourite: favoriteProfileIds.includes(profile.profile_id),
+        user: profile.user_id ? usersMap[profile.user_id] || null : null
+      };
+    });
+
+    res.json({
+      success: true,
+      profiles: result
+    });
+
+  } catch (error) {
+    console.error('Ошибка получения анкет:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка при получении анкет',
+      error: error.message
+    });
+  }
+});
 
 app.get('/api/profiles-extract-all', async (req, res) => {
   try {

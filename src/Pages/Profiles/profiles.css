@@ -133,14 +133,22 @@
     align-items: self-end;
     justify-content: flex-start;
 }
-.like-profile button{
+.liked{
+    width: 1.5vw;
+    height: 1.5vw;
+    border: none;
+    margin-right: .5vw; 
+    background-image: url(../Images/Icons/like-fill.png);
+    background-size: cover;
+    background-color: transparent;
+}
+.unliked{
     width: 1.5vw;
     height: 1.5vw;
     border: none;
     margin-right: .5vw; 
     background-image: url(../Images/Icons/like.png);
     background-size: cover;
-    background-position: center;
     background-color: transparent;
 }
 .description_about{

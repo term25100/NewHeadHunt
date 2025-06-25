@@ -16,28 +16,88 @@ export function Profiles() {
         experience: []
     });
 
-    useEffect(() => {
-        async function fetchProfiles() {
-            try {
-                setLoading(true);
-                const response = await axios.get('http://localhost:5000/api/profiles-extract-all');
-                if (response.data.success) {
-                    setProfiles(response.data.profiles);
-                } else {
-                    setError('Ошибка загрузки анкет');
-                }
-            } catch (err) {
-                setError('Ошибка соединения с сервером');
-            } finally {
-                setLoading(false);
-            }
+
+    const fetchProfiles = async () => {
+      try {
+        setLoading(true);
+        setError('');
+        const token = localStorage.getItem('authToken');
+        const url = token 
+          ? 'http://localhost:5000/api/profiles-extract-all/auth'
+          : 'http://localhost:5000/api/profiles-extract-all';
+
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+        const response = await axios.get(url, { headers });
+        
+        if (response.data.success) {
+          setProfiles(response.data.profiles || response.data.profiles);
+        } else {
+          setError(response.data.message || 'Ошибка загрузки анкет');
         }
-        fetchProfiles();
+      } catch (err) {
+        setError(err.response?.data?.message || 'Ошибка соединения с сервером');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    useEffect(() => {
+      fetchProfiles();
     }, []);
 
     const handleInviteClick = (candidate) => {
         setSelectedCandidate(candidate);
         setShowPopup(true);
+    };
+
+
+    const handleFavouriteClick = async (profileId) => {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        alert('Для добавления в избранное необходимо авторизоваться');
+        return;
+      }
+
+      try {
+        // Оптимистичное обновление
+        setProfiles(prev => prev.map(profile => 
+          profile.profile_id === profileId 
+            ? { ...profile, isFavourite: !profile.isFavourite } 
+            : profile
+        ));
+
+        if (profiles.find(p => p.profile_id === profileId)?.isFavourite) {
+          // Удаление из избранного
+          await axios.delete(`http://localhost:5000/api/favourites-prof/${profileId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          }).catch(error => {
+            // Игнорируем ошибку 404
+            if (error.response?.status !== 404) throw error;
+          });
+        } else {
+          // Добавление в избранное
+          await axios.post(
+            'http://localhost:5000/api/favourites-prof',
+            { profile_id: profileId },
+            { headers: { 'Authorization': `Bearer ${token}` } }
+          );
+        }
+      } catch (error) {
+        console.error('Ошибка:', error);
+        // Откатываем изменения
+        setProfiles(prev => prev.map(profile => 
+          profile.profile_id === profileId 
+            ? { ...profile, isFavourite: !profile.isFavourite } 
+            : profile
+        ));
+
+        if (error.response?.status === 401) {
+          alert('Сессия истекла. Пожалуйста, войдите снова.');
+        } else if (error.response?.status !== 404) {
+          alert('Ошибка при обработке запроса');
+        }
+      }
     };
 
     const handleSendInvitation = (invitationData) => {
@@ -280,7 +340,10 @@ export function Profiles() {
                                                 </div>
                                             </div>
                                             <div className="like-profile">
-                                                <button></button>
+                                                <button 
+                                                  className={profile.isFavourite ? 'liked' : 'unliked'} 
+                                                  onClick={() => handleFavouriteClick(profile.profile_id)}
+                                                ></button>
                                                 <div className="profile-photo p1" style={{
                                                     backgroundImage: profile.profile_image ? `url(data:image/png;base64,${profile.profile_image})` : 'none'
                                                 }}></div>
