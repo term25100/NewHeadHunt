@@ -1,49 +1,248 @@
 import './vacations.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
-export function Vacations() {
+export function Vacations({ searchParams }) {
     const [vacations, setVacations] = useState([]);
+    const [filteredVacations, setFilteredVacations] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
-    const fetchVacations = async () => {
-      setLoading(true);
-      setError('');
-      try {
-        const token = localStorage.getItem('authToken');
-        const url = token 
-          ? 'http://localhost:5000/api/vacations-extract-all/auth'
-          : 'http://localhost:5000/api/vacations-extract-all';
 
-        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+    const [searchTerm, setSearchTerm] = useState('');
+    const [salaryFrom, setSalaryFrom] = useState('');
+    const [salaryTo, setSalaryTo] = useState('');
+    const [dateFilter, setDateFilter] = useState('');
+    const [workTypeFilters, setWorkTypeFilters] = useState({
+        permanent: false,
+        temporary: false,
+        contract: false,
+        fullTime: false,
+        partTime: false,
+        remote: false
+    });
+    const [postedByFilters, setPostedByFilters] = useState({
+        agencies: false,
+        employers: false,
+        headhunt: false
+    });
+    const [hideFilters, setHideFilters] = useState({
+        noSalary: false,
+        courses: false,
+        volunteering: false
+    });
+    const [specialtyFilters, setSpecialtyFilters] = useState({});
 
-        const response = await axios.get(url, { headers });
 
-        if (response.data.success) {
-          // Нормализуем данные (на случай, если сервер вернет разные структуры)
-          const normalizedVacations = response.data.vacations.map(vac => ({
-            ...vac,
-            user: vac.user || (vac.User ? {
-              user_id: vac.User.user_id,
-              name: vac.User.name,
-              email: vac.User.email,
-              phone: vac.User.phone
-            } : null),
-            isFavourite: vac.isFavourite || false // По умолчанию false
-          }));
 
-          setVacations(normalizedVacations);
-        } else {
-          setError(response.data.message || 'Не удалось загрузить вакансии');
+    const fetchVacations = useCallback(async () => {
+        setLoading(true);
+        setError('');
+        try {
+            const token = localStorage.getItem('authToken');
+            const url = token 
+                ? 'http://localhost:5000/api/vacations-extract-all/auth'
+                : 'http://localhost:5000/api/vacations-extract-all';
+
+            const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+
+            const response = await axios.get(url, { headers });
+
+            if (response.data.success) {
+                const normalizedVacations = response.data.vacations.map(vac => ({
+                    ...vac,
+                    user: vac.user || null,
+                    isFavourite: vac.isFavourite || false
+                }));
+                setVacations(normalizedVacations);
+                applyFilters(normalizedVacations);
+            } else {
+                setError(response.data.message || 'Не удалось загрузить вакансии');
+            }
+        } catch (err) {
+            console.error('Ошибка при загрузке вакансий:', err);
+            setError(err.response?.data?.message || err.message || 'Ошибка при загрузке вакансий');
+        } finally {
+            setLoading(false);
         }
-      } catch (err) {
-        console.error('Ошибка при загрузке вакансий:', err);
-        setError(err.response?.data?.message || err.message || 'Ошибка при загрузке вакансий');
-      } finally {
-        setLoading(false);
-      }
+    }, []);
+
+
+    const applyFilters = useCallback((vacationsToFilter = vacations) => {
+        let result = [...vacationsToFilter];
+
+        if (searchParams.profession) {
+            const professionLower = searchParams.profession.toLowerCase();
+            result = result.filter(vac => 
+                vac.vacation_name.toLowerCase().includes(professionLower)
+            );
+        }
+
+        // Фильтр по местоположению
+        if (searchParams.location) {
+            const locationLower = searchParams.location.toLowerCase();
+            result = result.filter(vac => 
+                vac.work_city.toLowerCase().includes(locationLower) ||
+                vac.work_adress.toLowerCase().includes(locationLower)
+            );
+        }
+
+        
+        if (searchTerm) {
+            const searchLower = searchTerm.toLowerCase();
+            result = result.filter(vac => 
+                vac.vacation_name.toLowerCase().includes(searchLower) ||
+                vac.work_description.toLowerCase().includes(searchLower) ||
+                vac.required_skills.some(skill => skill.toLowerCase().includes(searchLower))
+            );
+        }
+
+        // Фильтр по зарплате
+        if (salaryFrom) {
+            const minSalary = Number(salaryFrom);
+            result = result.filter(vac => vac.salary_from >= minSalary);
+        }
+        if (salaryTo) {
+            const maxSalary = Number(salaryTo);
+            result = result.filter(vac => vac.salary_to <= maxSalary);
+        }
+
+        // Фильтр по дате
+        if (dateFilter) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let dateThreshold = new Date();
+            switch(dateFilter) {
+                case 'option1': // Сегодня
+                    dateThreshold.setDate(today.getDate() - 1);
+                    break;
+                case 'option2': // 3 дня
+                    dateThreshold.setDate(today.getDate() - 3);
+                    break;
+                case 'option3': // Неделя
+                    dateThreshold.setDate(today.getDate() - 7);
+                    break;
+                default:
+                    break;
+            }
+            
+            result = result.filter(vac => {
+                const vacDate = new Date(vac.posted);
+                return vacDate >= dateThreshold;
+            });
+        }
+
+        // Фильтр по типу работы
+        const activeWorkTypes = Object.entries(workTypeFilters)
+            .filter(([_, isActive]) => isActive)
+            .map(([type]) => {
+                switch(type) {
+                    case 'permanent': return 'Постоянная';
+                    case 'temporary': return 'Временная';
+                    case 'contract': return 'По контракту';
+                    case 'fullTime': return 'Полная занятость';
+                    case 'partTime': return 'Подработка';
+                    case 'remote': return 'Работа на дому';
+                    default: return '';
+                }
+            });
+        
+        if (activeWorkTypes.length > 0) {
+            result = result.filter(vac => 
+                activeWorkTypes.some(type => 
+                    vac.work_type.includes(type)
+                )
+            );
+        }
+
+        // Фильтр по разместившим
+        const activePostedBy = Object.entries(postedByFilters)
+            .filter(([_, isActive]) => isActive)
+            .map(([type]) => type);
+        
+        if (activePostedBy.length > 0) {
+            result = result.filter(vac => {
+                // Здесь нужно добавить логику определения, кто разместил вакансию
+                // Например, если у вас есть поле posted_by в модели вакансии
+                return true; // Заглушка - нужно адаптировать под вашу структуру данных
+            });
+        }
+
+        // Фильтр "Не показывать"
+        if (hideFilters.noSalary) {
+            result = result.filter(vac => vac.salary_from > 0);
+        }
+        if (hideFilters.courses) {
+            result = result.filter(vac => !vac.vacation_name.toLowerCase().includes('курс'));
+        }
+        if (hideFilters.volunteering) {
+            result = result.filter(vac => !vac.vacation_name.toLowerCase().includes('волонтер'));
+        }
+
+        // Фильтр по специальности
+        const activeSpecialties = Object.keys(specialtyFilters)
+            .filter(specialty => specialtyFilters[specialty]);
+        
+        if (activeSpecialties.length > 0) {
+            result = result.filter(vac => 
+                activeSpecialties.some(specialty => 
+                    vac.vacation_name.includes(specialty) || 
+                    vac.work_description.includes(specialty)
+                )
+            );
+        }
+
+        
+
+        setFilteredVacations(result);
+    }, [
+        searchParams.profession, searchParams.location, searchTerm, salaryFrom, salaryTo, dateFilter, 
+        workTypeFilters, postedByFilters, hideFilters, specialtyFilters, vacations
+    ]);
+
+
+    const handleWorkTypeChange = (type) => {
+        setWorkTypeFilters(prev => ({ ...prev, [type]: !prev[type] }));
+    };
+
+    const handlePostedByChange = (type) => {
+        setPostedByFilters(prev => ({ ...prev, [type]: !prev[type] }));
+    };
+
+    const handleHideChange = (type) => {
+        setHideFilters(prev => ({ ...prev, [type]: !prev[type] }));
+    };
+
+    const handleSpecialtyChange = (specialty) => {
+        setSpecialtyFilters(prev => ({ ...prev, [specialty]: !prev[specialty] }));
+    };
+
+    const handleResetFilters = () => {
+        setSearchTerm('');
+        setSalaryFrom('');
+        setSalaryTo('');
+        setDateFilter('');
+        setWorkTypeFilters({
+            permanent: false,
+            temporary: false,
+            contract: false,
+            fullTime: false,
+            partTime: false,
+            remote: false
+        });
+        setPostedByFilters({
+            agencies: false,
+            employers: false,
+            headhunt: false
+        });
+        setHideFilters({
+            noSalary: false,
+            courses: false,
+            volunteering: false
+        });
+        setSpecialtyFilters({});
     };
 
 
@@ -96,185 +295,139 @@ export function Vacations() {
     };
     
     useEffect(() => {
-        const loadData = async () => {
-            await fetchVacations();
-        };
-        loadData();
+        fetchVacations();
     }, []);
+
+    useEffect(() => {
+        applyFilters();
+    }, [searchParams, vacations]);
+
 
     return(
         <div className="main-vac">
             <div className="vac-container">
                 <div className="filters">
-                    <h1>Найдено: <span>{vacations.length}</span> вакансии</h1>
+                    <h1>Найдено: <span>{filteredVacations.length}</span> вакансии</h1>
                     <div className="clear-filter">
                         <h2>Текущие фильтры</h2> 
-                        <button>Сбросить фильтры</button>
+                        <button onClick={handleResetFilters}>Сбросить фильтры</button>
                     </div>
-                    <div className="added-filters">
-                        <a href="#">Полный рабочий день</a>
-                        <a href="#">Зарплата от 20000-40000</a>
-                        <a href="#">Требуемый опыт 3 года</a>
-                    </div>
+                    
                     <div className="salary">
                         <h2>Отфильтруй поиск</h2>
+                        
                         <h1>Диапазон зарплаты</h1>
                         <label htmlFor="salary-from">Зарплата от:</label>
-                        <input type="text" name='salary-from' placeholder='Минимальная зарплата'/>
+                        <input 
+                            type="number" 
+                            name="salary-from" 
+                            value={salaryFrom}
+                            onChange={(e) => setSalaryFrom(e.target.value)}
+                            placeholder="Минимальная зарплата"
+                        />
 
                         <label htmlFor="salary-to">Зарплата до:</label>
-                        <input type="text" name='salary-to' placeholder='Максимальная зарплата'/>
+                        <input 
+                            type="number" 
+                            name="salary-to" 
+                            value={salaryTo}
+                            onChange={(e) => setSalaryTo(e.target.value)}
+                            placeholder="Максимальная зарплата"
+                        />
                     </div>
+                    
+                    {/* Тип работы */}
                     <div className="jobs">
                         <h1>Тип работы</h1>
-                        <div className="job-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Постоянная <span>{'(4,124)'}</span></p>
-                        </div>
-                        <div className="job-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Временная <span>{'(169)'}</span></p>
-                        </div>
-                        <div className="job-type">
-                            <input className='checker' type="checkbox" />
-                            <p>По контракту <span>{'(339)'}</span></p>
-                        </div>
-                        <div className="job-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Полная занятость <span>{'(4,518)'}</span></p>
-                        </div>
-                        <div className="job-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Подработки <span>{'(400)'}</span></p>
-                        </div>
-                        <div className="job-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Работа на дому <span>{'(4,162)'}</span></p>
-                        </div>
+                        {Object.entries({
+                            permanent: 'Постоянная',
+                            temporary: 'Временная',
+                            contract: 'По контракту',
+                            fullTime: 'Полная занятость',
+                            partTime: 'Подработка',
+                            remote: 'Работа на дому'
+                        }).map(([key, label]) => (
+                            <div className="job-type" key={key}>
+                                <input 
+                                    className="checker" 
+                                    type="checkbox" 
+                                    checked={workTypeFilters[key]}
+                                    onChange={() => handleWorkTypeChange(key)}
+                                />
+                                <p>{label}</p>
+                            </div>
+                        ))}
                     </div>
-                    <div className="posted">
-                        <h1>Размещено</h1>
-                        <div className="post-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Агенствами <span>{'(4,162)'}</span></p>
-                        </div>
-                        <div className="post-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Работодателями <span>{'(9,162)'}</span></p>
-                        </div>
-                        <div className="post-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Head / Hunt <span>{'(1,162)'}</span></p>
-                        </div>
-                    </div>
+                                        
+                    {/* Не показывать */}
                     <div className="dont-show">
                         <h1>Не показывать</h1>
-                        <div className="dont-show-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Вакансии без зарплаты <span>{'(1,162)'}</span></p>
-                        </div>
-                        <div className="dont-show-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Курсы <span>{'(1,162)'}</span></p>
-                        </div>
-                        <div className="dont-show-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Волонтерство <span>{'(1,162)'}</span></p>
-                        </div>
+                        {Object.entries({
+                            courses: 'Курсы',
+                            volunteering: 'Волонтерство'
+                        }).map(([key, label]) => (
+                            <div className="dont-show-type" key={key}>
+                                <input 
+                                    className="checker" 
+                                    type="checkbox" 
+                                    checked={hideFilters[key]}
+                                    onChange={() => handleHideChange(key)}
+                                />
+                                <p>{label}</p>
+                            </div>
+                        ))}
                     </div>
+                    
+                    {/* Дата публикации */}
                     <div className="date">
                         <h1>Дата публикаций</h1>
-                        <select className='select-custom' id='date_option'>
-                            <option className='select-option' value="">Любая дата</option>
-                            <option className='select-option' value="option1">Сегодня</option>
-                            <option className='select-option' value="option2">Последние 3 дня</option>
-                            <option className='select-option' value="option3">Последняя неделя</option>
+                        <select 
+                            className="select-custom" 
+                            value={dateFilter}
+                            onChange={(e) => setDateFilter(e.target.value)}
+                        >
+                            <option value="">Любая дата</option>
+                            <option value="option1">Сегодня</option>
+                            <option value="option2">Последние 3 дня</option>
+                            <option value="option3">Последняя неделя</option>
                         </select>
                     </div>
+                    
+                    {/* Специальность */}
                     <div className="specialty">
                         <h1>Специальность</h1>
-                        <div className='scroll-view'>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>IT и телекоммуникации <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Инженерия <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Финансовые услуги <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Здравоохранение <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Туризм <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Бухгалтерия <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Транспортная логистика <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Администрирование <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Маркетинг и PR <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Научная работа <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Медиа <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Торговля <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Тренинг <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Энергетика <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Фармацевтика <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Производство <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Агенство недвижимости <span>{'(1,162)'}</span></p>
-                            </div>
+                        <div className="scroll-view">
+                            {[
+                                'IT и телекоммуникации', 'Инженерия', 'Финансовые услуги',
+                                'Здравоохранение', 'Туризм', 'Бухгалтерия', 'Транспортная логистика',
+                                'Администрирование', 'Маркетинг и PR', 'Научная работа', 'Медиа',
+                                'Торговля', 'Тренинг', 'Энергетика', 'Фармацевтика', 'Производство',
+                                'Агенство недвижимости'
+                            ].map(specialty => (
+                                <div className="specialty-type" key={specialty}>
+                                    <input 
+                                        className="checker" 
+                                        type="checkbox" 
+                                        checked={specialtyFilters[specialty] || false}
+                                        onChange={() => handleSpecialtyChange(specialty)}
+                                    />
+                                    <p>{specialty}</p>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
+
                 <div className="vacations">
                     <div className="head-vac">
-                        <a href="#">Получать уведомления <span className='bell'>.....</span></a>
+                        {/* <a href="#">Получать уведомления <span className='bell'>.....</span></a> */}
                         <p>Отсортировано по дате</p>
                     </div>
                     <div className="vac-scrollblock">
                         {loading && <p>Загрузка вакансий...</p>}
                         {error && <p className="error-message">{error}</p>}
-                        {!loading && !error && vacations.length === 0 && <p>Вакансий нет.</p>}
-                        {!loading && !error && vacations.map(vacation => (
+                        {!loading && !error && filteredVacations.length === 0 && <p>Вакансий нет.</p>}
+                        {!loading && !error && filteredVacations.map(vacation => (
                           <div key={vacation.vacation_id} className="vacation-wrap vac-active">
                             <div className="vacation-info">
                               <div className='flex_wrapper'>

@@ -1,29 +1,46 @@
-import './search.css'
-import { useState } from 'react'
-import LocationFinder from '../../location'
-export function Search(){
-        const [setUser] = useState('');
-        const handleLocationChange = (location) => {
-        try{
-            setUser.Location(location);
-        }catch(error){
+import './search.css';
+import { useState } from 'react';
+import LocationFinder from '../../location';
+
+export function Search({ onSearch }) {
+    const [searchTerm, setSearchTerm] = useState('');
+    const [location, setLocation] = useState('');
+
+    const handleLocationChange = (location) => {
+        try {
+            setLocation(location);
+        } catch(error) {
             console.error('Ошибка при обновлении местоположения:', error);
         }
-        
     };
+
+    const handleSearchClick = () => {
+        onSearch(searchTerm, location);
+    };
+
     return(
         <div className="vacancy-search">
             <div className="main-container">
                 <div className='flex-box'>
                     <div className="profession-search">
                         <label htmlFor="profession">Профессия:</label>
-                        <input type="text"  placeholder='Введите желаемую работу'/>
+                        <input 
+                            type="text"  
+                            placeholder='Введите желаемую работу' 
+                            value={searchTerm} 
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </div>
                     <div className="location-search">
                         <label htmlFor="location">Место работы:</label>
                         <div className="location-container">
                             <LocationFinder onLocationChange={handleLocationChange}/>
-                            <button className='submit-search'>Найти работу</button>
+                            <button 
+                                className='submit-search' 
+                                onClick={handleSearchClick}
+                            >
+                                Найти работу
+                            </button>
                             <a href="#" className='search-link'>Вакансии {'➜'}</a>
                         </div>
                     </div>

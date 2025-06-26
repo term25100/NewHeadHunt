@@ -643,23 +643,23 @@ export function UserRoom({ activeTab }) {
                 <h1>Тип работы</h1>
                 <div className="job-type">
                     <input className='checker' type="checkbox"  checked={workTypeFilters.permanent} onChange={() => handleWorkTypeChange('permanent')}/>
-                    <p>Постоянная <span>{'(4,124)'}</span></p>
+                    <p>Постоянная</p>
                 </div>
                 <div className="job-type">
                     <input className='checker' type="checkbox" checked={workTypeFilters.temporary} onChange={() => handleWorkTypeChange('temporary')}/>
-                    <p>Временная <span>{'(169)'}</span></p>
+                    <p>Временная</p>
                 </div>
                 <div className="job-type">
                     <input className='checker' type="checkbox" checked={workTypeFilters.fullTime} onChange={() => handleWorkTypeChange('fullTime')}/>
-                    <p>Полная занятость <span>{'(4,518)'}</span></p>
+                    <p>Полная занятость</p>
                 </div>
                 <div className="job-type">
                     <input className='checker' type="checkbox" checked={workTypeFilters.partTime} onChange={() => handleWorkTypeChange('partTime')}/>
-                    <p>Подработка <span>{'(400)'}</span></p>
+                    <p>Подработка</p>
                 </div>
                 <div className="job-type">
                     <input className='checker' type="checkbox" checked={workTypeFilters.remote} onChange={() => handleWorkTypeChange('remote')}/>
-                    <p>Работа на дому <span>{'(4,162)'}</span></p>
+                    <p>Работа на дому</p>
                 </div>
             </div>
             <div className="date-user">
