@@ -1,103 +1,298 @@
 import './profiles.css';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { InvitationPopup } from './invitation';
 import axios from 'axios';
 
-export function Profiles() {
+export function Profiles({ searchParams }) {
     const [showPopup, setShowPopup] = useState(false);
     const [selectedCandidate, setSelectedCandidate] = useState(null);
     const [profiles, setProfiles] = useState([]);
+    const [filteredProfiles, setFilteredProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-    const [filters, setFilters] = useState({
-        salaryFrom: '',
-        salaryTo: '',
-        workTypes: [],
-        experience: []
+    
+    // Фильтры
+    const [salaryFrom, setSalaryFrom] = useState('');
+    const [salaryTo, setSalaryTo] = useState('');
+    const [dateFilter, setDateFilter] = useState('');
+    const [workTypeFilters, setWorkTypeFilters] = useState({
+        permanent: false,
+        temporary: false,
+        contract: false,
+        fullTime: false,
+        partTime: false,
+        remote: false
     });
+    const [postedByFilters, setPostedByFilters] = useState({
+        agencies: false,
+        employers: false,
+        headhunt: false
+    });
+    const [hideFilters, setHideFilters] = useState({
+        noExperience: false,
+        noEducation: false
+    });
+    const [experienceFilters, setExperienceFilters] = useState({
+        noExperience: false,
+        oneYear: false,
+        threeYears: false,
+        sixYears: false
+    });
+    const [specialtyFilters, setSpecialtyFilters] = useState({});
 
+    const fetchProfiles = useCallback(async () => {
+        try {
+            setLoading(true);
+            setError('');
+            const token = localStorage.getItem('authToken');
+            const url = token 
+                ? 'http://localhost:5000/api/profiles-extract-all/auth'
+                : 'http://localhost:5000/api/profiles-extract-all';
 
-    const fetchProfiles = async () => {
-      try {
-        setLoading(true);
-        setError('');
-        const token = localStorage.getItem('authToken');
-        const url = token 
-          ? 'http://localhost:5000/api/profiles-extract-all/auth'
-          : 'http://localhost:5000/api/profiles-extract-all';
+            const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
-        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-
-        const response = await axios.get(url, { headers });
-        
-        if (response.data.success) {
-          setProfiles(response.data.profiles || response.data.profiles);
-        } else {
-          setError(response.data.message || 'Ошибка загрузки анкет');
+            const response = await axios.get(url, { headers });
+            
+            if (response.data.success) {
+                const normalizedProfiles = response.data.profiles.map(profile => ({
+                    ...profile,
+                    user: profile.user || null,
+                    isFavourite: profile.isFavourite || false
+                }));
+                setProfiles(normalizedProfiles);
+                applyFilters(normalizedProfiles);
+            } else {
+                setError(response.data.message || 'Ошибка загрузки анкет');
+            }
+        } catch (err) {
+            setError(err.response?.data?.message || 'Ошибка соединения с сервером');
+        } finally {
+            setLoading(false);
         }
-      } catch (err) {
-        setError(err.response?.data?.message || 'Ошибка соединения с сервером');
-      } finally {
-        setLoading(false);
-      }
+    }, []);
+
+    const applyFilters = useCallback((profilesToFilter = profiles) => {
+        let result = [...profilesToFilter];
+
+        // Фильтр по профессии из поиска
+        if (searchParams.profession) {
+            const professionLower = searchParams.profession.toLowerCase();
+            result = result.filter(profile => 
+                profile.profile_name.toLowerCase().includes(professionLower)
+            );
+        }
+
+        // Фильтр по местоположению из поиска
+        if (searchParams.location) {
+            const locationLower = searchParams.location.toLowerCase();
+            result = result.filter(profile => 
+                profile.work_city?.toLowerCase().includes(locationLower)
+            );
+        }
+
+        // Фильтр по зарплате
+        if (salaryFrom) {
+            const minSalary = Number(salaryFrom);
+            result = result.filter(profile => profile.salary_from >= minSalary);
+        }
+        if (salaryTo) {
+            const maxSalary = Number(salaryTo);
+            result = result.filter(profile => profile.salary_to <= maxSalary);
+        }
+
+        // Фильтр по дате
+        if (dateFilter) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let dateThreshold = new Date();
+            switch(dateFilter) {
+                case 'option1': // Сегодня
+                    dateThreshold.setDate(today.getDate() - 1);
+                    break;
+                case 'option2': // 3 дня
+                    dateThreshold.setDate(today.getDate() - 3);
+                    break;
+                case 'option3': // Неделя
+                    dateThreshold.setDate(today.getDate() - 7);
+                    break;
+                default:
+                    break;
+            }
+            
+            result = result.filter(profile => {
+                const profileDate = new Date(profile.posted);
+                return profileDate >= dateThreshold;
+            });
+        }
+
+        // Фильтр по типу работы
+        const activeWorkTypes = Object.entries(workTypeFilters)
+            .filter(([_, isActive]) => isActive)
+            .map(([type]) => {
+                switch(type) {
+                    case 'permanent': return 'Постоянная';
+                    case 'temporary': return 'Временная';
+                    case 'contract': return 'По контракту';
+                    case 'fullTime': return 'Полный рабочий день';
+                    case 'partTime': return 'Подработка';
+                    case 'remote': return 'Работа на дому';
+                    default: return '';
+                }
+            });
+        
+        if (activeWorkTypes.length > 0) {
+            result = result.filter(profile => 
+                activeWorkTypes.some(type => 
+                    profile.work_time?.includes(type)
+                )
+            );
+        }
+
+        // Фильтр по разместившим
+        const activePostedBy = Object.entries(postedByFilters)
+            .filter(([_, isActive]) => isActive)
+            .map(([type]) => type);
+        
+        if (activePostedBy.length > 0) {
+            // Здесь можно добавить логику фильтрации по типу разместившего
+        }
+
+        // Фильтр "Не показывать"
+        if (hideFilters.noExperience) {
+            result = result.filter(profile => 
+                profile.work_experience && profile.work_experience.length > 0
+            );
+        }
+        if (hideFilters.noEducation) {
+            result = result.filter(profile => 
+                profile.educations && profile.educations.length > 0
+            );
+        }
+
+        // Фильтр по специальности
+        const activeSpecialties = Object.keys(specialtyFilters)
+            .filter(specialty => specialtyFilters[specialty]);
+        
+        if (activeSpecialties.length > 0) {
+            result = result.filter(profile => 
+                activeSpecialties.some(specialty => 
+                    profile.profile_name.includes(specialty) || 
+                    (profile.skills && profile.skills.some(skill => skill.includes(specialty)))
+            ));
+        }
+
+        setFilteredProfiles(result);
+    }, [
+        searchParams.profession, 
+        searchParams.location,
+        salaryFrom, 
+        salaryTo, 
+        dateFilter,
+        workTypeFilters,
+        postedByFilters,
+        hideFilters,
+        specialtyFilters,
+        profiles
+    ]);
+
+    // Остальные обработчики остаются без изменений
+    const handleWorkTypeChange = (type) => {
+        setWorkTypeFilters(prev => ({ ...prev, [type]: !prev[type] }));
     };
 
-    useEffect(() => {
-      fetchProfiles();
-    }, []);
+    const handlePostedByChange = (type) => {
+        setPostedByFilters(prev => ({ ...prev, [type]: !prev[type] }));
+    };
+
+    const handleHideChange = (type) => {
+        setHideFilters(prev => ({ ...prev, [type]: !prev[type] }));
+    };
+
+    const handleExperienceChange = (type) => {
+        setExperienceFilters(prev => ({ ...prev, [type]: !prev[type] }));
+    };
+
+    const handleSpecialtyChange = (specialty) => {
+        setSpecialtyFilters(prev => ({ ...prev, [specialty]: !prev[specialty] }));
+    };
+
+    const handleResetFilters = () => {
+        setSalaryFrom('');
+        setSalaryTo('');
+        setDateFilter('');
+        setWorkTypeFilters({
+            permanent: false,
+            temporary: false,
+            contract: false,
+            fullTime: false,
+            partTime: false,
+            remote: false
+        });
+        setPostedByFilters({
+            agencies: false,
+            employers: false,
+            headhunt: false
+        });
+        setHideFilters({
+            noExperience: false,
+            noEducation: false
+        });
+        setExperienceFilters({
+            noExperience: false,
+            oneYear: false,
+            threeYears: false,
+            sixYears: false
+        });
+        setSpecialtyFilters({});
+    };
 
     const handleInviteClick = (candidate) => {
         setSelectedCandidate(candidate);
         setShowPopup(true);
     };
 
-
     const handleFavouriteClick = async (profileId) => {
-      const token = localStorage.getItem('authToken');
-      if (!token) {
-        alert('Для добавления в избранное необходимо авторизоваться');
-        return;
-      }
-
-      try {
-        // Оптимистичное обновление
-        setProfiles(prev => prev.map(profile => 
-          profile.profile_id === profileId 
-            ? { ...profile, isFavourite: !profile.isFavourite } 
-            : profile
-        ));
-
-        if (profiles.find(p => p.profile_id === profileId)?.isFavourite) {
-          // Удаление из избранного
-          await axios.delete(`http://localhost:5000/api/favourites-prof/${profileId}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-          }).catch(error => {
-            // Игнорируем ошибку 404
-            if (error.response?.status !== 404) throw error;
-          });
-        } else {
-          // Добавление в избранное
-          await axios.post(
-            'http://localhost:5000/api/favourites-prof',
-            { profile_id: profileId },
-            { headers: { 'Authorization': `Bearer ${token}` } }
-          );
+        const token = localStorage.getItem('authToken');
+        if (!token) {
+            alert('Для добавления в избранное необходимо авторизоваться');
+            return;
         }
-      } catch (error) {
-        console.error('Ошибка:', error);
-        // Откатываем изменения
-        setProfiles(prev => prev.map(profile => 
-          profile.profile_id === profileId 
-            ? { ...profile, isFavourite: !profile.isFavourite } 
-            : profile
-        ));
 
-        if (error.response?.status === 401) {
-          alert('Сессия истекла. Пожалуйста, войдите снова.');
-        } else if (error.response?.status !== 404) {
-          alert('Ошибка при обработке запроса');
+        try {
+            setProfiles(prev => prev.map(profile => 
+                profile.profile_id === profileId 
+                    ? { ...profile, isFavourite: !profile.isFavourite } 
+                    : profile
+            ));
+
+            if (profiles.find(p => p.profile_id === profileId)?.isFavourite) {
+                await axios.delete(`http://localhost:5000/api/favourites-prof/${profileId}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                }).catch(error => {
+                    if (error.response?.status !== 404) throw error;
+                });
+            } else {
+                await axios.post(
+                    'http://localhost:5000/api/favourites-prof',
+                    { profile_id: profileId },
+                    { headers: { 'Authorization': `Bearer ${token}` } }
+                );
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            setProfiles(prev => prev.map(profile => 
+                profile.profile_id === profileId 
+                    ? { ...profile, isFavourite: !profile.isFavourite } 
+                    : profile
+            ));
+
+            if (error.response?.status === 401) {
+                alert('Сессия истекла. Пожалуйста, войдите снова.');
+            } else if (error.response?.status !== 404) {
+                alert('Ошибка при обработке запроса');
+            }
         }
-      }
     };
 
     const handleSendInvitation = (invitationData) => {
@@ -110,6 +305,30 @@ export function Profiles() {
         return new Date(dateString).toLocaleDateString('ru-RU', options);
     };
 
+    useEffect(() => {
+        fetchProfiles();
+    }, [fetchProfiles]);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            applyFilters();
+        }, 300);
+    
+        return () => clearTimeout(timer);
+    }, [
+        searchParams.profession,
+        searchParams.location,
+        salaryFrom, 
+        salaryTo, 
+        dateFilter,
+        workTypeFilters,
+        postedByFilters,
+        hideFilters,
+        experienceFilters,
+        specialtyFilters,
+        profiles
+    ]);
+
     if (loading) return <div className="loading">Загрузка анкет...</div>;
     if (error) return <div className="error">{error}</div>;
 
@@ -117,183 +336,146 @@ export function Profiles() {
         <div className="main-vac">
             <div className="profiles-container">
                 <div className="filters">
-                    <h1>Найдено: <span>{profiles.length}</span> сотрудников</h1>
+                    <h1>Найдено: <span>{filteredProfiles.length}</span> сотрудников</h1>
                     <div className="clear-filter">
                         <h2>Текущие фильтры</h2> 
-                        <button>Сбросить фильтры</button>
-                    </div>
-                    <div className="added-filters">
-                        <a href="#">Полный рабочий день</a>
-                        <a href="#">Зарплата от 50000-70000</a>
-                        <a href="#">Требуемый опыт 3 года</a>
+                        <button onClick={handleResetFilters}>Сбросить фильтры</button>
                     </div>
                     <div className="salary">
                         <h2>Отфильтруй поиск</h2>
                         <h1>Диапазон зарплаты</h1>
                         <label htmlFor="salary-from">Зарплата от:</label>
-                        <input type="text" name='salary-from' placeholder='Минимальная ЗП сотруднику'/>
+                        <input 
+                            type="number" 
+                            name="salary-from" 
+                            value={salaryFrom}
+                            onChange={(e) => setSalaryFrom(e.target.value)}
+                            placeholder="Минимальная ЗП сотруднику"
+                        />
 
                         <label htmlFor="salary-to">Зарплата до:</label>
-                        <input type="text" name='salary-to' placeholder='Максимальная ЗП сотруднику'/>
+                        <input 
+                            type="number" 
+                            name="salary-to" 
+                            value={salaryTo}
+                            onChange={(e) => setSalaryTo(e.target.value)}
+                            placeholder="Максимальная ЗП сотруднику"
+                        />
                     </div>
+                    
+                    {/* Тип работы */}
                     <div className="jobs">
                         <h1>Тип предлагаемой работы</h1>
-                        <div className="job-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Постоянная: <span>{'(4,124)'}</span></p>
-                        </div>
-                        <div className="job-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Временная <span>{'(169)'}</span></p>
-                        </div>
-                        <div className="job-type">
-                            <input className='checker' type="checkbox" />
-                            <p>По контракту <span>{'(339)'}</span></p>
-                        </div>
-                        <div className="job-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Полная занятость <span>{'(4,518)'}</span></p>
-                        </div>
-                        <div className="job-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Подработки <span>{'(400)'}</span></p>
-                        </div>
-                        <div className="job-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Работа на дому <span>{'(4,162)'}</span></p>
-                        </div>
+                        {Object.entries({
+                            permanent: 'Постоянная',
+                            temporary: 'Временная',
+                            contract: 'По контракту',
+                            fullTime: 'Полная занятость',
+                            partTime: 'Подработка',
+                            remote: 'Работа на дому'
+                        }).map(([key, label]) => (
+                            <div className="job-type" key={key}>
+                                <input 
+                                    className="checker" 
+                                    type="checkbox" 
+                                    checked={workTypeFilters[key]}
+                                    onChange={() => handleWorkTypeChange(key)}
+                                />
+                                <p>{label}</p>
+                            </div>
+                        ))}
                     </div>
-                    <div className="posted">
-                        <h1>Размещено</h1>
-                        <div className="post-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Биржами труда <span>{'(4,162)'}</span></p>
-                        </div>
-                        <div className="post-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Сотрудниками <span>{'(9,162)'}</span></p>
-                        </div>
-                    </div>
+                    
+                    
+                    {/* Не показывать */}
                     <div className="dont-show">
                         <h1>Не показывать</h1>
-                        <div className="dont-show-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Сотрудников без опыта <span>{'(1,162)'}</span></p>
-                        </div>
-                        <div className="dont-show-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Без образования <span>{'(1,162)'}</span></p>
-                        </div>
+                        {Object.entries({
+                            noExperience: 'Сотрудников без опыта',
+                            noEducation: 'Без образования'
+                        }).map(([key, label]) => (
+                            <div className="dont-show-type" key={key}>
+                                <input 
+                                    className="checker" 
+                                    type="checkbox" 
+                                    checked={hideFilters[key]}
+                                    onChange={() => handleHideChange(key)}
+                                />
+                                <p>{label}</p>
+                            </div>
+                        ))}
                     </div>
+                    
+                    {/* Дата публикации */}
                     <div className="date">
                         <h1>Дата публикаций</h1>
-                        <select className='select-custom' id='date_option'>
-                            <option className='select-option' value="">Любая дата</option>
-                            <option className='select-option' value="option1">Сегодня</option>
-                            <option className='select-option' value="option2">Последние 3 дня</option>
-                            <option className='select-option' value="option3">Последняя неделя</option>
+                        <select 
+                            className="select-custom" 
+                            value={dateFilter}
+                            onChange={(e) => setDateFilter(e.target.value)}
+                        >
+                            <option value="">Любая дата</option>
+                            <option value="option1">Сегодня</option>
+                            <option value="option2">Последние 3 дня</option>
+                            <option value="option3">Последняя неделя</option>
                         </select>
                     </div>
+                    
+                    {/* Опыт работы */}
                     <div className="experiance">
                         <h1>Опыт работы</h1>
-                        <div className="dont-show-type">
-                            <input className='checker' type="checkbox" />
-                            <p>Без опыта работы <span>{'(1000)'}</span></p>
-                        </div>
-                        <div className="dont-show-type">
-                            <input className='checker' type="checkbox" />
-                            <p>От 1 года <span>{'(1,162)'}</span></p>
-                        </div>
-                        <div className="dont-show-type">
-                            <input className='checker' type="checkbox" />
-                            <p>От 3 лет <span>{'(7,162)'}</span></p>
-                        </div>
-                        <div className="dont-show-type">
-                            <input className='checker' type="checkbox" />
-                            <p>От 6 лет и выше <span>{'(3,162)'}</span></p>
-                        </div>
+                        {Object.entries({
+                            noExperience: 'Без опыта работы',
+                            oneYear: 'От 1 года',
+                            threeYears: 'От 3 лет',
+                            sixYears: 'От 6 лет и выше'
+                        }).map(([key, label]) => (
+                            <div className="dont-show-type" key={key}>
+                                <input 
+                                    className="checker" 
+                                    type="checkbox" 
+                                    checked={experienceFilters[key]}
+                                    onChange={() => handleExperienceChange(key)}
+                                />
+                                <p>{label}</p>
+                            </div>
+                        ))}
                     </div>
+                    
+                    {/* Специальность */}
                     <div className="specialty">
                         <h1>Специальность</h1>
-                        <div className='scroll-view'>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>IT и телекоммуникации <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Инженерия <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Финансовые услуги <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Здравоохранение <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Туризм <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Бухгалтерия <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Транспортная логистика <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Администрирование <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Маркетинг и PR <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Научная работа <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Медиа <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Торговля <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Тренинг <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Энергетика <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Фармацевтика <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Производство <span>{'(1,162)'}</span></p>
-                            </div>
-                            <div className="specialty-type">
-                                <input className='checker' type="checkbox" />
-                                <p>Агенство недвижимости <span>{'(1,162)'}</span></p>
-                            </div>
+                        <div className="scroll-view">
+                            {[
+                                'IT и телекоммуникации', 'Инженерия', 'Финансовые услуги',
+                                'Здравоохранение', 'Туризм', 'Бухгалтерия', 'Транспортная логистика',
+                                'Администрирование', 'Маркетинг и PR', 'Научная работа', 'Медиа',
+                                'Торговля', 'Тренинг', 'Энергетика', 'Фармацевтика', 'Производство',
+                                'Агенство недвижимости'
+                            ].map(specialty => (
+                                <div className="specialty-type" key={specialty}>
+                                    <input 
+                                        className="checker" 
+                                        type="checkbox" 
+                                        checked={specialtyFilters[specialty] || false}
+                                        onChange={() => handleSpecialtyChange(specialty)}
+                                    />
+                                    <p>{specialty}</p>
+                                </div>
+                            ))}
                         </div>
                     </div>
                 </div>
+
                 <div className="profiles">
                     <div className="head-profiles">
-                        <a href="#">Получать уведомления <span className='bell'>.....</span></a>
                         <p>Отсортировано по дате</p>
                     </div>
                     <div className="profiles-scrollblock">
-                        {profiles.map(profile => {
+                        {loading && <p>Загрузка анкет...</p>}
+                        {error && <p className="error-message">{error}</p>}
+                        {!loading && !error && filteredProfiles.length === 0 && <p>Анкет не найдено.</p>}
+                        {!loading && !error && filteredProfiles.map(profile => {
                             const user = profile.user || {};
                             const salaryRange = `${profile.salary_from ? profile.salary_from.toLocaleString() : '—'} - ${profile.salary_to ? profile.salary_to.toLocaleString() : '—'}`;
                             const experience = profile.work_experience?.[0] || 'Не указано';
@@ -341,8 +523,8 @@ export function Profiles() {
                                             </div>
                                             <div className="like-profile">
                                                 <button 
-                                                  className={profile.isFavourite ? 'liked' : 'unliked'} 
-                                                  onClick={() => handleFavouriteClick(profile.profile_id)}
+                                                    className={profile.isFavourite ? 'liked' : 'unliked'} 
+                                                    onClick={() => handleFavouriteClick(profile.profile_id)}
                                                 ></button>
                                                 <div className="profile-photo p1" style={{
                                                     backgroundImage: profile.profile_image ? `url(data:image/png;base64,${profile.profile_image})` : 'none'
@@ -429,12 +611,11 @@ export function Profiles() {
 
             {showPopup && selectedCandidate && (
                 <InvitationPopup
-                candidate={selectedCandidate}
-                onClose={() => setShowPopup(false)}
-                onSend={handleSendInvitation}
+                    candidate={selectedCandidate}
+                    onClose={() => setShowPopup(false)}
+                    onSend={handleSendInvitation}
                 />
             )}
         </div>
-        
     );
 }

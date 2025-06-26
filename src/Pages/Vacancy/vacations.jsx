@@ -253,7 +253,7 @@ export function Vacations({ searchParams }) {
       }
 
       try {
-        // Оптимистичное обновление
+        
         setVacations(prev => prev.map(vacation => 
           vacation.vacation_id === vacationId 
             ? { ...vacation, isFavourite: !vacation.isFavourite } 
@@ -261,15 +261,15 @@ export function Vacations({ searchParams }) {
         ));
 
         if (vacations.find(v => v.vacation_id === vacationId)?.isFavourite) {
-          // Удаление из избранного
+          
           await axios.delete(`http://localhost:5000/api/favourites-vac/${vacationId}`, {
             headers: { 'Authorization': `Bearer ${token}` }
           }).catch(error => {
-            // Игнорируем 404 ошибку - запись уже удалена
+            
             if (error.response?.status !== 404) throw error;
           });
         } else {
-          // Добавление в избранное
+          
           await axios.post(
             'http://localhost:5000/api/favourites',
             { vacation_id: vacationId },
@@ -278,7 +278,7 @@ export function Vacations({ searchParams }) {
         }
       } catch (error) {
         console.error('Ошибка:', error);
-        // Откатываем изменения
+        
         setVacations(prev => prev.map(vacation => 
           vacation.vacation_id === vacationId 
             ? { ...vacation, isFavourite: !vacation.isFavourite } 
@@ -300,11 +300,11 @@ export function Vacations({ searchParams }) {
     useEffect(() => {
       const timer = setTimeout(() => {
         applyFilters();
-      }, 300); // Дебаунс 300мс для оптимизации
+      }, 300); 
     
       return () => clearTimeout(timer);
     }, [
-      // Все зависимости, которые влияют на фильтрацию
+      
       searchParams.profession, 
       searchParams.location,
       searchTerm, 

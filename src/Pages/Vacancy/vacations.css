@@ -285,7 +285,6 @@
 .vacations{
     width: 45vw;   
     margin: 0 2vw;
-    margin-top: 4vw;
     height: auto;
     display: flex;
     flex-direction: column;
