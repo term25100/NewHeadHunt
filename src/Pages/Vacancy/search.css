@@ -93,6 +93,7 @@
     width: 10vw;
     height: 2vw;
     border-radius: .5em;
+    margin-right: 10vw;
     background-color: var(--banner-back);
     transition: all 0.6s ease-out;
 }
@@ -136,6 +137,15 @@
 
 .popular a:hover{
     background-color: rgba(255, 0, 242, 0.096);
+}
+
+.suggestions-list li{
+    font-size: .8vw;
+    cursor: pointer;
+    transition: all .4s ease-out;    
+}
+.suggestions-list li:hover{
+    color: var(--banner-back);
 }
 
 

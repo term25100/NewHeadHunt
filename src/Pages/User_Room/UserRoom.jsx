@@ -813,28 +813,6 @@ export function UserRoom({ activeTab }) {
                   onUpdate={fetchProfiles} // Функция для обновления списка профилей
                 />
               )}
-              <a
-                href="#"
-                className={!showArchived ? 'active-button' : 'default-button'}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setShowArchived(false);
-                  fetchProfiles();
-                }}
-              >
-                Активные анкеты
-              </a>
-              <a
-                href="#"
-                className={showArchived ? 'active-button' : 'default-button'}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setShowArchived(true);
-                  fetchProfiles();
-                }}
-              >
-                Архивные анкеты
-              </a>
             </div>
             <div className="profiles-scrollblock">
               {loadingProfiles && <p>Загрузка анкет...</p>}

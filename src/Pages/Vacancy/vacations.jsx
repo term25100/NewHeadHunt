@@ -142,7 +142,7 @@ export function Vacations({ searchParams }) {
                     case 'permanent': return 'Постоянная';
                     case 'temporary': return 'Временная';
                     case 'contract': return 'По контракту';
-                    case 'fullTime': return 'Полная занятость';
+                    case 'fullTime': return 'Полный рабочий день';
                     case 'partTime': return 'Подработка';
                     case 'remote': return 'Работа на дому';
                     default: return '';
@@ -164,9 +164,8 @@ export function Vacations({ searchParams }) {
         
         if (activePostedBy.length > 0) {
             result = result.filter(vac => {
-                // Здесь нужно добавить логику определения, кто разместил вакансию
-                // Например, если у вас есть поле posted_by в модели вакансии
-                return true; // Заглушка - нужно адаптировать под вашу структуру данных
+                
+                return true; 
             });
         }
 
@@ -299,8 +298,25 @@ export function Vacations({ searchParams }) {
     }, []);
 
     useEffect(() => {
+      const timer = setTimeout(() => {
         applyFilters();
-    }, [searchParams, vacations]);
+      }, 300); // Дебаунс 300мс для оптимизации
+    
+      return () => clearTimeout(timer);
+    }, [
+      // Все зависимости, которые влияют на фильтрацию
+      searchParams.profession, 
+      searchParams.location,
+      searchTerm, 
+      salaryFrom, 
+      salaryTo, 
+      dateFilter,
+      workTypeFilters,
+      postedByFilters,
+      hideFilters,
+      specialtyFilters,
+      vacations
+    ]);
 
 
     return(
