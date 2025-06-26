@@ -41,7 +41,130 @@ export function UserRoom({ activeTab }) {
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [resumeFile, setResumeFile] = useState(null);
-  
+
+  const [searchTerm, setSearchTerm] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
+  const [filteredVacations, setFilteredVacations] = useState([]);
+  const [workTypeFilters, setWorkTypeFilters] = useState({
+    permanent: false,
+    temporary: false,
+    fullTime: false,
+    partTime: false,
+    remote: false
+  });
+
+
+  const applyFilters = () => {
+    let result = vacations.filter(vac => vac.active !== showArchived);
+
+    
+    if (searchTerm) {
+      result = result.filter(vac => 
+        vac.vacation_name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
+
+    
+    if (dateFilter) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      switch (dateFilter) {
+        case 'option1': 
+          result = result.filter(vac => {
+            const vacDate = new Date(vac.posted);
+            return vacDate.toDateString() === today.toDateString();
+          });
+          break;
+
+        case 'option2': 
+          const threeDaysAgo = new Date(today);
+          threeDaysAgo.setDate(today.getDate() - 3);
+          result = result.filter(vac => {
+            const vacDate = new Date(vac.posted);
+            return vacDate >= threeDaysAgo;
+          });
+          break;
+
+        case 'option3': 
+          const weekAgo = new Date(today);
+          weekAgo.setDate(today.getDate() - 7);
+          result = result.filter(vac => {
+            const vacDate = new Date(vac.posted);
+            return vacDate >= weekAgo;
+          });
+          break;
+
+        case 'option4': 
+          const threeWeeksAgo = new Date(today);
+          threeWeeksAgo.setDate(today.getDate() - 21);
+          result = result.filter(vac => {
+            const vacDate = new Date(vac.posted);
+            return vacDate >= threeWeeksAgo;
+          });
+          break;
+
+        case 'option5': 
+          const monthAgo = new Date(today);
+          monthAgo.setMonth(today.getMonth() - 1);
+          result = result.filter(vac => {
+            const vacDate = new Date(vac.posted);
+            return vacDate >= monthAgo;
+          });
+          break;
+
+        default:
+          break;
+      }
+    }
+
+    const activeWorkTypeFilters = Object.entries(workTypeFilters)
+    .filter(([_, value]) => value)
+    .map(([key]) => {
+      switch(key) {
+        case 'permanent': return ['Полный рабочий день', 'Постоянная'];
+        case 'temporary': return ['Временная'];
+        case 'fullTime': return ['Полная занятость'];
+        case 'partTime': return ['Подработка'];
+        case 'remote': return ['Работа на дому', 'Удаленная работа'];
+        default: return [];
+      }
+    })
+    .flat(); 
+
+  if (activeWorkTypeFilters.length > 0) {
+    result = result.filter(vac => 
+      activeWorkTypeFilters.some(filter => 
+        vac.work_type.some(type => type.includes(filter))
+      )
+    );
+  }
+
+    setFilteredVacations(result);
+  };
+
+  useEffect(() => {
+    applyFilters();
+  }, [vacations, showArchived, searchTerm, dateFilter, workTypeFilters]);
+
+  const handleSearchTermChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const handleDateFilterChange = (e) => {
+    setDateFilter(e.target.value);
+  };
+
+  const handleSearchClick = () => {
+    applyFilters();
+  };
+
+  const handleWorkTypeChange = (type) => {
+    setWorkTypeFilters(prev => ({
+      ...prev,
+      [type]: !prev[type]
+    }));
+  };
 
   const handleEditUserClick = () => {
     setShowPasswordConfirm(true);
@@ -297,7 +420,7 @@ export function UserRoom({ activeTab }) {
       fetchFavouriteProfiles();
     }
   }, [activeTab]);
-  // Загружаем вакансии при открытии вкладки "vacancy" и при закрытии попапа добавления вакансии
+  
   useEffect(() => {
     if (activeTab === 'vacancy') {
       fetchVacations();
@@ -316,10 +439,10 @@ export function UserRoom({ activeTab }) {
       fetchProfiles();
     }
   }, [showPopupProfileAdd, activeTab]);
-  const filteredVacations = vacations.filter(vac => vac.active !== showArchived);
+  const filteredVacationsArchive = vacations.filter(vac => vac.active !== showArchived);
 
   
-  // Фильтруем только активные вакансии
+  
   const activeVacations = vacations.filter(vac => vac.active);
 
   const handleToggleArchived = () => {
@@ -509,72 +632,47 @@ export function UserRoom({ activeTab }) {
       {activeTab === "vacancy" && (
         <div className='main-container-vac'>
           <div className="filters-user">
-            <h1>Размещено: <span>{activeVacations.length}</span> вакансий</h1>
-            <div className="clear-filter">
-              <h2>Текущие фильтры</h2> 
-              <button>Сбросить фильтры</button>
-            </div>
-            <div className="added-filters">
-              <a href="#">Полный рабочий день</a>
-              <a href="#">Зарплата от 20000-40000</a>
-              <a href="#">Требуемый опыт 3 года</a>
-            </div>
+            <h1>Размещено: <span>{activeVacations.length}</span> вакансии</h1>
             <div className="salary">
-              <h2>Фильтр</h2>
+              <h2>Поиск</h2>
               <h1>Название вакансии</h1>
-              <label htmlFor="name-vac">Наименование вакансии:</label>
-              <input type="text" name='name-vac' placeholder='Введите название вакансии'/>
+              {/* <label htmlFor="name-vac">Наименование вакансии:</label> */}
+              <input type="text" name='name-vac' value={searchTerm} onChange={handleSearchTermChange} placeholder='Введите название вакансии'/>
             </div>
             <div className="jobs">
-              <h1>Тип работы</h1>
-              <div className="job-type">
-                <input className='checker' type="checkbox" />
-                <p>Постоянная <span>{'(4,124)'}</span></p>
-              </div>
-              <div className="job-type">
-                <input className='checker' type="checkbox" />
-                <p>Временная <span>{'(169)'}</span></p>
-              </div>
-              <div className="job-type">
-                <input className='checker' type="checkbox" />
-                <p>По контракту <span>{'(339)'}</span></p>
-              </div>
-              <div className="job-type">
-                <input className='checker' type="checkbox" />
-                <p>Полная занятость <span>{'(4,518)'}</span></p>
-              </div>
-              <div className="job-type">
-                <input className='checker' type="checkbox" />
-                <p>Подработки <span>{'(400)'}</span></p>
-              </div>
-              <div className="job-type">
-                <input className='checker' type="checkbox" />
-                <p>Работа на дому <span>{'(4,162)'}</span></p>
-              </div>
-            </div>
-            <div className="dont-show">
-              <h1>Не показывать</h1>
-              <div className="dont-show-type">
-                <input className='checker' type="checkbox" />
-                <p>Вакансии без зарплаты <span>{'(1,162)'}</span></p>
-              </div>
-              <div className="dont-show-type">
-                <input className='checker' type="checkbox" />
-                <p>Курсы <span>{'(1,162)'}</span></p>
-              </div>
-              <div className="dont-show-type">
-                <input className='checker' type="checkbox" />
-                <p>Волонтерство <span>{'(1,162)'}</span></p>
-              </div>
+                <h1>Тип работы</h1>
+                <div className="job-type">
+                    <input className='checker' type="checkbox"  checked={workTypeFilters.permanent} onChange={() => handleWorkTypeChange('permanent')}/>
+                    <p>Постоянная <span>{'(4,124)'}</span></p>
+                </div>
+                <div className="job-type">
+                    <input className='checker' type="checkbox" checked={workTypeFilters.temporary} onChange={() => handleWorkTypeChange('temporary')}/>
+                    <p>Временная <span>{'(169)'}</span></p>
+                </div>
+                <div className="job-type">
+                    <input className='checker' type="checkbox" checked={workTypeFilters.fullTime} onChange={() => handleWorkTypeChange('fullTime')}/>
+                    <p>Полная занятость <span>{'(4,518)'}</span></p>
+                </div>
+                <div className="job-type">
+                    <input className='checker' type="checkbox" checked={workTypeFilters.partTime} onChange={() => handleWorkTypeChange('partTime')}/>
+                    <p>Подработка <span>{'(400)'}</span></p>
+                </div>
+                <div className="job-type">
+                    <input className='checker' type="checkbox" checked={workTypeFilters.remote} onChange={() => handleWorkTypeChange('remote')}/>
+                    <p>Работа на дому <span>{'(4,162)'}</span></p>
+                </div>
             </div>
             <div className="date-user">
               <h1>Дата публикации</h1>
-              <select className='select-custom' id='date_option'>
+              <select className='select-custom' id='date_option' value={dateFilter} onChange={handleDateFilterChange}>
                 <option className='select-option' value="">Любая дата</option>
                 <option className='select-option' value="option1">Сегодня</option>
                 <option className='select-option' value="option2">Последние 3 дня</option>
                 <option className='select-option' value="option3">Последняя неделя</option>
+                <option className='select-option' value="option4">Последние 3 недели</option>
+                <option className='select-option' value="option5">Последний месяц</option>
               </select>
+              <button onClick={handleSearchClick} className='search-user-button'>Поиск вакансии</button>
             </div>
           </div>
           <div className="vacations-user">

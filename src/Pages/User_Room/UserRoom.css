@@ -359,3 +359,20 @@
 .response-button{
     font-size: .7vw;
 }
+
+.search-user-button{
+    margin: 1vw auto;
+    box-sizing: border-box;
+    width: fit-content;
+    padding: .5vw 1vw;
+    border: .1vw solid var(--banner-background);
+    border-radius: .4vw;
+    font-size: 1vw;
+    font-weight: 500;
+    color: var(--banner-background);
+    background-color: var(--primary-color);
+    transition: all .4s ease-out;
+}
+.search-user-button:hover{
+    background-color: rgba(0, 0, 61, 0.822);
+}
