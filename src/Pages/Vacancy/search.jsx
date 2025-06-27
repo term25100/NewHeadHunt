@@ -3,13 +3,24 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import LocationFinder from '../../location';
 
-export function Search({ onSearch }) {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [location, setLocation] = useState('');
+export function Search({ onSearch, initialParams}) {
+    const [searchTerm, setSearchTerm] = useState(initialParams?.profession || '');
+    const [location, setLocation] = useState(initialParams?.location || '');
+    // const [searchTerm, setSearchTerm] = useState('');
+    // const [location, setLocation] = useState('');
     const [suggestions, setSuggestions] = useState([]);
     const [vacationTitles, setVacationTitles] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        if (initialParams) {
+            setSearchTerm(initialParams.profession || '');
+            setLocation(initialParams.location || '');
+            if (initialParams.profession || initialParams.location) {
+                onSearch(initialParams.profession || '', initialParams.location || '');
+            }
+        }
+    }, [initialParams, onSearch]);
     // Получаем все названия вакансий при монтировании компонента
     useEffect(() => {
         const fetchVacationTitles = async () => {

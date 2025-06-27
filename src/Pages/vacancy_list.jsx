@@ -1,33 +1,51 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import { Search } from "./Vacancy/search";
 import { Vacations } from "./Vacancy/vacations";
-import { Footer } from "../footer"
-export class Vacancy_List extends Component{
-    constructor(props) {
-        super(props);
-        this.state = {
-            searchParams: {
-                profession: '',
-                location: ''
-            }
-        };
-    }
+import { Footer } from "../footer";
+import { useLocation } from "react-router-dom";
 
-    handleSearch = (profession, location) => {
-        this.setState({
-            searchParams: {
-                profession,
-                location
-            }
+export function Vacancy_List() {
+    const location = useLocation();
+    const [searchParams, setSearchParams] = useState({
+        profession: '',
+        location: ''
+    });
+
+    useEffect(() => {
+        if (location.state) {
+            setSearchParams({
+                profession: location.state.profession || '',
+                location: location.state.location || ''
+            });
+        }
+    }, [location.state]);
+
+    const handleSearch = (profession, location) => {
+        setSearchParams({
+            profession,
+            location
         });
     };
-    render(){
-        return(
-            <div>
-                <Search onSearch={this.handleSearch} />
-                <Vacations searchParams={this.state.searchParams} />
-                <Footer />
-            </div>
-        )
-    }
+
+    const handleParamsChange = (newParams) => {
+        setSearchParams(prev => ({
+            ...prev,
+            ...newParams
+        }));
+    };
+
+    return (
+        <div>
+            <Search 
+                onSearch={handleSearch} 
+                onParamsChange={handleParamsChange}
+                searchParams={searchParams} 
+            />
+            <Vacations 
+                searchParams={searchParams} 
+                initialSearch={!location.state} 
+            />
+            <Footer />
+        </div>
+    );
 }

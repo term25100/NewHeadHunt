@@ -80,7 +80,7 @@ export function Vacation_Body(){
         <div className="blue-description">
           <h1>{vacation_name || 'Вакансия'}</h1>
           <h2>Ты готов к работе, где ценят тебя по-настоящему?</h2>
-          <p>В компании «Диол» мы создаём не просто рабочие места — мы строим команду мечты!</p>
+          <p>В нашей компани мы создаём не просто рабочие места — мы строим команду мечты!</p>
           {company_site ? (
             <a href={company_site} className='goToCompany' target="_blank" rel="noreferrer">Перейти на сайт</a>
           ) : (

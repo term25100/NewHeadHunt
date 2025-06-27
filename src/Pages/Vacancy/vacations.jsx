@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 
-export function Vacations({ searchParams }) {
+export function Vacations({ searchParams, initialSearch }) {
     const [vacations, setVacations] = useState([]);
     const [filteredVacations, setFilteredVacations] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -72,20 +72,21 @@ export function Vacations({ searchParams }) {
     const applyFilters = useCallback((vacationsToFilter = vacations) => {
         let result = [...vacationsToFilter];
 
-        if (searchParams.profession) {
-            const professionLower = searchParams.profession.toLowerCase();
-            result = result.filter(vac => 
-                vac.vacation_name.toLowerCase().includes(professionLower)
-            );
-        }
+        if (searchParams.profession || searchParams.location || !initialSearch) {
+            if (searchParams.profession) {
+                const professionLower = searchParams.profession.toLowerCase();
+                result = result.filter(vac => 
+                    vac.vacation_name.toLowerCase().includes(professionLower)
+                );
+            }
 
-        // Фильтр по местоположению
-        if (searchParams.location) {
-            const locationLower = searchParams.location.toLowerCase();
-            result = result.filter(vac => 
-                vac.work_city.toLowerCase().includes(locationLower) ||
-                vac.work_adress.toLowerCase().includes(locationLower)
-            );
+            if (searchParams.location) {
+                const locationLower = searchParams.location.toLowerCase();
+                result = result.filter(vac => 
+                    vac.work_city.toLowerCase().includes(locationLower) ||
+                    vac.work_adress.toLowerCase().includes(locationLower)
+                );
+            }
         }
 
         
@@ -197,7 +198,7 @@ export function Vacations({ searchParams }) {
 
         setFilteredVacations(result);
     }, [
-        searchParams.profession, searchParams.location, searchTerm, salaryFrom, salaryTo, dateFilter, 
+        searchParams.profession, searchParams.location, initialSearch, searchTerm, salaryFrom, salaryTo, dateFilter, 
         workTypeFilters, postedByFilters, hideFilters, specialtyFilters, vacations
     ]);
 

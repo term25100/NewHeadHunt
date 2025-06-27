@@ -478,6 +478,7 @@ app.get('/api/vacations-extract-all/auth', authenticateUser, async (req, res) =>
   try {
     // 1. Получаем все вакансии
     const vacations = await Vacation.findAll({
+      where: { active: true },
       order: [['posted', 'DESC']]
     });
 
@@ -535,6 +536,7 @@ app.get('/api/vacations-extract-all', async (req, res) => {
   try {
     
     const vacations = await Vacation.findAll({
+      where: { active: true },
       order: [['posted', 'DESC']]
     });
 

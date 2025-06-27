@@ -62,7 +62,7 @@ export function Profile_Edit({ profileId, onClose, onUpdate }) {
             setDocPreview(profile.user_resume);
           } else {
             setDocName('');
-            setDocPreview(''); // Если резюме нет, то очищаем имя
+            setDocPreview(''); 
           }
         }
       } catch (err) {
@@ -96,7 +96,7 @@ export function Profile_Edit({ profileId, onClose, onUpdate }) {
     const reader = new FileReader();
     reader.onload = (event) => {
       const dataUrl = event.target.result;
-      const base64 = dataUrl.split(',')[1]; // base64 без префикса
+      const base64 = dataUrl.split(',')[1]; 
       setImagePreview(dataUrl);
       setFormData(prev => ({
         ...prev,
