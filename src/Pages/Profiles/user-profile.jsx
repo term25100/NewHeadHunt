@@ -25,8 +25,16 @@ export function User_Profile() {
         if (response.data.success) {
           setProfile(response.data.profile);
           
+          if (response.data.profile.user_id) {
+            const userResponse = await axios.get(`http://localhost:5000/api/user/${response.data.profile.user_id}`);
+            if (userResponse.data.success) {
+              setUser(userResponse.data.user);
+            }
+          }
           // Обработка изображения профиля
-          if (response.data.profile.profile_image) {
+          if (!response.data.profile.profile_image) {
+            setImageSrc(`data:image/png;base64,${user.data.user.user_image}`);
+          }else{
             const base64Image = `data:image/png;base64,${response.data.profile.profile_image}`;
             setImageSrc(base64Image);
           }
@@ -35,19 +43,6 @@ export function User_Profile() {
           if (response.data.profile.user_resume) {
             const base64Resume = `data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,${response.data.profile.user_resume}`;
             setResumeSrc(base64Resume);
-          }
-
-
-          if (response.data.profile.user_id) {
-            const userResponse = await axios.get(`http://localhost:5000/api/user/${response.data.profile.user_id}`);
-            if (userResponse.data.success) {
-              setUser(userResponse.data.user);
-              
-              // Устанавливаем аватар пользователя, если он есть
-              if (userResponse.data.user.user_image) {
-                setImageSrc(`data:image/png;base64,${userResponse.data.user.user_image}`);
-              }
-            }
           }
 
         } else {

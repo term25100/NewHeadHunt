@@ -114,7 +114,7 @@ export function Profile_Edit({ profileId, onClose, onUpdate }) {
     if (file && file.type.match('image.*')) {
       processImage(file);
     } else {
-      setError('Пожалуйста, загрузите изображение (PNG, JPG, SVG)');
+      setError('Пожалуйста, загрузите изображение (PNG, JPG)');
     }
   }, [processImage]);
 
@@ -123,7 +123,7 @@ export function Profile_Edit({ profileId, onClose, onUpdate }) {
     if (file && file.type.match('image.*')) {
       processImage(file);
     } else {
-      setError('Пожалуйста, выберите изображение (PNG, JPG, SVG)');
+      setError('Пожалуйста, выберите изображение (PNG, JPG)');
     }
   }, [processImage]);
 
@@ -482,7 +482,7 @@ export function Profile_Edit({ profileId, onClose, onUpdate }) {
                         className="file-input"
                       />
                     </label>
-                    <p className="file-requirements">PNG, JPG, SVG до 5MB</p>
+                    <p className="file-requirements">PNG, JPG до 5MB</p>
                   </div>
                 </>
               )}

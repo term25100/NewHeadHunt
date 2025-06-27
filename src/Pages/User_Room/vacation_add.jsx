@@ -444,7 +444,7 @@ export function Vacancy_Add({ onClose }) {
                         className="file-input"
                       />
                     </label>
-                    <p className="file-requirements">PNG, JPG, SVG до 5MB</p>
+                    <p className="file-requirements">PNG, JPG до 5MB</p>
                   </div>
                 </>
               )}

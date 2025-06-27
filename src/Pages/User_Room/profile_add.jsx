@@ -67,7 +67,7 @@ export function Profile_Add({ onClose }) {
     if (file && file.type.match('image.*')) {
       processImage(file);
     } else {
-      setError('Пожалуйста, загрузите изображение (PNG, JPG, SVG)');
+      setError('Пожалуйста, загрузите изображение (PNG, JPG)');
     }
   };
 
@@ -76,7 +76,7 @@ export function Profile_Add({ onClose }) {
     if (file && file.type.match('image.*')) {
       processImage(file);
     } else {
-      setError('Пожалуйста, выберите изображение (PNG, JPG, SVG)');
+      setError('Пожалуйста, выберите изображение (PNG, JPG)');
     }
   };
 
@@ -498,7 +498,7 @@ export function Profile_Add({ onClose }) {
                         className="file-input"
                       />
                     </label>
-                    <p className="file-requirements">PNG, JPG, SVG до 5MB</p>
+                    <p className="file-requirements">PNG, JPG до 5MB</p>
                   </div>
                 </>
               )}

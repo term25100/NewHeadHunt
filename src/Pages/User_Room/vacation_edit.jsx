@@ -464,15 +464,13 @@ export function Vacancy_Edit({ vacationId, onUpdateVacancies, onClose }) {
                 </div>
 
                 <div className="form-group checkbox-group">
-                  <label>
+                  <label>Сделать вакансию активной</label>
                     <input
                       type="checkbox"
                       name="active"
                       checked={formData.active}
                       onChange={handleChange}
                     />
-                    Сделать вакансию активной
-                  </label>
                 </div>
               </div>
 
