@@ -59,6 +59,7 @@
     box-sizing: border-box;
     padding: .5vw;
     display: flex; 
+    flex-direction: column;
     justify-content: center;
     margin: 0 auto;
     width: 70%;
@@ -136,4 +137,15 @@
     color: var(--banner-color);
     font-size: 1vw;
     font-weight: 600;
+}
+.suggestions-dropdown li{
+    margin: .3vw;
+    margin-left: .5vw;
+    font-size: .8vw;
+    transition: all .4s ease-out;
+    color: white;
+    cursor: pointer;
+}
+.suggestions-dropdown li:hover{
+    color: var(--banner-back);
 }

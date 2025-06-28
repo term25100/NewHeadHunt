@@ -115,18 +115,6 @@ export function Banner(){
                             value={searchTerm} 
                             onChange={(e) => setSearchTerm(e.target.value)} 
                         />
-                        {suggestions.length > 0 && (
-                            <ul className="suggestions-dropdown">
-                                {suggestions.map((suggestion, index) => (
-                                    <li 
-                                        key={index}
-                                        onClick={() => handleSuggestionClick(suggestion)}
-                                    >
-                                        {suggestion}
-                                    </li>
-                                ))}
-                            </ul>
-                        )}
                     </div>
                     <div className="location">
                         <label htmlFor="location">Место работы:</label>
@@ -141,6 +129,18 @@ export function Banner(){
                         </div>
                     </div>
                 </div>
+                {suggestions.length > 0 && (
+                    <ul className="suggestions-dropdown">
+                        {suggestions.map((suggestion, index) => (
+                            <li 
+                                key={index}
+                                onClick={() => handleSuggestionClick(suggestion)}
+                            >
+                                {suggestion}
+                            </li>
+                        ))}
+                    </ul>
+                )}
             </div>
             {loading ? (
                 <p>Загрузка данных о вакансиях...</p>

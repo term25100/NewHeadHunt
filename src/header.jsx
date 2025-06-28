@@ -1,8 +1,10 @@
 import './header.css'
 import { useState, useEffect } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import { useNavigate } from 'react-router-dom';
 export function Header(){
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
       const token = localStorage.getItem('authToken');
@@ -33,6 +35,25 @@ export function Header(){
         window.location.href = '/sign_in';
       }
     };
+
+    const handleFavoritesClick = (e) => {
+      e.preventDefault();
+      if (isLoggedIn) {
+        navigate('/user_room?tab=favorites');
+      } else {
+        window.location.href = '/sign_in';
+      }
+    };
+
+    const handleVacancyClick = (e) => {
+      e.preventDefault();
+      if (isLoggedIn) {
+        navigate('/user_room?tab=vacancy');
+      } else {
+        window.location.href = '/sign_in';
+      }
+    };
+
     return(
         <div className="header">
             <div className='main-container'>
@@ -42,10 +63,10 @@ export function Header(){
                     <a href="/profiles" className="menu-link">Анкеты</a> 
                     <a href="#" className="menu-link">Развитие карьеры</a>
                     <div className="divide"></div>   
-                    <a href="#" className="menu-link">Вы рекрут? <span className='special'>Разместите вакансию</span></a>
+                    <a className="menu-link" onClick={handleVacancyClick}>Вы рекрут? <span className='special'>Разместите вакансию</span></a>
                     <a href="/sign_up" className="menu-reg">Регистрация</a>
                     <a className="menu-link" onClick={handleSignInClick}>Вход</a>
-                    <a href="#" className="menu-link">Избранное  <span className='img'></span></a>
+                    <a className="menu-link" onClick={handleFavoritesClick}>Избранное  <span className='img'></span></a>
                 </nav>
             </div>
         </div>

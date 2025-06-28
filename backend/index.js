@@ -976,7 +976,7 @@ app.get('/api/profiles-extract', authenticateUser, async (req, res) => {
       order: [['posted', 'DESC']]
     });
     const user = await User.findByPk(req.user.userId, {
-      attributes: ['user_id', 'name'] 
+      attributes: ['user_id', 'name', 'user_image'] 
     });
     res.json({
       success: true,
@@ -1054,7 +1054,7 @@ app.get('/api/profiles-extract-all/auth', authenticateUser, async (req, res) => 
     const userIds = [...new Set(profiles.map(p => p.user_id).filter(Boolean))];
     const users = await User.findAll({
       where: { user_id: userIds },
-      attributes: ['user_id', 'name', 'email', 'phone'],
+      attributes: ['user_id', 'name', 'email', 'phone', 'user_image'],
       raw: true
     });
     
@@ -1101,7 +1101,7 @@ app.get('/api/profiles-extract-all', async (req, res) => {
     
     const users = await User.findAll({
       where: { user_id: userIds },
-      attributes: ['user_id', 'name', 'email', 'phone'] 
+      attributes: ['user_id', 'name', 'email', 'phone', 'user_image'] 
     });
 
     

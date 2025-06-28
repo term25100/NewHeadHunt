@@ -527,7 +527,7 @@ export function Profiles({ searchParams }) {
                                                     onClick={() => handleFavouriteClick(profile.profile_id)}
                                                 ></button>
                                                 <div className="profile-photo p1" style={{
-                                                    backgroundImage: profile.profile_image ? `url(data:image/png;base64,${profile.profile_image})` : 'none'
+                                                    backgroundImage: profile.profile_image ? `url(data:image/png;base64,${profile.profile_image})` : `url(data:image/png;base64,${user.user_image})`
                                                 }}></div>
                                             </div>
                                         </div>

@@ -1,9 +1,9 @@
 import './UserRoom.css'
+import { Link, useSearchParams } from 'react-router-dom';
 import { Vacancy_Add } from './vacation_add';
 import { Vacancy_Edit } from './vacation_edit';
 import axios from 'axios';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import myImage from '../Images/user.png';
 import { Profile_Add } from './profile_add';
 import { Profile_Edit } from './profile_edit';
@@ -41,6 +41,11 @@ export function UserRoom({ activeTab }) {
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [resumeFile, setResumeFile] = useState(null);
+
+  const [searchParams] = useSearchParams();
+  const currentTab = searchParams.get('tab') || 'vacancy';
+
+  
 
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState('');
@@ -402,43 +407,43 @@ export function UserRoom({ activeTab }) {
   };
 
   useEffect(()=>{
-    if(activeTab === 'user_menu'){
+    if(currentTab === 'user_menu'){
       fetchUserData();
     }
-  },[activeTab]);
+  },[currentTab]);
 
   useEffect(()=>{
-    if(activeTab === 'responses'){
+    if(currentTab === 'responses'){
       fetchResponseVacations();
       fetchResponseProfiles();
     }
-  }, [activeTab]);
+  }, [currentTab]);
 
   useEffect(() => {
-    if (activeTab === 'favorites') {
+    if (currentTab === 'favorites') {
       fetchFavoriteVacations();
       fetchFavouriteProfiles();
     }
-  }, [activeTab]);
+  }, [currentTab]);
   
   useEffect(() => {
-    if (activeTab === 'vacancy') {
+    if (currentTab === 'vacancy') {
       fetchVacations();
     }
-  }, [activeTab, showArchived]);
+  }, [currentTab, showArchived]);
 
   useEffect(() => {
-    if (!showPopupAdd && activeTab === 'vacancy') {
+    if (!showPopupAdd && currentTab === 'vacancy') {
       // Обновляем список вакансий после закрытия попапа (например, после добавления новой вакансии)
       fetchVacations();
     }
-  }, [showPopupAdd, activeTab]);
+  }, [showPopupAdd, currentTab]);
 
   useEffect(()=>{
-    if(!showPopupProfileAdd && activeTab === 'profiles'){
+    if(!showPopupProfileAdd && currentTab === 'profiles'){
       fetchProfiles();
     }
-  }, [showPopupProfileAdd, activeTab]);
+  }, [showPopupProfileAdd, currentTab]);
   const filteredVacationsArchive = vacations.filter(vac => vac.active !== showArchived);
 
   
@@ -629,7 +634,7 @@ export function UserRoom({ activeTab }) {
 
   return (
     <div className="user-room-content">
-      {activeTab === "vacancy" && (
+      {currentTab === "vacancy" && (
         <div className='main-container-vac'>
           <div className="filters-user">
             <h1>Размещено: <span>{activeVacations.length}</span> вакансии</h1>
@@ -791,7 +796,7 @@ export function UserRoom({ activeTab }) {
         </div>
       )}
 
-      {activeTab === "profiles" && (
+      {currentTab === "profiles" && (
         <div className='main-container-profiles'>
           <div className="profiles-user">
             <div className="head-profiles">
@@ -873,7 +878,7 @@ export function UserRoom({ activeTab }) {
                           style={{ 
                             backgroundImage: profile.profile_image 
                               ? `url(data:image/png;base64,${profile.profile_image})` 
-                              : 'url(default-profile-image.jpg)'
+                              : `url(data:image/png;base64,${userName.user_image})`
                           }}
                         ></div>
                       </div>
@@ -949,7 +954,7 @@ export function UserRoom({ activeTab }) {
         </div>
       )}
 
-      {activeTab === "responses" && (
+      {currentTab === "responses" && (
         <div className='main-responses-container'>
           <div className="vacation-response">
             <h1 className='response-h'>Отклики на вакансии</h1>
@@ -1044,7 +1049,7 @@ export function UserRoom({ activeTab }) {
         </div>  
       )}
 
-      {activeTab === "favorites" && (
+      {currentTab === "favorites" && (
         <div className='main-container-fav'>
           <div className='fav-vacations'>
             <h1>Избранные вакансии</h1>
@@ -1260,7 +1265,7 @@ export function UserRoom({ activeTab }) {
         </div>
       )}
 
-      {activeTab === "user_menu" && (
+      {currentTab === "user_menu" && (
         <div className="main-container">
           {showPasswordConfirm && (
             <PasswordConfirm 
