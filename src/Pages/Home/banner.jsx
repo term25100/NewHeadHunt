@@ -141,7 +141,6 @@ export function Banner(){
                         </div>
                     </div>
                 </div>
-                <a href="#" className='job-link'>Вакансии {'>'}</a>
             </div>
             {loading ? (
                 <p>Загрузка данных о вакансиях...</p>

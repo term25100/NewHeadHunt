@@ -294,7 +294,6 @@
     padding: .5vw;
     width: 50%;
     height: 40vw;
-    height: auto;
     color: var(--primary-color);
     font-size: .8vw;
 }
