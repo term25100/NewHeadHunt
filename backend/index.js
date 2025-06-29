@@ -892,6 +892,8 @@ app.post('/api/favourites-prof', authenticateUser, async (req, res) => {
 app.get('/api/favourites/vacations-extract', authenticateUser, async(req, res)=>{
   try {
     const userId = req.user.userId; 
+    
+
     const favorites = await Favourite.findAll({
       where: { 
         user_id: userId,
@@ -906,12 +908,36 @@ app.get('/api/favourites/vacations-extract', authenticateUser, async(req, res)=>
     const vacations = await Vacation.findAll({
       where: {
         vacation_id: vacationIds
-      }
+      },
+      raw: true
     });
+
+
+    const userIds = [...new Set(vacations.map(vac => vac.user_id))];
+
+    const users = await User.findAll({
+      where: {
+        user_id: userIds
+      },
+      attributes: ['user_id', 'name'],
+      raw: true
+    });
+
+
+    const userMap = users.reduce((acc, user) => {
+      acc[user.user_id] = user.name;
+      return acc;
+    }, {});
+
+
+    const result = vacations.map(vacation => ({
+      ...vacation,
+      user_name: userMap[vacation.user_id] || 'Компания'
+    }));
 
     res.json({
       success: true,
-      favoriteVacations: vacations.map(vac => vac.get({ plain: true }))
+      favoriteVacations: result
     });
   } catch (error) {
     console.error('Ошибка получения избранных вакансий:', error);
@@ -925,6 +951,7 @@ app.get('/api/favourites/vacations-extract', authenticateUser, async(req, res)=>
 app.get('/api/favourites/profiles-extract', authenticateUser, async(req, res)=>{
   try {
     const userId = req.user.userId; 
+    
     const favorites = await Favourite.findAll({
       where: { 
         user_id: userId,
@@ -939,18 +966,39 @@ app.get('/api/favourites/profiles-extract', authenticateUser, async(req, res)=>{
     const profiles = await Profile.findAll({
       where: {
         profile_id: profileIds
-      }
+      },
+      raw: true
     });
+
+    const userIds = [...new Set(profiles.map(prof => prof.user_id))];
+
+    const users = await User.findAll({
+      where: {
+        user_id: userIds
+      },
+      attributes: ['user_id', 'name'],
+      raw: true
+    });
+
+    const userMap = users.reduce((acc, user) => {
+      acc[user.user_id] = user.name;
+      return acc;
+    }, {});
+
+    const result = profiles.map(profile => ({
+      ...profile,
+      user_name: userMap[profile.user_id] || 'Пользователь'
+    }));
 
     res.json({
       success: true,
-      favoriteProfiles: profiles.map(prof => prof.get({ plain: true }))
+      favoriteProfiles: result
     });
   } catch (error) {
-    console.error('Ошибка получения избранных вакансий:', error);
+    console.error('Ошибка получения избранных анкет:', error);
     res.status(500).json({ 
       success: false,
-      message: 'Ошибка при получении избранных вакансий' 
+      message: 'Ошибка при получении избранных анкет' 
     });
   }
 });

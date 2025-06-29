@@ -206,6 +206,7 @@ export function Vacancy_Add({ onClose }) {
                     name="vacation_name"
                     value={formData.vacation_name}
                     onChange={handleChange}
+                    placeholder='Введите название свободной вакансии'
                     required
                   />
                 </div>
@@ -217,6 +218,7 @@ export function Vacancy_Add({ onClose }) {
                     name="salary_from"
                     value={formData.salary_from}
                     onChange={handleChange}
+                    placeholder='Введите минимальную зарплату на вакансии'
                     required
                   />
                 </div>
@@ -228,6 +230,7 @@ export function Vacancy_Add({ onClose }) {
                     name="salary_to"
                     value={formData.salary_to}
                     onChange={handleChange}
+                    placeholder='Введите максимальную зарплату на вакансии'
                     required
                   />
                 </div>
@@ -239,6 +242,7 @@ export function Vacancy_Add({ onClose }) {
                     name="work_type"
                     value={formData.work_type}
                     onChange={handleChange}
+                    placeholder='Перечислите типы работы: Полный рабочий день, частичная занятость'
                     required
                   />
                 </div>
@@ -250,6 +254,7 @@ export function Vacancy_Add({ onClose }) {
                     name="work_place"
                     value={formData.work_place}
                     onChange={handleChange}
+                    placeholder='Перечислите возможные места работы (через запятые): Предприятие, Офис'
                     required
                   />
                 </div>
@@ -260,6 +265,7 @@ export function Vacancy_Add({ onClose }) {
                     name="about_work_type"
                     value={formData.about_work_type}
                     onChange={handleChange}
+                    placeholder='Опишите специфику места работы'
                   />
                 </div>
               </div>
@@ -274,6 +280,7 @@ export function Vacancy_Add({ onClose }) {
                     name="work_region"
                     value={formData.work_region}
                     onChange={handleChange}
+                    placeholder='Область/регион'
                     required
                   />
                 </div>
@@ -285,6 +292,7 @@ export function Vacancy_Add({ onClose }) {
                     name="work_city"
                     value={formData.work_city}
                     onChange={handleChange}
+                    placeholder='Город в котором предоставляется работа'
                     required
                   />
                 </div>
@@ -296,6 +304,7 @@ export function Vacancy_Add({ onClose }) {
                     name="work_adress"
                     value={formData.work_adress}
                     onChange={handleChange}
+                    placeholder='Рабочий адрес'
                   />
                 </div>
 
@@ -306,6 +315,7 @@ export function Vacancy_Add({ onClose }) {
                     name="zip_code"
                     value={formData.zip_code}
                     onChange={handleChange}
+                    placeholder='Почтовый индекс для рабочего адреса'
                   />
                 </div>
                 <div className="form-group checkbox-group">
@@ -331,6 +341,7 @@ export function Vacancy_Add({ onClose }) {
                     name="company_email"
                     value={formData.company_email}
                     onChange={handleChange}
+                    placeholder='Введите почту отдела кадров'
                     required
                   />
                 </div>
@@ -342,6 +353,7 @@ export function Vacancy_Add({ onClose }) {
                     name="company_phone"
                     value={formData.company_phone}
                     onChange={handleChange}
+                    placeholder='Введите телефон отдела кадров'
                     required
                   />
                 </div>
@@ -353,6 +365,7 @@ export function Vacancy_Add({ onClose }) {
                     name="company_site"
                     value={formData.company_site}
                     onChange={handleChange}
+                    placeholder='Добавьте сайт компании'
                   />
                 </div>
               </div>
@@ -366,6 +379,7 @@ export function Vacancy_Add({ onClose }) {
                     name="work_description"
                     value={formData.work_description}
                     onChange={handleChange}
+                    placeholder='Опишите работу на данной вакансии (что требуется от сотрудника)'
                     required
                   />
                 </div>
@@ -377,6 +391,7 @@ export function Vacancy_Add({ onClose }) {
                     name="required_skills"
                     value={formData.required_skills}
                     onChange={handleChange}
+                    placeholder='Перечислите требуемые навыки (через зяпятую)'
                     required
                   />
                 </div>
@@ -387,6 +402,7 @@ export function Vacancy_Add({ onClose }) {
                     name="advantages_describe"
                     value={formData.advantages_describe}
                     onChange={handleChange}
+                    placeholder='Опишите преимущества работы'
                   />
                 </div>
 
@@ -397,6 +413,7 @@ export function Vacancy_Add({ onClose }) {
                     name="work_advantages"
                     value={formData.work_advantages}
                     onChange={handleChange}
+                    placeholder='Перечислите преимущества работы (через запятую)'
                   />
                 </div>
 
@@ -406,6 +423,7 @@ export function Vacancy_Add({ onClose }) {
                     name="additionally"
                     value={formData.additionally}
                     onChange={handleChange}
+                    placeholder='Опишите дополнительные условия или информацию '
                   />
                 </div>
               </div>

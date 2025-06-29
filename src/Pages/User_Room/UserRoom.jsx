@@ -1153,7 +1153,7 @@ export function UserRoom({ activeTab }) {
                         </Link>
                         <p className='post-message'>
                           Размещено <span id='date'>{new Date(profile.posted).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</span> 
-                          <span> пользователем: <a href="#" id='person'>{userName.name || 'Пользователь'}</a></span>
+                          <span> пользователем: <a href="#" id='person'>{profile.user_name || 'Пользователь'}</a></span>
                         </p>
                         <div className="descriptions">
                           <div className="descript-flex">
