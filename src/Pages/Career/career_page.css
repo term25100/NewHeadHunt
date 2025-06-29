@@ -1,0 +1,186 @@
+@import url(../Home/fonts.css);
+@import url(../../App.css);
+
+
+.career-container{
+    width: 80%;
+    margin: 0 auto;
+    margin-top: 4vw;   
+}
+
+.career-page {
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  max-width: 90vw;
+  margin: 0 auto;
+  padding: 2vw 0;
+}
+
+.career-header {
+  text-align: center;
+  margin-bottom: 4vw;
+}
+
+.career-header h1 {
+  font-size: 2.5vw;
+  color: #2c3e50;
+  margin-bottom: 1vw;
+}
+
+.career-header p {
+  font-size: 1.2vw;
+  color: #7f8c8d;
+}
+
+.career-article {
+  display: flex;
+  margin-bottom: 4vw;
+  background: #fff;
+  border-radius: 1vw;
+  overflow: hidden;
+  box-shadow: 0 0.5vw 1.5vw rgba(0,0,0,0.1);
+}
+
+.reverse {
+  flex-direction: row-reverse;
+}
+
+.article-image {
+  flex: 1;
+}
+
+.article-content {
+  flex: 1;
+  padding: 2vw;
+}
+
+.article-content h2 {
+  font-size: 1.5vw;
+  margin: 0 auto;
+  margin-bottom: 1vw;
+  color: #2c3e50;
+}
+
+.article-meta {
+  font-size: .9vw;
+  color: #95a5a6;
+  margin-bottom: 1.5vw;
+}
+
+.article-content p {
+  font-size: 1.2vw;
+  line-height: 1.6;
+  margin-bottom: 2vw;
+}
+
+.read-more {
+  background: var(--banner-background);
+  color: var(--primary-color);
+  border: none;
+  padding: 1vw 2vw;
+  font-size: 1.2vw;
+  font-weight: 600;
+  border-radius: 0.5vw;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.3s;
+}
+
+.read-more:hover {
+  background: #2980b9;
+}
+
+.career-tips {
+  margin-top: 5vw;
+  margin-bottom: 2vw;
+}
+
+.career-tips h2 {
+  font-size: 2.5vw;
+  text-align: center;
+  margin-bottom: 3vw;
+  color: #2c3e50;
+}
+
+.tips-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2vw;
+}
+
+.tip-card {
+  background: #fff;
+  padding: 2vw;
+  border-radius: 1vw;
+  text-align: center;
+  box-shadow: 0 0.5vw 1.5vw rgba(0,0,0,0.1);
+}
+
+.tip-icon {
+  font-size: 3vw;
+  margin-bottom: 1vw;
+}
+
+.tip-card h3 {
+  font-size: 1.5vw;
+  margin-bottom: 1vw;
+  color: #2c3e50;
+}
+
+.tip-card p {
+  font-size: 1.1vw;
+  color: #7f8c8d;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .career-article, .reverse {
+    flex-direction: column;
+  }
+  
+  .tips-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  /* Уменьшаем размеры шрифтов для мобильных */
+  .career-header h1 {
+    font-size: 5vw;
+  }
+  
+  .career-header p {
+    font-size: 2.5vw;
+  }
+  
+  .article-content h2 {
+    font-size: 3.5vw;
+  }
+  
+  .article-meta {
+    font-size: 2vw;
+  }
+  
+  .article-content p {
+    font-size: 2.2vw;
+  }
+  
+  .read-more {
+    font-size: 2.2vw;
+    padding: 1.5vw 3vw;
+  }
+  
+  .career-tips h2 {
+    font-size: 4vw;
+  }
+  
+  .tip-icon {
+    font-size: 5vw;
+  }
+  
+  .tip-card h3 {
+    font-size: 2.5vw;
+  }
+  
+  .tip-card p {
+    font-size: 2.1vw;
+  }
+}

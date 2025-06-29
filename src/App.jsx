@@ -11,6 +11,7 @@ import { User_Room } from './Pages/user_room';
 import { Profile_Card } from './Pages/profile_card';
 import { User_vacations } from './Pages/user_vacations';
 import { User_profiles } from './Pages/user_profiles';
+import { Career } from './Pages/career_advice';
 
 function AppContent() {
   const location = useLocation();
@@ -72,6 +73,11 @@ function AppContent() {
         <Route
           path='/profile/:profileId'
           element={<Profile_Card />}
+        />
+
+        <Route 
+          path='/career_advices' 
+          element={<Career />} 
         />
       </Routes>
     </>

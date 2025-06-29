@@ -61,7 +61,7 @@ export function Header(){
                 <nav className="menu">
                     <a href="/vacancy_list" className="menu-link">Вакансии</a>
                     <a href="/profiles" className="menu-link">Анкеты</a> 
-                    <a href="#" className="menu-link">Развитие карьеры</a>
+                    <a href="/career_advices" className="menu-link">Развитие карьеры</a>
                     <div className="divide"></div>   
                     <a className="menu-link" onClick={handleVacancyClick}>Вы рекрут? <span className='special'>Разместите вакансию</span></a>
                     <a href="/sign_up" className="menu-reg">Регистрация</a>
