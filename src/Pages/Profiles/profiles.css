@@ -41,7 +41,7 @@
 }
 .head-profiles p{
     font-size: 1vw;
-    font-weight: 800;
+    font-weight: 650;
 }
 
 .profiles-scrollblock{
@@ -181,4 +181,9 @@
 .description_about[open] summary::after{
     content: "▽";
     color: var(--banner-background);
+}
+
+.users_list{
+    font-size: 1vw!important;
+    font-weight: 400!important;
 }

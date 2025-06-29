@@ -10,6 +10,7 @@ import { Sign_Up } from './Pages/sign_up';
 import { User_Room } from './Pages/user_room';
 import { Profile_Card } from './Pages/profile_card';
 import { User_vacations } from './Pages/user_vacations';
+import { User_profiles } from './Pages/user_profiles';
 
 function AppContent() {
   const location = useLocation();
@@ -61,6 +62,11 @@ function AppContent() {
         <Route 
           path="/user_vacations/:userId" 
           element={<User_vacations />} 
+        />
+
+        <Route 
+          path="/user_profiles/:userId" 
+          element={<User_profiles />} 
         />
 
         <Route

@@ -1,8 +1,8 @@
 import react, { Component } from "react";
 import { Footer } from "../footer"
 import { Search_Profiles } from "./Profiles/search-profile";
-import { Profiles } from "./Profiles/profiles";
-export class Profile_List extends Component{
+import { User_Profiles } from "./Profiles/User_profiles";
+export class User_profiles extends Component{
     constructor(props) {
         super(props);
         this.state = {
@@ -25,7 +25,7 @@ export class Profile_List extends Component{
         return(
             <div>
                 <Search_Profiles onSearch={this.handleSearch}/>
-                <Profiles searchParams={this.state.searchParams}/>
+                <User_Profiles searchParams={this.state.searchParams}/>
                 <Footer/>
             </div>
         )

@@ -3,14 +3,17 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { InvitationPopup } from './invitation';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { useParams } from 'react-router-dom';
 
-export function Profiles({ searchParams }) {
+export function User_Profiles({ searchParams }) {
     const [showPopup, setShowPopup] = useState(false);
     const [selectedCandidate, setSelectedCandidate] = useState(null);
     const [profiles, setProfiles] = useState([]);
     const [filteredProfiles, setFilteredProfiles] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
+    const { userId } = useParams();
+    const [userInfo, setUserInfo] = useState(null);
     
     // Фильтры
     const [salaryFrom, setSalaryFrom] = useState('');
@@ -47,8 +50,8 @@ export function Profiles({ searchParams }) {
             setError('');
             const token = localStorage.getItem('authToken');
             const url = token 
-                ? 'http://localhost:5000/api/profiles-extract-all/auth'
-                : 'http://localhost:5000/api/profiles-extract-all';
+                ? `http://localhost:5000/api/profiles-by-user/${userId}/auth`
+                : `http://localhost:5000/api/profiles-by-user/${userId}`;
 
             const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
@@ -62,6 +65,11 @@ export function Profiles({ searchParams }) {
                 }));
                 setProfiles(normalizedProfiles);
                 applyFilters(normalizedProfiles);
+                
+                // Устанавливаем информацию о пользователе
+                if (response.data.user) {
+                    setUserInfo(response.data.user);
+                }
             } else {
                 setError(response.data.message || 'Ошибка загрузки анкет');
             }
@@ -70,7 +78,13 @@ export function Profiles({ searchParams }) {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [userId]);
+
+    useEffect(() => {
+        if (userId) {
+            fetchProfiles();
+        }
+    }, [userId, fetchProfiles]);
 
     const applyFilters = useCallback((profilesToFilter = profiles) => {
         let result = [...profilesToFilter];
@@ -470,6 +484,7 @@ export function Profiles({ searchParams }) {
 
                 <div className="profiles">
                     <div className="head-profiles">
+                        <p className='users_list'>Анкеты пользователя: {userInfo?.name || 'Неизвестный пользователь'}</p>
                         <p>Отсортировано по дате</p>
                     </div>
                     <div className="profiles-scrollblock">
@@ -490,7 +505,7 @@ export function Profiles({ searchParams }) {
                                                 <p className='post-message'>
                                                     Размещено <span id='date'>{new Date(profile.posted).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</span>
                                                     {user && (
-                                                        <span> пользователем: <Link to={`/user_profiles/${user.user_id}`}>{user.name || 'Неизвестный пользователь'}</Link></span>
+                                                        <span> пользователем: <Link to={`/user/${user.user_id}`}>{user.name || 'Неизвестный пользователь'}</Link></span>
                                                     )}
                                                 </p>
                                                 <div className="descriptions">

@@ -1153,6 +1153,124 @@ app.get('/api/profile/:id', async (req, res) => {
   }
 });
 
+app.get('/api/profiles-by-user/:userId/auth', authenticateUser, async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    
+    
+    const profiles = await Profile.findAll({
+      where: { 
+        user_id: userId
+      },
+      order: [['posted', 'DESC']]
+    });
+
+    
+    const user = await User.findOne({
+      where: { user_id: userId },
+      attributes: ['user_id', 'name', 'email', 'phone', 'user_image'],
+      raw: true
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Пользователь не найден'
+      });
+    }
+
+    
+    const favoriteProfileIds = await getFavoriteProfileIds(req.user.userId);
+
+    
+    const result = profiles.map(profile => {
+      const profileData = profile.get({ plain: true });
+      return {
+        ...profileData,
+        isFavourite: favoriteProfileIds.includes(profile.profile_id),
+        user: user 
+      };
+    });
+
+    res.json({
+      success: true,
+      user: user, 
+      profiles: result
+    });
+
+  } catch (error) {
+    console.error('Ошибка получения профилей пользователя:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка при получении профилей пользователя',
+      error: error.message
+    });
+  }
+});
+
+
+app.get('/api/profiles-by-user/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    
+    
+    const profiles = await Profile.findAll({
+      where: { 
+        user_id: userId
+      },
+      order: [['posted', 'DESC']]
+    });
+
+    
+    const user = await User.findOne({
+      where: { user_id: userId },
+      attributes: ['user_id', 'name', 'email', 'phone', 'user_image'],
+      raw: true
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Пользователь не найден'
+      });
+    }
+
+    // 3. Формируем ответ
+    const result = profiles.map(profile => ({
+      ...profile.get({ plain: true }),
+      user: user 
+    }));
+
+    res.json({
+      success: true,
+      user: user, 
+      profiles: result
+    });
+
+  } catch (error) {
+    console.error('Ошибка получения профилей пользователя:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка при получении профилей пользователя',
+      error: error.message
+    });
+  }
+});
+
+
+async function getFavoriteProfileIds(userId) {
+  const favorites = await Favourite.findAll({
+    where: { 
+      user_id: userId,
+      profile_id: { [Op.not]: null }
+    },
+    attributes: ['profile_id'],
+    raw: true
+  });
+  
+  return favorites.map(fav => fav.profile_id);
+}
+
 app.get('/api/profiles-extract-all/auth', authenticateUser, async (req, res) => {
   try {
     // 1. Получаем все анкеты
