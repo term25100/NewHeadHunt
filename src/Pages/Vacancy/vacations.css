@@ -315,7 +315,7 @@
 }
 .head-vac p{
     font-size: 1vw;
-    font-weight: 800;
+    font-weight: 650;
 }
 .bell{
     width: 1vw;
@@ -545,4 +545,7 @@
     background-color: rgba(4, 4, 70, 0.856);
     scale: 1.2;
 }
-
+.users_list{
+    font-size: 1vw!important;
+    font-weight: 400!important;
+}

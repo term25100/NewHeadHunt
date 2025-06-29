@@ -9,6 +9,7 @@ import { Sign_In } from './Pages/sign_in';
 import { Sign_Up } from './Pages/sign_up';
 import { User_Room } from './Pages/user_room';
 import { Profile_Card } from './Pages/profile_card';
+import { User_vacations } from './Pages/user_vacations';
 
 function AppContent() {
   const location = useLocation();
@@ -54,7 +55,12 @@ function AppContent() {
 
         <Route 
           path="/user_room" 
-          element={<User_Room />}
+          element={<User_Room activeTab="vacancy"/>} 
+        />
+
+        <Route 
+          path="/user_vacations/:userId" 
+          element={<User_vacations />} 
         />
 
         <Route

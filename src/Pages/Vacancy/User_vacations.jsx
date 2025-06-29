@@ -2,13 +2,15 @@ import './vacations.css';
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
-export function Vacations({ searchParams, initialSearch }) {
+export function User_Vacations({ searchParams, initialSearch }) {
     const [vacations, setVacations] = useState([]);
     const [filteredVacations, setFilteredVacations] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-
+    const { userId } = useParams();
+    const [userInfo, setUserInfo] = useState(null);
 
     const [searchTerm, setSearchTerm] = useState('');
     const [salaryFrom, setSalaryFrom] = useState('');
@@ -42,8 +44,8 @@ export function Vacations({ searchParams, initialSearch }) {
         try {
             const token = localStorage.getItem('authToken');
             const url = token 
-                ? 'http://localhost:5000/api/vacations-extract-all/auth'
-                : 'http://localhost:5000/api/vacations-extract-all';
+                ? `http://localhost:5000/api/vacations-by-user/${userId}/auth`
+                : `http://localhost:5000/api/vacations-by-user/${userId}`;
 
             const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
 
@@ -57,6 +59,11 @@ export function Vacations({ searchParams, initialSearch }) {
                 }));
                 setVacations(normalizedVacations);
                 applyFilters(normalizedVacations);
+                
+                // Если в ответе есть информация о пользователе
+                if (response.data.user) {
+                    setUserInfo(response.data.user);
+                }
             } else {
                 setError(response.data.message || 'Не удалось загрузить вакансии');
             }
@@ -66,8 +73,13 @@ export function Vacations({ searchParams, initialSearch }) {
         } finally {
             setLoading(false);
         }
-    }, []);
+    }, [userId]);
 
+    useEffect(() => {
+        if (userId) {
+            fetchVacations();
+        }
+    }, [userId, fetchVacations]);
 
     const applyFilters = useCallback((vacationsToFilter = vacations) => {
         let result = [...vacationsToFilter];
@@ -438,6 +450,7 @@ export function Vacations({ searchParams, initialSearch }) {
                 <div className="vacations">
                     <div className="head-vac">
                         {/* <a href="#">Получать уведомления <span className='bell'>.....</span></a> */}
+                        <p className='users_list'>Вакансии пользователя: {userInfo?.name || 'Неизвестный пользователь'}</p>
                         <p>Отсортировано по дате</p>
                     </div>
                     <div className="vac-scrollblock">
@@ -456,7 +469,7 @@ export function Vacations({ searchParams, initialSearch }) {
                                   <p className='post-message'>
                                     Размещено <span id='date'>{new Date(vacation.posted).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</span>
                                     {vacation.user && (
-                                    <span> пользователем: <Link to={`/user_vacations/${vacation.user.user_id}`}>{vacation.user.name}</Link></span>
+                                    <span> пользователем: <Link to={`/user/${vacation.user.user_id}`}>{vacation.user.name}</Link></span>
                                     )} 
                                   </p>
                                   <div className="descriptions">

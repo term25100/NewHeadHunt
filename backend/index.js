@@ -474,6 +474,128 @@ app.get('/api/vacations-extract', authenticateUser, async (req, res) => {
 });
 
 
+app.get('/api/vacations-by-user/:userId/auth', authenticateUser, async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    
+    // 1. Получаем вакансии пользователя
+    const vacations = await Vacation.findAll({
+      where: { 
+        user_id: userId,
+        active: true 
+      },
+      order: [['posted', 'DESC']]
+    });
+
+    // 2. Получаем информацию о пользователе
+    const user = await User.findOne({
+      where: { user_id: userId },
+      attributes: ['user_id', 'name', 'email', 'phone'],
+      raw: true
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Пользователь не найден'
+      });
+    }
+
+    // 3. Получаем ID избранных вакансий текущего пользователя
+    const favoriteVacationIds = await getFavoriteVacationIds(req.user.userId);
+
+    // 4. Формируем ответ
+    const result = vacations.map(vacation => {
+      const vacationData = vacation.get({ plain: true });
+      return {
+        ...vacationData,
+        isFavourite: favoriteVacationIds.includes(vacation.vacation_id),
+        user: user // Добавляем информацию о владельце вакансий
+      };
+    });
+
+    res.json({
+      success: true,
+      user: user, // Дополнительная информация о пользователе
+      count: result.length,
+      vacations: result
+    });
+
+  } catch (error) {
+    console.error('Ошибка получения вакансий пользователя:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка при получении вакансий пользователя',
+      error: error.message
+    });
+  }
+});
+
+// Получение вакансий пользователя (для неавторизованных)
+app.get('/api/vacations-by-user/:userId', async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    
+    // 1. Получаем вакансии пользователя
+    const vacations = await Vacation.findAll({
+      where: { 
+        user_id: userId,
+        active: true 
+      },
+      order: [['posted', 'DESC']]
+    });
+
+    // 2. Получаем информацию о пользователе
+    const user = await User.findOne({
+      where: { user_id: userId },
+      attributes: ['user_id', 'name', 'email', 'phone'],
+      raw: true
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Пользователь не найден'
+      });
+    }
+
+    // 3. Формируем ответ (без информации об избранном)
+    const result = vacations.map(vacation => ({
+      ...vacation.get({ plain: true }),
+      user: user // Добавляем информацию о владельце вакансий
+    }));
+
+    res.json({
+      success: true,
+      user: user, // Дополнительная информация о пользователе
+      count: result.length,
+      vacations: result
+    });
+
+  } catch (error) {
+    console.error('Ошибка получения вакансий пользователя:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Ошибка при получении вакансий пользователя',
+      error: error.message
+    });
+  }
+});
+
+// Вспомогательная функция для получения избранных вакансий
+async function getFavoriteVacationIds(userId) {
+  const favorites = await Favourite.findAll({
+    where: { 
+      user_id: userId,
+      vacation_id: { [Op.not]: null }
+    },
+    attributes: ['vacation_id'],
+    raw: true
+  });
+  
+  return favorites.map(fav => fav.vacation_id);
+}
+
 app.get('/api/vacations-extract-all/auth', authenticateUser, async (req, res) => {
   try {
     // 1. Получаем все вакансии

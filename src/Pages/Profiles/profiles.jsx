@@ -1,6 +1,7 @@
 import './profiles.css';
 import React, { useState, useEffect, useCallback } from 'react';
 import { InvitationPopup } from './invitation';
+import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 export function Profiles({ searchParams }) {
@@ -487,8 +488,10 @@ export function Profiles({ searchParams }) {
                                                 <p className="modificate">Продвинуто: Head / Hunt</p>
                                                 <a href={`/profile/${profile.profile_id}`} className='name-profile'>{profile.profile_name}</a>
                                                 <p className='post-message'>
-                                                    Размещено <span id='date'>{formatDate(profile.posted)}</span>{' '}
-                                                    <span>пользователем: <a href="#" id='person'>{user.name || 'Неизвестный пользователь'}</a></span>
+                                                    Размещено <span id='date'>{new Date(profile.posted).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}</span>
+                                                    {user && (
+                                                        <span> пользователем: <Link to={`/user/${user.user_id}`}>{user.name || 'Неизвестный пользователь'}</Link></span>
+                                                    )}
                                                 </p>
                                                 <div className="descriptions">
                                                     <div className="descript-flex">
